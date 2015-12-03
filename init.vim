@@ -19,7 +19,7 @@ Plug 'raichoo/purescript-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': function('UpdateRPlugin') }
 Plug 'leafgarland/typescript-vim'
 Plug 'clausreinke/typescript-tools.vim'
-Plug 'benekastah/neomake'
+Plug 'frigoeu/neomake', {'branch': 'master'}
 
 "Semicolon insertion
 Plug 'lfilho/cosco.vim'
@@ -39,7 +39,8 @@ syntax on
 filetype plugin indent on
 filetype plugin on
 
-let mapleader = "\<Space>"
+let mapleader=" "
+nnoremap <Space> <nop>
 
 "search all lowercase --> case insensitive, 
 "search with uppercases --> case sensitive
@@ -64,10 +65,10 @@ set shiftwidth=2
 set expandtab
 
 "navigate between splits
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
+nmap <C-H> <C-W><C-H>
+nmap <C-J> <C-W><C-J>
+nmap <C-K> <C-W><C-K>
+nmap <C-L> <C-W><C-L>
 nnoremap <silent> <leader>c :bp<CR> 
 nnoremap <silent> <leader>n :bnext<CR>
 nnoremap <silent> <leader>p :bprevious<CR>
@@ -83,14 +84,15 @@ inoremap {<CR> {<CR>}<C-o>O
 set noincsearch
 
 "semicolon insertion
-autocmd FileType c,cpp,css,java,javascript,perl,php,jade nmap <silent> ,; :call cosco#commaOrSemiColon()<CR>
-autocmd FileType c,cpp,css,java,javascript,perl,php,jade inoremap <silent> ,; <ESC>:call cosco#commaOrSemiColon()"<CR>a
+autocmd FileType c,cpp,css,java,javascript,perl,php,jade,typescript nmap <silent> <leader>; :call cosco#commaOrSemiColon()<CR>
+autocmd FileType c,cpp,css,java,javascript,perl,php,jade,typescript inoremap <silent> <leader>; <ESC>:call cosco#commaOrSemiColon()"<CR>a
 
 "CtrlP mappings
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 "Open ctrlp in filename mode (as opposed to full path) by default)
 let g:ctrlp_by_filename = 0
+let g:ctrlp_regexp = 1
 "Open file in vertical split with ctrl+c
 let g:ctrlp_prompt_mappings = {
     \ 'AcceptSelection("v")': ['<c-c>'],
@@ -148,5 +150,7 @@ set pumheight=5
 "Neomake
 "Autorun Neomake on save
 autocmd! BufWritePost * Neomake
+let g:neomake_verbose=0
+
 nnoremap <leader>n :try<bar>lnext<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>lfirst<bar>endtry<cr>
 nnoremap <leader>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
