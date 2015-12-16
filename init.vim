@@ -146,7 +146,7 @@ let g:deoplete#_omni_patterns = {}
 let g:deoplete#_omni_patterns.purescript = '[^.]'
 let g:deoplete#_omni_patterns.typescript =
 		\ ['[^. *\t]\.\w*', '\h\w*::']
-set completeopt=longest,menuone,noinsert
+set completeopt=longest,menuone
 "Amount of entries in completion popup
 set pumheight=5
 
