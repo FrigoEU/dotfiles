@@ -14,12 +14,19 @@ Plug 'easymotion/vim-easymotion'
 Plug 'mattn/emmet-vim'
 Plug 'Raimondi/delimitMate'
 Plug 'tpope/vim-surround'
-Plug 'frigoeu/psc-ide-vim'
 Plug 'raichoo/purescript-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': function('UpdateRPlugin') }
 Plug 'leafgarland/typescript-vim'
 Plug 'clausreinke/typescript-tools.vim'
-Plug 'frigoeu/neomake', {'branch': 'master'}
+
+"Plug 'frigoeu/neomake', {'branch': 'master'}
+Plug 'https://github.com/FrigoEU/neomake.git'
+
+"Plug 'frigoeu/psc-ide-vim'
+Plug 'https://github.com/FrigoEU/psc-ide-vim.git'
+
+Plug 'tpope/vim-commentary'
+"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
 "Semicolon insertion
 Plug 'lfilho/cosco.vim'
@@ -39,8 +46,7 @@ syntax on
 filetype plugin indent on
 filetype plugin on
 
-let mapleader=" "
-nnoremap <Space> <nop>
+let mapleader=","
 
 "search all lowercase --> case insensitive, 
 "search with uppercases --> case sensitive
@@ -69,9 +75,6 @@ nmap <C-H> <C-W><C-H>
 nmap <C-J> <C-W><C-J>
 nmap <C-K> <C-W><C-K>
 nmap <C-L> <C-W><C-L>
-nnoremap <silent> <leader>c :bp<CR> 
-nnoremap <silent> <leader>n :bnext<CR>
-nnoremap <silent> <leader>p :bprevious<CR>
 
 "new split directions
 :set splitbelow
@@ -84,8 +87,7 @@ inoremap {<CR> {<CR>}<C-o>O
 set noincsearch
 
 "semicolon insertion
-autocmd FileType c,cpp,css,java,javascript,perl,php,jade,typescript nmap <silent> <leader>; :call cosco#commaOrSemiColon()<CR>
-autocmd FileType c,cpp,css,java,javascript,perl,php,jade,typescript inoremap <silent> <leader>; <ESC>:call cosco#commaOrSemiColon()"<CR>a
+autocmd FileType c,cpp,css,java,javascript,perl,php,jade,typescript nmap <silent> ,; :call cosco#commaOrSemiColon()<CR>
 
 "CtrlP mappings
 let g:ctrlp_map = '<c-p>'
@@ -128,10 +130,11 @@ let g:EasyMotion_smartcase = 1
 "Pipe cursor in insert mode
 :let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 
-au FileType purescript nmap tt :PSCIDEtype<CR>
+au FileType purescript nmap <leader>t :PSCIDEtype<CR>
+au FileType purescript nmap <leader>s :PSCIDEsubstitute<CR>
 
 "typescript
-au FileType typescript nmap tt :TSStype<CR>
+au FileType typescript nmap <leader>t :TSStype<CR>
 au BufEnter *.ts silent! :TSSupdate<CR>
 "au VimEnter * :TSSstart<CR>
 "au VimLeave * :TSSend<CR>
@@ -143,7 +146,7 @@ let g:deoplete#_omni_patterns = {}
 let g:deoplete#_omni_patterns.purescript = '[^.]'
 let g:deoplete#_omni_patterns.typescript =
 		\ ['[^. *\t]\.\w*', '\h\w*::']
-set completeopt=longest,menuone
+set completeopt=longest,menuone,noinsert
 "Amount of entries in completion popup
 set pumheight=5
 
@@ -152,5 +155,5 @@ set pumheight=5
 autocmd! BufWritePost * Neomake
 let g:neomake_verbose=0
 
-nnoremap <leader>n :try<bar>lnext<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>lfirst<bar>endtry<cr>
-nnoremap <leader>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
+nnoremap <Space>n :try<bar>lnext<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>lfirst<bar>endtry<cr>
+nnoremap <Space>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
