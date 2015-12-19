@@ -147,7 +147,7 @@ nmap <leader>g <C-]>
 au FileType haskell nmap <leader>t :GhcModType<CR>
 au FileType haskell nmap <silent> <leader>r :GhcModTypeClear<CR>
 au FileType haskell nmap <leader>c :GhcModSplitFunCase<CR>
-au BufWritePost *.hs GhcModCheck
+au BufWritePost *.hs GhcModCheckAndLintAsync
 
 
 "typescript
