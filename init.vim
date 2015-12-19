@@ -14,19 +14,26 @@ Plug 'easymotion/vim-easymotion'
 Plug 'mattn/emmet-vim'
 Plug 'Raimondi/delimitMate'
 Plug 'tpope/vim-surround'
-Plug 'raichoo/purescript-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': function('UpdateRPlugin') }
+Plug 'tpope/vim-commentary'
+
+
+"Haskell
+"Vimproc is needed for ghcmod-vim
+Plug 'Shougo/vimproc.vim', { 'do': 'make' }
+Plug 'eagletmt/ghcmod-vim'
+Plug 'eagletmt/neco-ghc'
+Plug 'neovimhaskell/haskell-vim'
+
+Plug 'scrooloose/syntastic'
+"Plug 'https://github.com/FrigoEU/neomake.git'
+
+Plug 'https://github.com/FrigoEU/psc-ide-vim.git'
+Plug 'raichoo/purescript-vim'
+
 Plug 'leafgarland/typescript-vim'
 Plug 'clausreinke/typescript-tools.vim'
 
-"Plug 'frigoeu/neomake', {'branch': 'master'}
-Plug 'https://github.com/FrigoEU/neomake.git'
-
-"Plug 'frigoeu/psc-ide-vim'
-Plug 'https://github.com/FrigoEU/psc-ide-vim.git'
-
-Plug 'tpope/vim-commentary'
-"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
 "Semicolon insertion
 Plug 'lfilho/cosco.vim'
@@ -130,8 +137,18 @@ let g:EasyMotion_smartcase = 1
 "Pipe cursor in insert mode
 :let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 
+"Purescript
 au FileType purescript nmap <leader>t :PSCIDEtype<CR>
-au FileType purescript nmap <leader>s :PSCIDEsubstitute<CR>
+au FileType purescript nmap <leader>s :PSCIDEapplySuggestion<CR>
+au FileType purescript nmap <leader>p :PSCIDEpursuit<CR>
+nmap <leader>g <C-]>
+
+"Haskell
+au FileType haskell nmap <leader>t :GhcModType<CR>
+au FileType haskell nmap <silent> <leader>r :GhcModTypeClear<CR>
+au FileType haskell nmap <leader>c :GhcModSplitFunCase<CR>
+au BufWritePost *.hs GhcModCheck
+
 
 "typescript
 au FileType typescript nmap <leader>t :TSStype<CR>
@@ -144,6 +161,7 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#_omni_patterns = {}
 "TODO
 let g:deoplete#_omni_patterns.purescript = '[^.]'
+let g:deoplete#_omni_patterns.haskell = '[^.]'
 let g:deoplete#_omni_patterns.typescript =
 		\ ['[^. *\t]\.\w*', '\h\w*::']
 set completeopt=longest,menuone
@@ -152,8 +170,18 @@ set pumheight=5
 
 "Neomake
 "Autorun Neomake on save
-autocmd! BufWritePost * Neomake
+"autocmd! BufWritePost * Neomake
 let g:neomake_verbose=0
+
+"Syntastic
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
 nnoremap <Space>n :try<bar>lnext<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>lfirst<bar>endtry<cr>
 nnoremap <Space>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
