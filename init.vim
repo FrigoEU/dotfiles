@@ -7,16 +7,21 @@ function! UpdateRPlugin(info)
   endif
 endfunction
 
+"General stuff
 Plug 'scrooloose/nerdtree'
 Plug 'ctrlpvim/ctrlp.vim'
 "Plug 'bling/vim-airline'
 Plug 'easymotion/vim-easymotion'
-Plug 'mattn/emmet-vim'
 Plug 'Raimondi/delimitMate'
 Plug 'tpope/vim-surround'
 Plug 'Shougo/deoplete.nvim', { 'do': function('UpdateRPlugin') }
 Plug 'tpope/vim-commentary'
+Plug 'scrooloose/syntastic'
+Plug 'junegunn/vim-easy-align'
+"Plug 'https://github.com/FrigoEU/neomake.git'
 
+"HTML
+Plug 'mattn/emmet-vim'
 
 "Haskell
 "Vimproc is needed for ghcmod-vim
@@ -24,15 +29,18 @@ Plug 'Shougo/vimproc.vim', { 'do': 'make' }
 Plug 'eagletmt/ghcmod-vim'
 Plug 'eagletmt/neco-ghc'
 Plug 'neovimhaskell/haskell-vim'
+Plug 'mwnx/flashy-haskell'
 
-Plug 'scrooloose/syntastic'
-"Plug 'https://github.com/FrigoEU/neomake.git'
-
+"Purescript
 Plug 'https://github.com/FrigoEU/psc-ide-vim.git'
 Plug 'raichoo/purescript-vim'
 
+"Typescript
 Plug 'leafgarland/typescript-vim'
 Plug 'clausreinke/typescript-tools.vim'
+
+"Idris
+Plug 'idris-hackers/idris-vim'
 
 
 "Semicolon insertion
@@ -96,6 +104,13 @@ set noincsearch
 "semicolon insertion
 autocmd FileType c,cpp,css,java,javascript,perl,php,jade,typescript nmap <silent> ,; :call cosco#commaOrSemiColon()<CR>
 
+" Easy-align
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
 "CtrlP mappings
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
@@ -141,6 +156,7 @@ let g:EasyMotion_smartcase = 1
 au FileType purescript nmap <leader>t :PSCIDEtype<CR>
 au FileType purescript nmap <leader>s :PSCIDEapplySuggestion<CR>
 au FileType purescript nmap <leader>p :PSCIDEpursuit<CR>
+au FileType purescript nmap <leader>c :PSCIDEcaseSplit<CR>
 nmap <leader>g <C-]>
 
 "Haskell
@@ -158,12 +174,9 @@ au BufEnter *.ts silent! :TSSupdate<CR>
 
 "Deoplete
 let g:deoplete#enable_at_startup = 1
-let g:deoplete#_omni_patterns = {}
-"TODO
-let g:deoplete#_omni_patterns.purescript = '[^.]'
-let g:deoplete#_omni_patterns.haskell = '[^.]'
-let g:deoplete#_omni_patterns.typescript =
-		\ ['[^. *\t]\.\w*', '\h\w*::']
+let g:deoplete#omni#input_patterns = {}
+let g:deoplete#omni#input_patterns.purescript = '[^. *\t]'
+let g:deoplete#omni#input_patterns.haskell = '[^. *\t]'
 set completeopt=longest,menuone
 "Amount of entries in completion popup
 set pumheight=5
@@ -180,8 +193,9 @@ set statusline+=%*
 
 let g:syntastic_always_populate_loc_list = 1
 "let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
+let g:syntastic_javascript_checkers = ['eslint']
 
 nnoremap <Space>n :try<bar>lnext<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>lfirst<bar>endtry<cr>
 nnoremap <Space>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
