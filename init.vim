@@ -18,6 +18,7 @@ Plug 'Shougo/deoplete.nvim', { 'do': function('UpdateRPlugin') }
 Plug 'tpope/vim-commentary'
 Plug 'scrooloose/syntastic'
 Plug 'junegunn/vim-easy-align'
+Plug 'tpope/vim-repeat'
 "Plug 'https://github.com/FrigoEU/neomake.git'
 
 "HTML
@@ -38,6 +39,7 @@ Plug 'raichoo/purescript-vim'
 "Typescript
 Plug 'leafgarland/typescript-vim'
 Plug 'clausreinke/typescript-tools.vim'
+"Plug 'Quramy/tsuquyomi'
 
 "Idris
 Plug 'idris-hackers/idris-vim'
@@ -91,9 +93,20 @@ nmap <C-J> <C-W><C-J>
 nmap <C-K> <C-W><C-K>
 nmap <C-L> <C-W><C-L>
 
+command! RELOAD exe "so $MYVIMRC"
+
 "new split directions
 :set splitbelow
 :set splitright
+
+"move lines
+"nnoremap mj :m .+1<CR>
+nnoremap mj :m .+1<CR>:call repeat#set("mj", v:count)<CR>
+nnoremap mk :m .-2<CR>:call repeat#set("mk", v:count)<CR>
+vnoremap mj :m '>+1<CR>gv
+vnoremap mk :m '<-2<CR>gv
+" vnoremap mj :m '>+1<CR>:call repeat#set("mj", -1)<CR>gv
+" vnoremap mk :m '<-2<CR>:call repeat#set("mk", -1)<CR>gv
 
 "auto indent between brackets
 inoremap {<CR> {<CR>}<C-o>O
@@ -153,11 +166,29 @@ let g:EasyMotion_smartcase = 1
 :let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 
 "Purescript
+"let g:psc_ide_log_level = 3
 au FileType purescript nmap <leader>t :PSCIDEtype<CR>
 au FileType purescript nmap <leader>s :PSCIDEapplySuggestion<CR>
 au FileType purescript nmap <leader>p :PSCIDEpursuit<CR>
 au FileType purescript nmap <leader>c :PSCIDEcaseSplit<CR>
+au FileType purescript nmap <leader>a :PSCIDEaddTypeAnnotation<CR>
+au FileType purescript nmap <leader>i :PSCIDEimportIdentifier<CR>
+au FileType purescript nmap <leader>qd :PSCIDEremoveImportQualifications<CR>
+au FileType purescript nmap <leader>qa :PSCIDEaddImportQualifications<CR>
 nmap <leader>g <C-]>
+
+" au FileType purescript set foldmethod=expr
+au FileType purescript nmap <leader>fm :set foldmethod=manual<CR>zE<CR>
+au FileType purescript nmap <leader>fe :set foldmethod=expr<CR>
+au FileType purescript set foldexpr=PureScriptFoldLevel(v:lnum)
+
+au FileType purescript set conceallevel=1
+au FileType purescript set concealcursor=nvc
+au FileType purescript syn keyword purescriptForall forall conceal cchar=∀ 
+
+function! PureScriptFoldLevel(l)
+  return getline(a:l) =~ "^\d*import"
+endfunction
 
 "Haskell
 au FileType haskell nmap <leader>t :GhcModType<CR>
@@ -171,6 +202,7 @@ au FileType typescript nmap <leader>t :TSStype<CR>
 au BufEnter *.ts silent! :TSSupdate<CR>
 "au VimEnter * :TSSstart<CR>
 "au VimLeave * :TSSend<CR>
+"let g:syntastic_typescript_tsc_fname = ''
 
 "Deoplete
 let g:deoplete#enable_at_startup = 1
@@ -184,7 +216,7 @@ set pumheight=5
 "Neomake
 "Autorun Neomake on save
 "autocmd! BufWritePost * Neomake
-let g:neomake_verbose=0
+"let g:neomake_verbose=0
 
 "Syntastic
 set statusline+=%#warningmsg#
@@ -192,10 +224,10 @@ set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
 let g:syntastic_always_populate_loc_list = 1
-"let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
 let g:syntastic_javascript_checkers = ['eslint']
+let g:syntastic_typescript_checkers = ['tsc', 'tslint']
 
 nnoremap <Space>n :try<bar>lnext<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>lfirst<bar>endtry<cr>
 nnoremap <Space>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
