@@ -20,6 +20,12 @@ Plug 'scrooloose/syntastic'
 Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-repeat'
 "Plug 'https://github.com/FrigoEU/neomake.git'
+Plug 'chriskempson/base16-vim'
+Plug 'Konfekt/FastFold'
+Plug 'mileszs/ack.vim'
+
+"Javascript
+Plug 'pangloss/vim-javascript'
 
 "HTML
 Plug 'mattn/emmet-vim'
@@ -27,10 +33,10 @@ Plug 'mattn/emmet-vim'
 "Haskell
 "Vimproc is needed for ghcmod-vim
 Plug 'Shougo/vimproc.vim', { 'do': 'make' }
-Plug 'eagletmt/ghcmod-vim'
+" Plug 'eagletmt/ghcmod-vim'
 Plug 'eagletmt/neco-ghc'
 Plug 'neovimhaskell/haskell-vim'
-Plug 'mwnx/flashy-haskell'
+Plug 'parsonsmatt/intero-neovim'
 
 "Purescript
 Plug 'https://github.com/FrigoEU/psc-ide-vim.git'
@@ -51,8 +57,13 @@ Plug 'lfilho/cosco.vim'
 "hide status line
 set laststatus=0
 
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+
 colorscheme base16-default
 set background=dark
+
+" colorscheme base16-summerfruit
+" set background=light
 
 "open NERDTree
 noremap <silent> <F2> :NERDTreeFind<CR>
@@ -73,6 +84,9 @@ set infercase
 
 "highlight search result
 set hlsearch
+
+"Force operators to be shown like keywords... TBD
+highlight! link Operator Keyword
 
 "stay 10 lines away from top and bottom when scrolling
 set scrolloff=10
@@ -165,36 +179,48 @@ let g:EasyMotion_smartcase = 1
 "Pipe cursor in insert mode
 :let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 
+"JavaScript / Angular
+let g:syntastic_html_tidy_ignore_errors=['proprietary attribute "ng-']
+
 "Purescript
-"let g:psc_ide_log_level = 3
-au FileType purescript nmap <leader>t :PSCIDEtype<CR>
+" let g:psc_ide_log_level = 3
+au FileType purescript map <leader>t :PSCIDEtype<CR>
 au FileType purescript nmap <leader>s :PSCIDEapplySuggestion<CR>
 au FileType purescript nmap <leader>p :PSCIDEpursuit<CR>
 au FileType purescript nmap <leader>c :PSCIDEcaseSplit<CR>
 au FileType purescript nmap <leader>a :PSCIDEaddTypeAnnotation<CR>
 au FileType purescript nmap <leader>i :PSCIDEimportIdentifier<CR>
+au FileType purescript nmap <leader>r :PSCIDEload<CR>
 au FileType purescript nmap <leader>qd :PSCIDEremoveImportQualifications<CR>
 au FileType purescript nmap <leader>qa :PSCIDEaddImportQualifications<CR>
 nmap <leader>g <C-]>
+au FileType purescript nmap <leader>g :PSCIDEgoToDefinition<CR>
 
 " au FileType purescript set foldmethod=expr
 au FileType purescript nmap <leader>fm :set foldmethod=manual<CR>zE<CR>
 au FileType purescript nmap <leader>fe :set foldmethod=expr<CR>
-au FileType purescript set foldexpr=PureScriptFoldLevel(v:lnum)
+au FileType purescript setlocal foldexpr=PureScriptFoldLevel(v:lnum)
 
-au FileType purescript set conceallevel=1
-au FileType purescript set concealcursor=nvc
-au FileType purescript syn keyword purescriptForall forall conceal cchar=∀ 
+"au FileType purescript set conceallevel=1
+"au FileType purescript set concealcursor=nvc
+"au FileType purescript syn keyword purescriptForall forall conceal cchar=∀ 
+"let g:psc_ide_syntastic_mode = 1
 
 function! PureScriptFoldLevel(l)
   return getline(a:l) =~ "^\d*import"
 endfunction
 
 "Haskell
-au FileType haskell nmap <leader>t :GhcModType<CR>
-au FileType haskell nmap <silent> <leader>r :GhcModTypeClear<CR>
-au FileType haskell nmap <leader>c :GhcModSplitFunCase<CR>
-au BufWritePost *.hs GhcModCheckAndLintAsync
+" au FileType haskell nmap <leader>t :GhcModType<CR>
+" au FileType haskell nmap <silent> <leader>r :GhcModTypeClear<CR>
+" au FileType haskell nmap <leader>c :GhcModSplitFunCase<CR>
+" au FileType haskell nmap <leader>i :GhcModInfo<CR>
+" au BufWritePost *.hs GhcModCheckAndLintAsync
+
+au FileType haskell nnoremap <Leader>t :InteroType<CR>
+au FileType haskell nnoremap <Leader>i :InteroInfo<CR>
+au FileType haskell nnoremap <Leader>g :InteroGoToDef<CR>
+" autocmd! BufWritePost *.hs InteroReload
 
 
 "typescript
@@ -202,7 +228,7 @@ au FileType typescript nmap <leader>t :TSStype<CR>
 au BufEnter *.ts silent! :TSSupdate<CR>
 "au VimEnter * :TSSstart<CR>
 "au VimLeave * :TSSend<CR>
-"let g:syntastic_typescript_tsc_fname = ''
+let g:syntastic_typescript_tsc_fname = ''
 
 "Deoplete
 let g:deoplete#enable_at_startup = 1
@@ -212,11 +238,13 @@ let g:deoplete#omni#input_patterns.haskell = '[^. *\t]'
 set completeopt=longest,menuone
 "Amount of entries in completion popup
 set pumheight=5
+let g:deoplete#max_menu_width = 60
+
 
 "Neomake
 "Autorun Neomake on save
 "autocmd! BufWritePost * Neomake
-"let g:neomake_verbose=0
+let g:neomake_verbose=0
 
 "Syntastic
 set statusline+=%#warningmsg#
@@ -229,5 +257,14 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_typescript_checkers = ['tsc', 'tslint']
 
-nnoremap <Space>n :try<bar>lnext<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>lfirst<bar>endtry<cr>
-nnoremap <Space>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
+highlight SyntasticWarningSign guifg=black guibg=yellow
+highlight SyntasticStyleWarningSign guifg=black guibg=yellow
+
+nnoremap <leader>n :try<bar>lnext<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>lfirst<bar>endtry<cr>
+nnoremap <leader>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
+
+" Ack
+nnoremap <leader>a :Ack! <CR>
+" Setting ack shortcuts to open in splits same as CtrlP
+let g:ack_mappings = { "<C-x>": "<C-W><CR><C-W>J<C-W>p<C-W>c<C-W>j",
+                     \ "<C-c>": "<C-W><CR><C-W>L<C-W>p<C-W>c<C-W>b"}
