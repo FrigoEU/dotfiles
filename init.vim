@@ -33,10 +33,10 @@ Plug 'mattn/emmet-vim'
 "Haskell
 "Vimproc is needed for ghcmod-vim
 Plug 'Shougo/vimproc.vim', { 'do': 'make' }
-" Plug 'eagletmt/ghcmod-vim'
+Plug 'eagletmt/ghcmod-vim'
 Plug 'eagletmt/neco-ghc'
 Plug 'neovimhaskell/haskell-vim'
-Plug 'parsonsmatt/intero-neovim'
+" Plug 'parsonsmatt/intero-neovim'
 
 "Purescript
 Plug 'https://github.com/FrigoEU/psc-ide-vim.git'
@@ -211,15 +211,15 @@ function! PureScriptFoldLevel(l)
 endfunction
 
 "Haskell
-" au FileType haskell nmap <leader>t :GhcModType<CR>
-" au FileType haskell nmap <silent> <leader>r :GhcModTypeClear<CR>
-" au FileType haskell nmap <leader>c :GhcModSplitFunCase<CR>
-" au FileType haskell nmap <leader>i :GhcModInfo<CR>
-" au BufWritePost *.hs GhcModCheckAndLintAsync
+au FileType haskell nmap <leader>t :GhcModType<CR>
+au FileType haskell nmap <silent> <leader>r :GhcModTypeClear<CR>
+au FileType haskell nmap <leader>c :GhcModSplitFunCase<CR>
+au FileType haskell nmap <leader>i :GhcModInfo<CR>
+au BufWritePost *.hs GhcModCheckAndLintAsync
 
-au FileType haskell nnoremap <Leader>t :InteroType<CR>
-au FileType haskell nnoremap <Leader>i :InteroInfo<CR>
-au FileType haskell nnoremap <Leader>g :InteroGoToDef<CR>
+" au FileType haskell nnoremap <Leader>t :InteroType<CR>
+" au FileType haskell nnoremap <Leader>i :InteroInfo<CR>
+" au FileType haskell nnoremap <Leader>g :InteroGoToDef<CR>
 " autocmd! BufWritePost *.hs InteroReload
 
 
