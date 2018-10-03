@@ -1,22 +1,14 @@
 call plug#begin('~/.nvim/plugged')
 
-function! UpdateRPlugin(info)
-  if has('nvim')
-    silent UpdateRemotePlugins
-    echomsg 'rplugin updated: ' . a:info['name'] . ', restart vim for changes'
-  endif
-endfunction
-
 function! BuildYCM(info)
   " info is a dictionary with 3 fields
   " - name:   name of the plugin
   " - status: 'installed', 'updated', or 'unchanged'
   " - force:  set on PlugInstall! or PlugUpdate!
   if a:info.status == 'installed' || a:info.force
-    !./install.py
+    !./install.py --omnisharp-completer
   endif
 endfunction
-
 
 "General stuff
 Plug 'scrooloose/nerdtree' " Files explorer
@@ -27,6 +19,7 @@ Plug 'Raimondi/delimitMate' " Automatisch quotes enzo sluiten
 Plug 'tpope/vim-surround'
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
 " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" Plug 'lifepillar/vim-mucomplete'
 Plug 'tpope/vim-commentary'
 Plug 'scrooloose/syntastic'
 Plug 'junegunn/vim-easy-align'
@@ -40,6 +33,8 @@ Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'neomake/neomake'
 " Plug 'w0rp/ale'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 
 "Javascript
 Plug 'pangloss/vim-javascript'
@@ -170,43 +165,19 @@ autocmd FileType c,cpp,css,java,javascript,perl,php,jade,typescript nmap <silent
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
 
-"CtrlP mappings
-" let g:ctrlp_map = '<Space>pf'
-" let g:ctrlp_cmd = 'CtrlP'
-"Open ctrlp in filename mode (as opposed to full path) by default)
-" let g:ctrlp_by_filename = 0
-" let g:ctrlp_regexp = 1
-"Open file in vertical split with ctrl+c
-" let g:ctrlp_prompt_mappings = {
-"     \ 'AcceptSelection("v")': ['<c-c>'],
-    " \ }
-
-"CtrlP grep ignores
-" set wildignore+=*/node_modules/*
-" set wildignore+=*/bower_components/*
-" set wildignore+=*/dist*
-" set wildignore+=*/devdoctor/*
-" set wildignore+=*/devnurse/*
-" set wildignore+=*/devura/*
-" set wildignore+=*/distdoctor/*
-" set wildignore+=*/distnurse/*
-" set wildignore+=*/output/*
-"set wildignore+=*/devnurse/*
-"set wildignore+=*/distnurse/*
-"set wildignore+=*/out/*
-"set wildignore+=*/node_modules/*
-"set wildignore+=*/bower_components/*
-" let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
-" let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
-
 "Emmet trigger with ctrl-e
-let g:user_emmet_expandabbr_key = '<c-e>'
+let g:user_emmet_install_global = 0
+autocmd FileType html EmmetInstall
+autocmd FileType html imap <buffer> <C-e> <Plug>(emmet-expand-abbr)
 
 "Easymotion keybind
 nmap ; <Plug>(easymotion-s)
 vmap ; <Plug>(easymotion-s)
 " Turn on case insensitive feature
 let g:EasyMotion_smartcase = 1
+" Just to get rid of easymotion keybinds, I only use the above keys to
+" interact with easymotion
+map ù <Plug>(easymotion-prefix)
 
 "Pipe cursor in insert mode
 :let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
@@ -217,6 +188,8 @@ let g:syntastic_html_tidy_ignore_errors=['proprietary attribute "ng-']
 "Purescript
 let g:psc_ide_log_level = 0
 let g:psc_ide_syntastic_mode = 1
+let g:psc_ide_auto_imports = 1
+let g:psc_ide_import_on_completion = 0
 
 au FileType purescript map <leader>t :PSCIDEtype<CR>
 au FileType purescript nmap <leader>s :PSCIDEapplySuggestion<CR>
@@ -261,38 +234,37 @@ au BufWritePost *.hs GhcModCheckAndLintAsync
 "typescript
 au FileType typescript nmap <leader>t :TsCompleteJobQuickInfo<CR>
 
-"Deoplete
-" let g:deoplete#complete_method = "omnifunc"
-" let g:deoplete#enable_smart_case= 1
-" let g:deoplete#enable_at_startup = 1
-" let g:deoplete#omni#input_patterns = {}
-" let g:deoplete#omni#input_patterns.purescript = '[^. *\t]'
-" let g:deoplete#omni#input_patterns.haskell = '[^. *\t]'
-" let g:deoplete#omni#input_patterns.purescript = '[.\w]+'
-" let g:deoplete#omni#input_patterns.haskell = '[.\w]+'
+" autocomplete
 set completeopt=longest,menuone
-" set completeopt=longest,menuone,preview
-"Amount of entries in completion popup
 set pumheight=8
-" let g:deoplete#max_menu_width = 60
-
-" let g:deoplete#enable_ignore_case = 1
-" let g:deoplete#enable_refresh_always = 1
-" let g:deoplete#enable_debug = 1
-" let g:deoplete#enable_profile = 1
-" call deoplete#enable_logging('DEBUG', '/tmp/deoplete.log')
-
-
+let g:ycm_auto_start_csharp_server = 1
+let g:ycm_python_binary_path="~/tensorflow/bin/python3.5"
 let g:ycm_semantic_triggers = {
       \ 'purescript': ['re!\w+']
       \ }
+" let g:deoplete#enable_at_startup = 1
+" let g:deoplete#omni#input_patterns = {}
+" let g:deoplete#omni#input_patterns.typescript =
+"       \ ['[^. *\t]\.\w*', '[a-zA-Z_]\w*::']
+
+" let g:deoplete#omni_patterns = {}
+" let g:deoplete#omni_patterns.purescript = 
+"       \ ['\w*']
 
 "Neomake
 "Autorun Neomake on save
 autocmd! BufWritePost * Neomake
 let g:neomake_verbose=0
-let g:neomake_purescript_enabled_makers = [] " We use syntastic for it so we can capture suggestions, maybe we can do this with neomake also... cause it's super fast!
-                                             " https://github.com/neomake/neomake/commit/972cc885d39c6c36084220cf628692ac2053284e
+let g:neomake_purescript_enabled_makers = [] 
+" We use syntastic for purescript so we can capture suggestions, maybe we can do this with neomake also... cause it's super fast!
+" https://github.com/neomake/neomake/commit/972cc885d39c6c36084220cf628692ac2053284e
+
+"UltiSnips Snippets
+let g:UltiSnipsExpandTrigger = "<C-e>"
+let g:UltiSnipsJumpForwardTrigger = "<C-e>"
+let g:UltiSnipsJumpBackwardTrigger = "<C-b>"
+let g:UltiSnipsSnippetDirectories=[$HOME.'/.nvim/snippets']
+let g:UltiSnipsSnippetsDir=$HOME.'/.nvim/snippets'
 
 "Syntastic
 set statusline+=%#warningmsg#
@@ -313,9 +285,8 @@ highlight SyntasticStyleWarningSign guifg=black guibg=yellow
 " nnoremap <leader>p :try<bar>lprevious<bar>catch /^Vim\%((\a\+)\)\=:E\%(553\<bar>42\):/<bar>llast<bar>endtry<cr>
 
 " FZF
+let $FZF_DEFAULT_COMMAND='ag -g ""' "ag takes gitignore into account
 let g:fzf_buffers_jump = 1 " jump to existing buffer if possible
-command! -bang -nargs=? GFiles                    
-  \ call fzf#vim#gitfiles(<q-args>, {"options": "--tiebreak=end,length"}, <bang>0)
 command! -bang Commits
   \ call fzf#vim#commits({'right': '50%'})
 command! -bang -nargs=* Ag
@@ -323,36 +294,18 @@ command! -bang -nargs=* Ag
   \                 ' --color-path "33;10" ', 
   \                 fzf#vim#with_preview('right:50%'),
   \                 <bang>0 )
-nnoremap <leader>pf :GFiles<CR>
+nnoremap <leader>pf :Files<CR>
 " nnoremap <leader>gs :Commits<CR>
 " nnoremap <leader>gt :BCommits<CR>
 nnoremap <leader>bb :Buffers<CR>
 nnoremap <leader>bf :BLines<CR>
+nnoremap <leader><leader> :Commands<CR>
 nnoremap <leader>/ :Ag<Space>
 nnoremap <leader>* :call SearchUnderCursor()<CR>
 fun! SearchUnderCursor()
   let w = expand("<cword>")
   exe ("Ag " . w)
 endfun
-" let g:fzf_colors =
-" \ { 'fg':      ['fg', 'Normal'],
-"   \ 'bg':      ['bg', 'Normal'],
-"   \ 'hl':      ['fg', 'Comment'],
-"   \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-"   \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-"   \ 'hl+':     ['fg', 'Statement'],
-"   \ 'info':    ['fg', 'PreProc'],
-"   \ 'prompt':  ['fg', 'Conditional'],
-"   \ 'pointer': ['fg', 'Exception'],
-"   \ 'marker':  ['fg', 'Keyword'],
-"   \ 'spinner': ['fg', 'Label'],
-"   \ 'header':  ['fg', 'Comment'] }
-"
 
 nnoremap <leader>gs :Gstatus<CR>
 nnoremap <leader>gt :Gblame<CR>
-
-
-" Setting ack shortcuts to open in splits same as CtrlP
-" let g:ack_mappings = { "<C-x>": "<C-W><CR><C-W>J<C-W>p<C-W>c<C-W>j",
-"                      \ "<C-c>": "<C-W><CR><C-W>L<C-W>p<C-W>c<C-W>b"}

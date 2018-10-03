@@ -21,8 +21,7 @@ values."
    ;; variable `dotspacemacs-configuration-layers' to install it.
    ;; (default 'unused)
    dotspacemacs-enable-lazy-installation 'unused
-   
-;; If non-nil then Spacemacs will ask for confirmation before installing
+   ;; If non-nil then Spacemacs will ask for confirmation before installing
    ;; a layer lazily. (default t)
    dotspacemacs-ask-for-lazy-installation t
    ;; If non-nil layers with lazy install support are lazy installed.
@@ -32,9 +31,11 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     ;; ruby
+     sml
      ocaml
-     ruby
-     vimscript
+     ;; ruby
+     ;; vimscript
      markdown
      sql
      ;; ----------------------------------------------------------------
@@ -46,15 +47,16 @@ values."
      auto-completion
      ;; better-defaults
      csharp
-     emacs-lisp
+     ;; emacs-lisp
      javascript
      typescript
      html
      haskell
-     purescript
+     ;; purescript
      git
-     clojure
-     idris
+     spotify
+     ;; clojure
+     ;; idris
      ;; markdown
      ;; org
      ;; (shell :variables
@@ -62,28 +64,27 @@ values."
      ;;        shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
-     themes-megapack
+     ;; themes-megapack
      ;; version-control
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(
-                                      ;; omnisharp
-                                      )
+   dotspacemacs-additional-packages '((nix-mode)
+                                      (add-node-modules-path))
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
    dotspacemacs-excluded-packages '()
-   ;; Defines the behaviour of Spacemacs when downloading packages.
-   ;; Possible values are `used', `used-but-keep-unused' and `all'. `used' will
-   ;; download only explicitly used packages and remove any unused packages as
-   ;; well as their dependencies. `used-but-keep-unused' will download only the
-   ;; used packages but won't delete them if they become unused. `all' will
-   ;; download all the packages regardless if they are used or not and packages
-   ;; won't be deleted by Spacemacs. (default is `used')
-   dotspacemacs-download-packages 'used))
+   ;; Defines the behaviour of Spacemacs when installing packages.
+   ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
+   ;; `used-only' installs only explicitly used packages and uninstall any
+   ;; unused packages as well as their unused dependencies.
+   ;; `used-but-keep-unused' installs only the used packages but won't uninstall
+   ;; them if they become unused. `all' installs *all* packages supported by
+   ;; Spacemacs and never uninstall them. (default is `used-only')
+   dotspacemacs-install-packages 'used-only))
 
 (defun dotspacemacs/init ()
   "Initialization function.
@@ -107,7 +108,11 @@ values."
    ;; when the current branch is not `develop'. Note that checking for
    ;; new versions works via git commands, thus it calls GitHub services
    ;; whenever you start Emacs. (default nil)
-   dotspacemacs-check-for-update t
+   dotspacemacs-check-for-update nil
+   ;; If non-nil, a form that evaluates to a package directory. For example, to
+   ;; use different package directories for different Emacs versions, set this
+   ;; to `emacs-version'.
+   dotspacemacs-elpa-subdirectory nil
    ;; One of `vim', `emacs' or `hybrid'.
    ;; `hybrid' is like `vim' except that `insert state' is replaced by the
    ;; `hybrid state' with `emacs' key bindings. The value can also be a list
@@ -128,17 +133,19 @@ values."
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
    ;; Possible values for list-type are:
    ;; `recents' `bookmarks' `projects' `agenda' `todos'."
+   ;; List sizes may be nil, in which case
+   ;; `spacemacs-buffer-startup-lists-length' takes effect.
    dotspacemacs-startup-lists '((recents . 5)
                                 (projects . 7))
+   ;; True if the home buffer should respond to resize events.
+   dotspacemacs-startup-buffer-responsive t
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(spacemacs-dark
-                         spacemacs-light
-                         ample-zen
-                         )
+                         spacemacs-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
@@ -150,6 +157,11 @@ values."
                                :powerline-scale 1.1)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
+   ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
+   ;; (default "SPC")
+   dotspacemacs-emacs-command-key "SPC"
+   ;; The key used for Vim Ex commands (default ":")
+   dotspacemacs-ex-command-key ":"
    ;; The leader key accessible in `emacs state' and `insert state'
    ;; (default "M-m")
    dotspacemacs-emacs-leader-key "M-m"
@@ -157,11 +169,8 @@ values."
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
    dotspacemacs-major-mode-leader-key ","
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
-   ;; (default "C-M-m)
+   ;; (default "C-M-m")
    dotspacemacs-major-mode-emacs-leader-key "C-M-m"
-   ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
-   ;; (default "SPC")
-   dotspacemacs-emacs-command-key "SPC"
    ;; These variables control whether separate commands are bound in the GUI to
    ;; the key pairs C-i, TAB and C-m, RET.
    ;; Setting it to a non-nil value, allows for separate commands under <C-i>
@@ -207,6 +216,11 @@ values."
    ;; define the position to display `helm', options are `bottom', `top',
    ;; `left', or `right'. (default 'bottom)
    dotspacemacs-helm-position 'bottom
+   ;; Controls fuzzy matching in helm. If set to `always', force fuzzy matching
+   ;; in all non-asynchronous sources. If set to `source', preserve individual
+   ;; source settings. Else, disable fuzzy matching in all sources.
+   ;; (default 'always)
+   dotspacemacs-helm-use-fuzzy 'always
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
    ;; several times cycle between the kill ring content. (default nil)
    dotspacemacs-enable-paste-transient-state nil
@@ -250,8 +264,18 @@ values."
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
    dotspacemacs-smooth-scrolling t
-   ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
-   ;; derivatives. If set to `relative', also turns on relative line numbers.
+   ;; Control line numbers activation.
+   ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
+   ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
+   ;; This variable can also be set to a property list for finer control:
+   ;; '(:relative nil
+   ;;   :disabled-for-modes dired-mode
+   ;;                       doc-view-mode
+   ;;                       markdown-mode
+   ;;                       org-mode
+   ;;                       pdf-view-mode
+   ;;                       text-mode
+   ;;   :size-limit-kb 1000)
    ;; (default nil)
    dotspacemacs-line-numbers nil
    ;; Code folding method. Possible values are `evil' and `origami'.
@@ -294,6 +318,7 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
+
   )
 
 (defun dotspacemacs/user-config ()
@@ -310,33 +335,127 @@ you should place your code here."
   (setq typescript-indent-level 2)
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-level 2)
+  (setq web-mode-code-indent-offset 2)
   (setq css-indent-offset 2)
   (setq json-indent-offset 2)
   (setq mac-right-option-modifier 'nil)
   (setq scroll-margin 8)
   (setq vc-follow-symlinks t)
-  (setq omnisharp-server-executable-path "/usr/local/bin/omnisharp")
-  ;; (add-hook 'csharp-mode-hook 'omnisharp-mode)
-  (setq-default dotspacemacs-configuration-layers
-                '(auto-completion
-                  (haskell :variables haskell-completion-backend 'intero)))
+  
+  ;; TYPESCRIPT/TSX
+  (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
+  (add-hook 'find-file-hook 'tsx-stuff)
+  (defun my/use-tslint-from-node-modules ()
+    (let* ((root (locate-dominating-file
+                  (or (buffer-file-name) default-directory)
+                  "node_modules"))
+           (tslint (and root
+                        (expand-file-name "node_modules/tslint/bin/tslint"
+                                          root))))
+      (when (and tslint (file-executable-p tslint))
+        (setq-local flycheck-typescript-tslint-executable tslint))))
+  (defun tsx-stuff ()
+    ;; we want to start this only when opening tsx, not just web-mode
+    (when (string= (file-name-extension buffer-file-name) "tsx")
+      (emmet-mode)
+      (setq-local emmet-expand-jsx-className? t)
+      (smartparens-mode)
+      (spacemacs/toggle-auto-completion-on)
+      (add-to-list 'company-backends 'company-tide)
+      (my/use-tslint-from-node-modules)
+      ))
+  (flycheck-add-mode 'typescript-tslint 'web-mode)
+  (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
+  ;; (add-hook 'web-mode-hook 'prettier-js-mode)
+
+  ;; HASKELL
+  ;; (setq-default dotspacemacs-configuration-layers
+  ;;               '(auto-completion
+  ;;                 (haskell :variables haskell-completion-backend 'intero)))
+
+  ;; CSHARP
+  ;; (setq omnisharp-server-executable-path "/usr/local/bin/omnisharp")
+
+  (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
+
+  ;; UR-WEB
+  (load "~/.emacs.d/elpa/ur/urweb-mode-startup")
+  (setq urweb-indent-level 2)
+  (add-hook 'urweb-mode-hook 'emmet-mode)
+  (add-hook 'urweb-mode-hook 'smart-parens-mode)
 
   (global-set-key (kbd "C-l") 'evil-window-right)
   (global-set-key (kbd "C-h") 'evil-window-left)
   (global-set-key (kbd "C-j") 'evil-window-down)
   (global-set-key (kbd "C-k") 'evil-window-up)
+  (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
+  (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
+  (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
+  (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 
-  ; OCaml / Reason stuff
-  (setq opam (substring (shell-command-to-string "opam config var prefix 2> /dev/null") 0 -1))
-  (add-to-list 'load-path (concat opam "/share/emacs/site-lisp"))
-  (setq refmt-command (concat opam "/bin/refmt"))
+  ;; Dummy var
+  ;; (flycheck-def-config-file-var
+  ;;     flycheck-urweb-urp urweb-checker ".urp" :safe #'stringp)
+  ;; (defun find-urp ()
+  ;;   (car
+  ;;    (f-entries
+  ;;     (or
+  ;;      (flycheck--locate-dominating-file-matching default-directory ".*urp")
+  ;;      default-directory)
+  ;;     (lambda (file) (s-matches? ".urp" file)))))
+  ;; (defun find-urweb-config-file (fn_ checker)
+  ;;   (if (equal checker 'urweb-checker)
+  ;;       (find-urp)
+  ;;       nil))
+  ;; (add-to-list 'flycheck-locate-config-file-functions 'find-urweb-config-file)
+  ;; (require 'flycheck)
+  ;; (defun secondArgMinusExt (opt file) (f-no-ext (f-filename file)))
+  ;; (defun find-urp-dirname (checker) (f-dirname (find-urp)))
+  ;; (flycheck-define-checker
+  ;;     urweb-checker
+  ;;   "Trying to get flycheck to work with urweb"
+  ;;   :command ("urweb" "-tc" (config-file "" flycheck-urweb-urp secondArgMinusExt))
+  ;;   :error-patterns
+  ;;   ((error line-start (file-name) ":" line ":" column ":"
+  ;;           (message (one-or-more not-newline)
+  ;;                    (zero-or-more (seq "\n" (optional (seq (not-char "/") (zero-or-more not-newline)))))))) ;; Matching lines that DON'T start with "/"
+  ;;   :modes urweb-mode
+  ;;   :working-directory find-urp-dirname)
+  ;; (spacemacs/add-flycheck-hook 'urweb-mode)
+  ;; (add-to-list 'flycheck-checkers 'urweb-checker)
 
-  (require 'reason-mode)
-  (require 'merlin)
-  (setq merlin-ac-setup t)
-  (add-hook 'reason-mode-hook (lambda ()
-                                (add-hook 'before-save-hook 'refmt-before-save)
-                                (merlin-mode)))
+
+  ;; OCaml / Reason stuff
+  ;; (setq opam (substring (shell-command-to-string "opam config var prefix 2> /dev/null") 0 -1))
+  ;; (add-to-list 'load-path (concat opam "/share/emacs/site-lisp"))
+  ;; (setq refmt-command (concat opam "/bin/refmt"))
+
+  ;; (require 'reason-mode)
+  ;; (require 'merlin)
+  ;; (setq merlin-ac-setup t)
+  ;; (add-hook 'reason-mode-hook (lambda ()
+  ;;                               (add-hook 'before-save-hook 'refmt-before-save)
+  ;;                               (merlin-mode)))
+
+  ;; ;; Purescript-mode keybinds
+  ;; (defun psc-ide-wrap-with-type-hole (start end)
+  ;;   (interactive "r")
+  ;;   (if (equal start end)
+  ;;       (let ((ident-span (psc-ide-ident-pos-at-point)))
+  ;;         (psc-ide-wrap-with-type-hole-impl (car ident-span) (cdr ident-span)))
+  ;;     (psc-ide-wrap-with-type-hole-impl start end))
+  ;;   )
+  ;; (defun psc-ide-wrap-with-type-hole-impl (start end)
+  ;;   (let ((ident (buffer-substring-no-properties start end)))
+  ;;     (delete-region start end)
+  ;;     (insert (format "((const :: forall a. a -> a -> a) (%s) ?hole)" ident))))
+  ;; (spacemacs/set-leader-keys-for-major-mode 'purescript-mode
+  ;;   "i" 'psc-ide-add-import
+  ;;   "s" 'psc-ide-flycheck-insert-suggestion
+  ;;   ;; "r" 'psc-ide-load-file-environment-into-psci
+  ;;   "w" 'psc-ide-wrap-with-type-hole
+  ;;   )
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -350,15 +469,16 @@ you should place your code here."
    [default default default italic underline success warning error])
  '(custom-safe-themes
    (quote
-    ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
+    ("1db337246ebc9c083be0d728f8d20913a0f46edc0a00277746ba411c149d7fe5" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
  '(evil-want-Y-yank-to-eol nil)
  '(ns-function-modifier (quote none))
  '(package-selected-packages
    (quote
-    (omnisharp shut-up ghc diminish zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme madhat2r-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme autothemer darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme typescript-mode powerline markdown-mode projectile request haml-mode iedit anzu tern hydra inflections multiple-cursors paredit cider seq spinner clojure-mode bind-key yasnippet packed avy auto-complete inf-ruby company highlight smartparens bind-map evil undo-tree flycheck haskell-mode helm helm-core skewer-mode js2-mode simple-httpd magit magit-popup git-commit with-editor async f s dash purescript-mode pcre2el winum fuzzy utop tuareg caml ocp-indent merlin ws-butler window-numbering which-key web-mode web-beautify volatile-highlights vimrc-mode vi-tilde-fringe uuidgen use-package toc-org tide tagedit sql-indent spacemacs-theme spaceline smeargle slim-mode scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters quelpa pug-mode psci psc-ide popwin persp-mode paradox orgit org-plus-contrib org-bullets open-junk-file neotree move-text mmm-mode minitest markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc intero info+ indent-guide idris-mode ido-vertical-mode hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu emmet-mode elisp-slime-nav dumb-jump define-word dactyl-mode csharp-mode company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clojure-snippets clj-refactor clean-aindent-mode cider-eval-sexp-fu chruby bundler auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
+    (eval-sexp-fu gitignore-mode nix-mode epl ob-sml sml-mode spotify helm-spotify-plus multi dash-functional ghub let-alist goto-chg add-node-modules-path prettier-js queue omnisharp shut-up ghc diminish zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme madhat2r-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme autothemer darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme typescript-mode powerline markdown-mode projectile request haml-mode iedit anzu tern hydra inflections multiple-cursors paredit cider seq spinner clojure-mode bind-key yasnippet packed avy auto-complete inf-ruby company highlight smartparens bind-map evil undo-tree flycheck haskell-mode helm helm-core skewer-mode js2-mode simple-httpd magit magit-popup git-commit with-editor async f s dash purescript-mode pcre2el winum fuzzy utop tuareg caml ocp-indent merlin ws-butler window-numbering which-key web-mode web-beautify volatile-highlights vimrc-mode vi-tilde-fringe uuidgen use-package toc-org tide tagedit sql-indent spacemacs-theme spaceline smeargle slim-mode scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters quelpa pug-mode psci psc-ide popwin persp-mode paradox orgit org-plus-contrib org-bullets open-junk-file neotree move-text mmm-mode minitest markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc intero info+ indent-guide idris-mode ido-vertical-mode hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu emmet-mode elisp-slime-nav dumb-jump define-word dactyl-mode csharp-mode company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clojure-snippets clj-refactor clean-aindent-mode cider-eval-sexp-fu chruby bundler auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
  '(paradox-github-token t)
  '(psc-ide-add-import-on-completion t t)
- '(psc-ide-rebuild-on-save nil t))
+ '(psc-ide-rebuild-on-save nil t)
+ '(reb-re-syntax (quote rx)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
