@@ -31,9 +31,14 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     ;; ruby
+     csv
      sml
-     ocaml
+     ;; graphviz
+     ;; ruby
+     ;; purescript
+     ;; ruby
+     ;; sml
+     ;; ocaml
      ;; ruby
      ;; vimscript
      markdown
@@ -46,22 +51,23 @@ values."
      helm
      auto-completion
      ;; better-defaults
-     csharp
+     ;; csharp
      ;; emacs-lisp
      javascript
      typescript
      html
-     haskell
+     ;; haskell
      ;; purescript
      git
-     spotify
+     ;; spotify
      ;; clojure
      ;; idris
      ;; markdown
      ;; org
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
+     (shell :variables
+            shell-default-height 30
+            shell-default-shell 'eshell
+            shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
      ;; themes-megapack
@@ -72,7 +78,9 @@ values."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '((nix-mode)
-                                      (add-node-modules-path))
+                                      (add-node-modules-path)
+                                      (anybar)
+                                      )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -85,6 +93,8 @@ values."
    ;; them if they become unused. `all' installs *all* packages supported by
    ;; Spacemacs and never uninstall them. (default is `used-only')
    dotspacemacs-install-packages 'used-only))
+
+
 
 (defun dotspacemacs/init ()
   "Initialization function.
@@ -318,7 +328,6 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
-
   )
 
 (defun dotspacemacs/user-config ()
@@ -328,8 +337,6 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
-  (setq system-uses-terminfo nil)
-  (setq-default spacemacs-show-trailing-whitespace nil)
   (setq js2-basic-offset 2)
   (setq js-indent-level 2)
   (setq typescript-indent-level 2)
@@ -339,13 +346,16 @@ you should place your code here."
   (setq web-mode-code-indent-offset 2)
   (setq css-indent-offset 2)
   (setq json-indent-offset 2)
+
+  (setq system-uses-terminfo nil)
+  (setq-default spacemacs-show-trailing-whitespace nil)
   (setq mac-right-option-modifier 'nil)
   (setq scroll-margin 8)
   (setq vc-follow-symlinks t)
   
   ;; TYPESCRIPT/TSX
-  (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
-  (add-hook 'find-file-hook 'tsx-stuff)
+  ;; (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
+  ;; (add-hook 'find-file-hook 'tsx-stuff)
   (defun my/use-tslint-from-node-modules ()
     (let* ((root (locate-dominating-file
                   (or (buffer-file-name) default-directory)
@@ -355,19 +365,23 @@ you should place your code here."
                                           root))))
       (when (and tslint (file-executable-p tslint))
         (setq-local flycheck-typescript-tslint-executable tslint))))
-  (defun tsx-stuff ()
-    ;; we want to start this only when opening tsx, not just web-mode
-    (when (string= (file-name-extension buffer-file-name) "tsx")
-      (emmet-mode)
-      (setq-local emmet-expand-jsx-className? t)
-      (smartparens-mode)
-      (spacemacs/toggle-auto-completion-on)
-      (add-to-list 'company-backends 'company-tide)
-      (my/use-tslint-from-node-modules)
-      ))
-  (flycheck-add-mode 'typescript-tslint 'web-mode)
-  (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
+  
+  (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
+  ;; (defun tsx-stuff ()
+  ;;   ;; we want to start this only when opening tsx, not just web-mode
+  ;;   (when (string= (file-name-extension buffer-file-name) "tsx")
+  ;;     (emmet-mode)
+  ;;     (setq-local emmet-expand-jsx-className? t)
+  ;;     (smartparens-mode)
+  ;;     (spacemacs/toggle-auto-completion-on)
+  ;;     (add-to-list 'company-backends 'company-tide)
+  ;;     (my/use-tslint-from-node-modules)
+  ;;     ))
+  ;; (flycheck-add-mode 'typescript-tslint 'web-mode)
+  ;; (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
   ;; (add-hook 'web-mode-hook 'prettier-js-mode)
+
+
 
   ;; HASKELL
   ;; (setq-default dotspacemacs-configuration-layers
@@ -382,8 +396,65 @@ you should place your code here."
   ;; UR-WEB
   (load "~/.emacs.d/elpa/ur/urweb-mode-startup")
   (setq urweb-indent-level 2)
-  (add-hook 'urweb-mode-hook 'emmet-mode)
-  (add-hook 'urweb-mode-hook 'smart-parens-mode)
+  (add-hook 'urweb-mode-hook 'smartparens-mode)
+
+  (defun urweb-get-projectname (dir)
+    (let* ((filesInDir (directory-files dir))
+           (urpFiles (seq-filter (lambda (file) (s-suffix? ".urp" file)) filesInDir))
+           (biggestFile
+            (if (car filesInDir)
+                (seq-reduce
+                 (lambda
+                   (acc file)
+                   (if (>
+                        (file-attribute-size (file-attributes file))
+                        (file-attribute-size (file-attributes acc)))
+                       file acc))
+                 urpFiles
+                 (car urpFiles))
+              ""))
+           )
+      (s-replace ".urp" "" biggestFile)
+      )
+    )
+
+  (defun urweb-get-proj-dir (bfn)
+    (locate-dominating-file
+     bfn
+     (lambda (dir)
+       (some (lambda (f) (s-suffix? ".urp" f))
+             (if (f-dir? dir)
+                 (directory-files dir)
+               (list '(dir)))))))
+
+  (defun urweb-get-info ()
+    (interactive)
+    (let*
+        ((row (line-number-at-pos))
+         (col (evil-column))
+         (bfn (buffer-file-name))
+         (proj-dir (urweb-get-proj-dir bfn))
+         (filename (file-relative-name bfn proj-dir))
+         (loc (concat filename ":" (number-to-string row) ":" (number-to-string col)))
+         )
+      (require 's)
+      (require 'f)
+      (require 'simple)
+      (message (let
+                   ((default-directory proj-dir))
+                 (shell-command-to-string (concat "urweb -getInfo " loc))))))
+
+  (spacemacs/set-leader-keys-for-major-mode 'urweb-mode
+    "i" 'urweb-get-info)
+
+  ;; Smart compile: https://ambrevar.xyz/emacs/index.html
+  (make-variable-buffer-local 'compile-command)
+
+  (defun urweb-set-compiler ()
+    (let* ((proj-dir (urweb-get-proj-dir (buffer-file-name))))
+      (setq default-directory proj-dir)
+      (setq compile-command (format "urweb -tc %s" (urweb-get-projectname proj-dir)))))
+  (add-hook 'urweb-mode-hook 'urweb-set-compiler)
 
   (global-set-key (kbd "C-l") 'evil-window-right)
   (global-set-key (kbd "C-h") 'evil-window-left)
@@ -393,6 +464,7 @@ you should place your code here."
   (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
+
 
   ;; Dummy var
   ;; (flycheck-def-config-file-var
@@ -465,20 +537,35 @@ you should place your code here."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
  '(custom-safe-themes
    (quote
-    ("1db337246ebc9c083be0d728f8d20913a0f46edc0a00277746ba411c149d7fe5" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
+    ("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default)))
  '(evil-want-Y-yank-to-eol nil)
- '(ns-function-modifier (quote none))
  '(package-selected-packages
    (quote
-    (eval-sexp-fu gitignore-mode nix-mode epl ob-sml sml-mode spotify helm-spotify-plus multi dash-functional ghub let-alist goto-chg add-node-modules-path prettier-js queue omnisharp shut-up ghc diminish zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme madhat2r-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme autothemer darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme typescript-mode powerline markdown-mode projectile request haml-mode iedit anzu tern hydra inflections multiple-cursors paredit cider seq spinner clojure-mode bind-key yasnippet packed avy auto-complete inf-ruby company highlight smartparens bind-map evil undo-tree flycheck haskell-mode helm helm-core skewer-mode js2-mode simple-httpd magit magit-popup git-commit with-editor async f s dash purescript-mode pcre2el winum fuzzy utop tuareg caml ocp-indent merlin ws-butler window-numbering which-key web-mode web-beautify volatile-highlights vimrc-mode vi-tilde-fringe uuidgen use-package toc-org tide tagedit sql-indent spacemacs-theme spaceline smeargle slim-mode scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters quelpa pug-mode psci psc-ide popwin persp-mode paradox orgit org-plus-contrib org-bullets open-junk-file neotree move-text mmm-mode minitest markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc intero info+ indent-guide idris-mode ido-vertical-mode hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu emmet-mode elisp-slime-nav dumb-jump define-word dactyl-mode csharp-mode company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clojure-snippets clj-refactor clean-aindent-mode cider-eval-sexp-fu chruby bundler auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
- '(paradox-github-token t)
+    (anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
- '(reb-re-syntax (quote rx)))
+ '(sql-connection-alist
+   (quote
+    (("urwebschool"
+      (sql-product
+       (quote postgres))
+      (sql-user "Simon")
+      (sql-database "urwebschool")
+      (sql-server ""))
+     ("hamaril"
+      (sql-product
+       (quote postgres))
+      (sql-user "nixcloud")
+      (sql-database "hamaril")
+      (sql-server ""))
+     ("derockschool-prod"
+      (sql-product
+       (quote postgres))
+      (sql-user "nixcloud")
+      (sql-database "derockschool")
+      (sql-server ""))))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
