@@ -453,8 +453,30 @@ you should place your code here."
   (defun urweb-set-compiler ()
     (let* ((proj-dir (urweb-get-proj-dir (buffer-file-name))))
       (setq default-directory proj-dir)
-      (setq compile-command (format "urweb -tc %s" (urweb-get-projectname proj-dir)))))
+      (setq compile-command
+            (format (s-concat "echo -n white | nc -4u -w0 localhost 1738;\n"
+                              "if urweb -tc %s; then\n"
+                              "  echo -n green | nc -4u -w0 localhost 1738\n"
+                              "else \n"
+                              "  echo -n red | nc -4u -w0 localhost 1738; exit 1\n"
+                              "fi")
+                    (urweb-get-projectname proj-dir)))
+      ))
   (add-hook 'urweb-mode-hook 'urweb-set-compiler)
+
+  (defun sml-set-compiler ()
+    (let* ((proj-dir (locate-dominating-file "." "Makefile")))
+      (setq default-directory proj-dir)
+      (setq compile-command
+            (s-concat "echo -n white | nc -4u -w0 localhost 1738;\n"
+                      "if make; then\n"
+                      "  echo -n green | nc -4u -w0 localhost 1738\n"
+                      "else \n"
+                      "  echo -n red | nc -4u -w0 localhost 1738; exit 1\n"
+                      "fi"
+                      ))
+      ))
+  (add-hook 'sml-mode-hook 'sml-set-compiler)
 
   (global-set-key (kbd "C-l") 'evil-window-right)
   (global-set-key (kbd "C-h") 'evil-window-left)
