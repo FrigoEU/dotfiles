@@ -352,7 +352,13 @@ you should place your code here."
   (setq mac-right-option-modifier 'nil)
   (setq scroll-margin 8)
   (setq vc-follow-symlinks t)
-  
+
+  ;; https://github.com/purcell/exec-path-from-shell
+  ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
+  (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
+
+  ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
+
   ;; TYPESCRIPT/TSX
   ;; (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
   ;; (add-hook 'find-file-hook 'tsx-stuff)
@@ -450,32 +456,34 @@ you should place your code here."
   ;; Smart compile: https://ambrevar.xyz/emacs/index.html
   (make-variable-buffer-local 'compile-command)
 
+  (defun mk-compile-command-with-notifs (comp)
+    (if (string-equal system-type "darwin")
+        ;; Anybar
+        (s-concat "echo -n white | nc -4u -w1 localhost 1738;\n"
+                  "if " comp "; then\n"
+                  "  echo -n green | nc -4u -w1 localhost 1738\n"
+                  "else \n"
+                  "  echo -n red | nc -4u -w1 localhost 1738; exit 1\n"
+                  "fi")
+      ;; notify-send
+      (s-concat "if " comp "; then\n"
+                "  notify-send 'Compile OK' -i ~/dotfiles/checked.png -h string:sound-name:dialog-error\n"
+                "else \n"
+                "  notify-send 'Compile fail' -i ~/dotfiles/cancel.png -h string:sound-name:dialog-error; exit 1\n"
+                "fi")))
+  
   (defun urweb-set-compiler ()
     (let* ((proj-dir (urweb-get-proj-dir (buffer-file-name))))
       (setq default-directory proj-dir)
       (setq compile-command
-            (format (s-concat "echo -n white | nc -4u -w0 localhost 1738;\n"
-                              "if urweb -tc %s; then\n"
-                              "  echo -n green | nc -4u -w0 localhost 1738\n"
-                              "else \n"
-                              "  echo -n red | nc -4u -w0 localhost 1738; exit 1\n"
-                              "fi")
-                    (urweb-get-projectname proj-dir)))
-      ))
+            (mk-compile-command-with-notifs
+             (format "urweb -tc %s" (urweb-get-projectname proj-dir))))))
   (add-hook 'urweb-mode-hook 'urweb-set-compiler)
 
   (defun sml-set-compiler ()
     (let* ((proj-dir (locate-dominating-file "." "Makefile")))
       (setq default-directory proj-dir)
-      (setq compile-command
-            (s-concat "echo -n white | nc -4u -w0 localhost 1738;\n"
-                      "if make; then\n"
-                      "  echo -n green | nc -4u -w0 localhost 1738\n"
-                      "else \n"
-                      "  echo -n red | nc -4u -w0 localhost 1738; exit 1\n"
-                      "fi"
-                      ))
-      ))
+      (setq compile-command (mk-compile-command-with-notifs "make"))))
   (add-hook 'sml-mode-hook 'sml-set-compiler)
 
   (global-set-key (kbd "C-l") 'evil-window-right)
@@ -565,7 +573,7 @@ you should place your code here."
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
+    (powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
  '(sql-connection-alist
