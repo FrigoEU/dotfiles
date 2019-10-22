@@ -82,6 +82,7 @@ values."
                                       (add-node-modules-path)
                                       (anybar)
                                       (direnv)
+                                      (exec-path-from-shell)
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -356,7 +357,7 @@ you should place your code here."
   (setq vc-follow-symlinks t)
 
   ;; Nog niet zeker, uitproberen
-  (setq company-idle-delay 0)
+  (setq company-idle-delay 0.2)
 
   (direnv-mode)
 
