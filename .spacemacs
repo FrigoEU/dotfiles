@@ -31,6 +31,7 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     haskell
      csv
      sml
      ;; graphviz
@@ -80,6 +81,7 @@ values."
    dotspacemacs-additional-packages '((nix-mode)
                                       (add-node-modules-path)
                                       (anybar)
+                                      (direnv)
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -356,6 +358,8 @@ you should place your code here."
   ;; Nog niet zeker, uitproberen
   (setq company-idle-delay 0)
 
+  (direnv-mode)
+
   ;; https://github.com/purcell/exec-path-from-shell
   ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
   (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
@@ -364,29 +368,29 @@ you should place your code here."
 
   ;; TYPESCRIPT/TSX
   ;; (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
-  ;; (add-hook 'find-file-hook 'tsx-stuff)
-  (defun my/use-tslint-from-node-modules ()
-    (let* ((root (locate-dominating-file
-                  (or (buffer-file-name) default-directory)
-                  "node_modules"))
-           (tslint (and root
-                        (expand-file-name "node_modules/tslint/bin/tslint"
-                                          root))))
-      (when (and tslint (file-executable-p tslint))
-        (setq-local flycheck-typescript-tslint-executable tslint))))
+  (add-hook 'find-file-hook 'tsx-stuff)
+  ;; (defun my/use-tslint-from-node-modules ()
+  ;;   (let* ((root (locate-dominating-file
+  ;;                 (or (buffer-file-name) default-directory)
+  ;;                 "node_modules"))
+  ;;          (tslint (and root
+  ;;                       (expand-file-name "node_modules/tslint/bin/tslint"
+  ;;                                         root))))
+  ;;     (when (and tslint (file-executable-p tslint))
+  ;;       (setq-local flycheck-typescript-tslint-executable tslint))))
   
-  (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
-  ;; (defun tsx-stuff ()
-  ;;   ;; we want to start this only when opening tsx, not just web-mode
-  ;;   (when (string= (file-name-extension buffer-file-name) "tsx")
-  ;;     (emmet-mode)
-  ;;     (setq-local emmet-expand-jsx-className? t)
-  ;;     (smartparens-mode)
-  ;;     (spacemacs/toggle-auto-completion-on)
-  ;;     (add-to-list 'company-backends 'company-tide)
-  ;;     (my/use-tslint-from-node-modules)
-  ;;     ))
-  ;; (flycheck-add-mode 'typescript-tslint 'web-mode)
+  ;; (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
+  (defun tsx-stuff ()
+    ;; we want to start this only when opening tsx, not just web-mode
+    (when (string= (file-name-extension buffer-file-name) "tsx")
+      (emmet-mode)
+      (setq-local emmet-expand-jsx-className? t)
+      (smartparens-mode)
+      (spacemacs/toggle-auto-completion-on)
+      (add-to-list 'company-backends 'company-tide)
+      (my/use-tslint-from-node-modules)
+      ))
+  (flycheck-add-mode 'typescript-tslint 'web-mode)
   ;; (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
   ;; (add-hook 'web-mode-hook 'prettier-js-mode)
 
@@ -460,7 +464,7 @@ you should place your code here."
     "i" 'urweb-get-info)
 
   ;; Smart compile: https://ambrevar.xyz/emacs/index.html
-  (make-variable-buffer-local 'compile-command)
+  ;; (make-variable-buffer-local 'compile-command)
 
   (defun mk-compile-command-with-notifs (comp)
     (if (string-equal system-type "darwin")
@@ -579,7 +583,7 @@ you should place your code here."
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
+    (direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
  '(paradox-github-token t)
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
