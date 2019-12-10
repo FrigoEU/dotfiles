@@ -83,6 +83,8 @@ values."
                                       (anybar)
                                       (direnv)
                                       (exec-path-from-shell)
+                                      (lsp-ui)
+                                      (company-lsp)
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -361,9 +363,31 @@ you should place your code here."
 
   (direnv-mode)
 
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+
   ;; https://github.com/purcell/exec-path-from-shell
   ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
   (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
+
+  (require 'lsp)
+  (setq lsp-language-id-configuration '((urweb-mode . "urweb")))
+  (setq lsp-print-io t)
+  (setq lsp-trace t)
+  (setq lsp-report-if-no-buffer t)
+  (setq lsp-auto-configure t)
+  ;; (setq lsp-print-performance t)
+
+  (defgroup lsp-urweb nil
+    "LSP support for Ur/Web."
+    :group 'lsp-mode
+    :link '(url-link "https://www.impredicative.com/ur"))
+
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/bin/urweb" "-startLspServer"))
+                    :major-modes '(urweb-mode)
+                    :server-id 'urweb-lsp))
 
   ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
 
