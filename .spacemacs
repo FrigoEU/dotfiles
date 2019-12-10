@@ -71,6 +71,7 @@ values."
             shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
+     treemacs
      ;; themes-megapack
      ;; version-control
      )
@@ -370,15 +371,15 @@ you should place your code here."
   ;; TYPESCRIPT/TSX
   ;; (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
   (add-hook 'find-file-hook 'tsx-stuff)
-  ;; (defun my/use-tslint-from-node-modules ()
-  ;;   (let* ((root (locate-dominating-file
-  ;;                 (or (buffer-file-name) default-directory)
-  ;;                 "node_modules"))
-  ;;          (tslint (and root
-  ;;                       (expand-file-name "node_modules/tslint/bin/tslint"
-  ;;                                         root))))
-  ;;     (when (and tslint (file-executable-p tslint))
-  ;;       (setq-local flycheck-typescript-tslint-executable tslint))))
+  (defun my/use-tslint-from-node-modules ()
+    (let* ((root (locate-dominating-file
+                  (or (buffer-file-name) default-directory)
+                  "node_modules"))
+           (tslint (and root
+                        (expand-file-name "node_modules/tslint/bin/tslint"
+                                          root))))
+      (when (and tslint (file-executable-p tslint))
+        (setq-local flycheck-typescript-tslint-executable tslint))))
   
   ;; (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
   (defun tsx-stuff ()
@@ -390,8 +391,8 @@ you should place your code here."
       (spacemacs/toggle-auto-completion-on)
       (add-to-list 'company-backends 'company-tide)
       (my/use-tslint-from-node-modules)
+      (flycheck-add-mode 'typescript-tslint 'web-mode)
       ))
-  (flycheck-add-mode 'typescript-tslint 'web-mode)
   ;; (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
   ;; (add-hook 'web-mode-hook 'prettier-js-mode)
 
@@ -505,6 +506,66 @@ you should place your code here."
   (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
+
+  (defun setup-school-local-shells ()
+    (interactive)
+    (persp-switch "School local shells")
+    (winum-select-window-1)
+    (split-window-right)
+    (split-window-below)
+    (split-window-right)
+    (winum-select-window-3)
+    (split-window-right)
+    (rename-buffer "General" 1)
+    (rename-buffer "Tunnel" 1)
+    (rename-buffer "Haskell maildaemon" 1)
+    (rename-buffer "Vterm" 1)
+    (let* ()
+      (winum-select-window-1)
+      (cd "~/ur-proj/school")
+      (vterm "General")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      )
+    (let* ()
+      (winum-select-window-2)
+      (cd "~/ur-proj/school")
+      (vterm "Tunnel")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      (vterm-send-string "make tunnel")
+      )
+    (let* ()
+      (winum-select-window-3)
+      (cd "~/ur-proj/school")
+      (vterm "Urweb school")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      (vterm-send-string "sudo make start")
+      )
+    (let* ()
+      (winum-select-window-4)
+      (cd "~/ur-proj/school")
+      (vterm "Haskell maildaemon")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      (vterm-send-string "make email_daemon")
+      )
+    (let* ()
+      (winum-select-window-5)
+      (cd "~/ur-proj/school")
+      (vterm "SQL")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      (vterm-send-string "psql urwebschool")
+      )
+    )
+
+  (defun restart-urweb ()
+      (interactive)
+      (with-current-buffer "Urweb school"
+        (vterm-send-string " ")
+        (vterm-send-return)))
 
 
   ;; Dummy var
