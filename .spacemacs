@@ -364,7 +364,17 @@ you should place your code here."
 
   (direnv-mode)
 
+  (require 'transient)
+  (define-key transient-map        "q" 'transient-quit-one)
+  (define-key transient-edit-map   "q" 'transient-quit-one)
+  (define-key transient-sticky-map "q" 'transient-quit-seq)
+  (define-key transient-map        (kbd "<escape>") 'transient-quit-one)
+  (define-key transient-edit-map   (kbd "<escape>") 'transient-quit-one)
+  (define-key transient-sticky-map (kbd "<escape>") 'transient-quit-seq)
+
+  (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  (add-hook 'urweb-mode-hook 'flycheck-mode)
 
   ;; https://github.com/purcell/exec-path-from-shell
   ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
@@ -378,6 +388,18 @@ you should place your code here."
   (setq lsp-trace t)
   (setq lsp-report-if-no-buffer t)
   (setq lsp-auto-configure t)
+  (customize-set-variable 'lsp-ui-sideline-enable t)
+  (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
+  (customize-set-variable 'lsp-ui-sideline-show-hover t)
+  (customize-set-variable 'lsp-ui-doc-alignment (quote window))
+  (customize-set-variable 'lsp-ui-doc-include-signature t)
+  (customize-set-variable 'lsp-ui-doc-position (quote at-point))
+
+  ; Always show tooltip, even if there is only one match
+  ; Otherwise if there is only one match a "preview" is shown and you don't see eg type info
+  (setq company-frontends '(company-pseudo-tooltip-frontend
+                            company-echo-metadata-frontend))
+                          
   ;; (setq lsp-print-performance t)
 
   (defgroup lsp-urweb nil
@@ -386,7 +408,7 @@ you should place your code here."
     :link '(url-link "https://www.impredicative.com/ur"))
 
   (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/bin/urweb" "-startLspServer"))
+   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simonvancasteren/urweb/bin/urweb" "-startLspServer"))
                     :major-modes '(urweb-mode)
                     :server-id 'urweb-lsp))
 
