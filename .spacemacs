@@ -49,6 +49,7 @@ values."
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
+     lsp
      helm
      auto-completion
      ;; better-defaults
@@ -80,11 +81,11 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '((nix-mode)
                                       (add-node-modules-path)
-                                      (anybar)
+                                      ;; (anybar)
                                       (direnv)
                                       (exec-path-from-shell)
-                                      (lsp-ui)
-                                      (company-lsp)
+                                      ;; (lsp-ui)
+                                      ;; (company-lsp)
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -166,10 +167,12 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 15
+                               :size 26
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
+
+   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 0.8)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
@@ -358,6 +361,9 @@ you should place your code here."
   (setq scroll-margin 8)
   (setq vc-follow-symlinks t)
 
+  (define-key key-translation-map (kbd "M-9") (kbd "`"))
+  (define-key key-translation-map (kbd "M-2") (kbd "~"))
+
   ;; Nog niet zeker, uitproberen
   (setq company-idle-delay 0.2)
 
@@ -373,21 +379,40 @@ you should place your code here."
 
   (require 'lsp)
   (setq lsp-language-id-configuration '((urweb-mode . "urweb")))
+  (setq lsp-ui-doc-position 'top)
+  (setq lsp-ui-doc-alignment 'window)
+  (setq lsp-ui-doc-use-childframe t)
+  (setq lsp-print-performance t)
   (setq lsp-print-io t)
   (setq lsp-trace t)
-  (setq lsp-report-if-no-buffer t)
-  (setq lsp-auto-configure t)
-  ;; (setq lsp-print-performance t)
+  (setq lsp-ui-doc-delay 0.2)
+  (require 'lsp-ui)
+  (setq lsp-ui-doc-enable nil)
+
+  ;; this overwrites an lsp layer binding, careful!
+  (spacemacs/set-leader-keys-for-major-mode 'lsp-mode "h" 'lsp-describe-thing-at-point)
+
+  ;; (setq lsp-report-if-no-buffer t)
+  ;; (setq lsp-auto-configure t)
+  ;; (setq lsp-ui-sideline-enable t)
+  ;; (setq lsp-ui-sideline-show-diagnostics t)
+  ;; (setq powerline-height 25)
 
   (defgroup lsp-urweb nil
     "LSP support for Ur/Web."
     :group 'lsp-mode
     :link '(url-link "https://www.impredicative.com/ur"))
 
+  (defcustom lsp-urweb-language-server-urpfile "school" "Urp file to choose if multiple"
+    )
+  (lsp-register-custom-settings
+   '(("urweb.project.urpfile" lsp-urweb-language-server-urpfile)))
+
   (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/bin/urweb" "-startLspServer"))
+   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/result/bin/urweb" "-startLspServer"))
                     :major-modes '(urweb-mode)
-                    :server-id 'urweb-lsp))
+                    :server-id 'urweb-lsp
+                    :initialization-options (lsp-configuration-section "urweb")))
 
   ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
 
@@ -415,7 +440,7 @@ you should place your code here."
       (add-to-list 'company-backends 'company-tide)
       (my/use-tslint-from-node-modules)
       ))
-  (flycheck-add-mode 'typescript-tslint 'web-mode)
+  ;; (flycheck-add-mode 'typescript-tslint 'web-mode)
   ;; (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
   ;; (add-hook 'web-mode-hook 'prettier-js-mode)
 
@@ -440,6 +465,10 @@ you should place your code here."
     (spacemacs/toggle-auto-completion-on)
     )
   (add-hook 'urweb-mode-hook 'init-urweb-proj)
+  (add-hook 'urweb-mode-hook 'lsp)
+  (spacemacs|define-jump-handlers urweb-mode)
+  (setq flycheck-chcker-error-threshold 10000)
+
 
   (defun urweb-get-projectname (dir)
     (let* ((filesInDir (directory-files dir))
@@ -468,28 +497,12 @@ you should place your code here."
                  (directory-files dir)
                (list '(dir)))))))
 
-  (defun urweb-get-info ()
-    (interactive)
-    (let*
-        ((row (line-number-at-pos))
-         (col (evil-column))
-         (bfn (buffer-file-name))
-         (proj-dir (urweb-get-proj-dir bfn))
-         (filename (file-relative-name bfn proj-dir))
-         (loc (concat filename ":" (number-to-string row) ":" (number-to-string col)))
-         )
-      (require 's)
-      (require 'f)
-      (require 'simple)
-      (message (let
-                   ((default-directory proj-dir))
-                 (shell-command-to-string (concat "urweb -getInfo " loc))))))
+  ;; (spacemacs/set-leader-keys-for-major-mode 'urweb-mode
+  ;;   "i" 'urweb-get-info)
 
-  (spacemacs/set-leader-keys-for-major-mode 'urweb-mode
-    "i" 'urweb-get-info)
 
   ;; Smart compile: https://ambrevar.xyz/emacs/index.html
-  ;; (make-variable-buffer-local 'compile-command)
+  (make-variable-buffer-local 'compile-command)
 
   (defun mk-compile-command-with-notifs (comp)
     (if (string-equal system-type "darwin")
@@ -520,6 +533,7 @@ you should place your code here."
       (setq default-directory proj-dir)
       (setq compile-command (mk-compile-command-with-notifs "make"))))
   (add-hook 'sml-mode-hook 'sml-set-compiler)
+  
 
   (global-set-key (kbd "C-l") 'evil-window-right)
   (global-set-key (kbd "C-h") 'evil-window-left)
@@ -530,6 +544,35 @@ you should place your code here."
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 
+  ;; sassc
+  (require 'flycheck)
+
+  (flycheck-define-checker sassc
+    "A Sass syntax checker using the SassC compiler.
+See URL `https://sass-lang.com/libsass'."
+    :command ("sassc"
+              "--line-numbers"
+              "--stdin")
+    :standard-input t
+    :error-patterns
+    ((error line-start
+            (or "Syntax error: " "Error: ")
+            (message (one-or-more not-newline)
+                     (zero-or-more "\n"
+                                   (one-or-more " ")
+                                   (one-or-more not-newline)))
+            (optional "\r") "\n" (one-or-more " ") "on line " line ":" column
+            " of stdin"
+            line-end))
+    :modes scss-mode)
+
+  (defun flycheck-sassc-setup ()
+    "Set up the flycheck-sassc checker."
+    (interactive)
+    (add-to-list 'flycheck-checkers 'sassc))
+  (flycheck-sassc-setup)
+  (provide 'flycheck-sassc)
+  (add-hook 'scss-mode-hook 'flycheck-sassc-setup)
 
   ;; Dummy var
   ;; (flycheck-def-config-file-var
