@@ -13,4 +13,7 @@ fi
 export PS1="\w [\t] \\$ "
 export TERM=xterm-256color
 
+export LOCALE_ARCHIVE_2_27="/nix/store/rdzldh4fiisgjy2hfvs1bf48gprbqlkh-glibc-locales-2.27/lib/locale/locale-archive"
+export LOVALE_ARCHIVE_2_11="/etc/default/locale"
+
 eval "$(direnv hook bash)"

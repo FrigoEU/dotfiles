@@ -166,8 +166,14 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 15
+
+   ;; dotspacemacs-default-font '("Source Code Pro"
+   ;;                             :size 15
+   ;;                             :weight normal
+   ;;                             :width normal
+   ;;                             :powerline-scale 1.1)
+   dotspacemacs-default-font '("PragmataPro Mono Liga"
+                               :size 16
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -364,6 +370,7 @@ you should place your code here."
 
   (direnv-mode)
 
+  ;; magit: escape and q to abort / exit popup
   (require 'transient)
   (define-key transient-map        "q" 'transient-quit-one)
   (define-key transient-edit-map   "q" 'transient-quit-one)
@@ -402,6 +409,9 @@ you should place your code here."
                           
   ;; (setq lsp-print-performance t)
 
+  ; Register urweb language server
+  (defcustom lsp-urweb-language-server-urpfile "school" "Urp file to choose if multiple")
+  (lsp-register-custom-settings '(("urweb.project.urpfile" lsp-urweb-language-server-urpfile)))
   (defgroup lsp-urweb nil
     "LSP support for Ur/Web."
     :group 'lsp-mode
@@ -410,7 +420,8 @@ you should place your code here."
   (lsp-register-client
    (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simonvancasteren/urweb/bin/urweb" "-startLspServer"))
                     :major-modes '(urweb-mode)
-                    :server-id 'urweb-lsp))
+                    :server-id 'urweb-lsp
+                    :initialization-options (lsp-configuration-section "urweb")))
 
   ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
 
