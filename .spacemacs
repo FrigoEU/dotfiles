@@ -72,6 +72,7 @@ values."
             shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
+     treemacs
      ;; themes-megapack
      ;; version-control
      )
@@ -369,7 +370,17 @@ you should place your code here."
 
   (direnv-mode)
 
+  (require 'transient)
+  (define-key transient-map        "q" 'transient-quit-one)
+  (define-key transient-edit-map   "q" 'transient-quit-one)
+  (define-key transient-sticky-map "q" 'transient-quit-seq)
+  (define-key transient-map        (kbd "<escape>") 'transient-quit-one)
+  (define-key transient-edit-map   (kbd "<escape>") 'transient-quit-one)
+  (define-key transient-sticky-map (kbd "<escape>") 'transient-quit-seq)
+
+  (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  (add-hook 'urweb-mode-hook 'flycheck-mode)
 
   ;; https://github.com/purcell/exec-path-from-shell
   ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
@@ -382,21 +393,20 @@ you should place your code here."
   (setq lsp-ui-doc-position 'top)
   (setq lsp-ui-doc-alignment 'window)
   (setq lsp-ui-doc-use-childframe t)
-  (setq lsp-print-performance t)
-  (setq lsp-print-io t)
-  (setq lsp-trace t)
-  (setq lsp-ui-doc-delay 0.2)
+  ;; (setq lsp-print-performance t)
+  ;; (setq lsp-print-io t)
+  ;; (setq lsp-trace t)
+  ;; (setq lsp-ui-doc-delay 0.2)
   (require 'lsp-ui)
   (setq lsp-ui-doc-enable nil)
 
   ;; this overwrites an lsp layer binding, careful!
   (spacemacs/set-leader-keys-for-major-mode 'lsp-mode "h" 'lsp-describe-thing-at-point)
 
-  ;; (setq lsp-report-if-no-buffer t)
-  ;; (setq lsp-auto-configure t)
-  ;; (setq lsp-ui-sideline-enable t)
-  ;; (setq lsp-ui-sideline-show-diagnostics t)
-  ;; (setq powerline-height 25)
+  ; Always show tooltip, even if there is only one match
+  ; Otherwise if there is only one match a "preview" is shown and you don't see eg type info
+  (setq company-frontends '(company-pseudo-tooltip-frontend
+                            company-echo-metadata-frontend))
 
   (defgroup lsp-urweb nil
     "LSP support for Ur/Web."
@@ -419,28 +429,28 @@ you should place your code here."
   ;; TYPESCRIPT/TSX
   ;; (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
   (add-hook 'find-file-hook 'tsx-stuff)
-  ;; (defun my/use-tslint-from-node-modules ()
-  ;;   (let* ((root (locate-dominating-file
-  ;;                 (or (buffer-file-name) default-directory)
-  ;;                 "node_modules"))
-  ;;          (tslint (and root
-  ;;                       (expand-file-name "node_modules/tslint/bin/tslint"
-  ;;                                         root))))
-  ;;     (when (and tslint (file-executable-p tslint))
-  ;;       (setq-local flycheck-typescript-tslint-executable tslint))))
-  
-  ;; (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
-  (defun tsx-stuff ()
-    ;; we want to start this only when opening tsx, not just web-mode
-    (when (string= (file-name-extension buffer-file-name) "tsx")
-      (emmet-mode)
-      (setq-local emmet-expand-jsx-className? t)
-      (smartparens-mode)
-      (spacemacs/toggle-auto-completion-on)
-      (add-to-list 'company-backends 'company-tide)
-      (my/use-tslint-from-node-modules)
-      ))
-  ;; (flycheck-add-mode 'typescript-tslint 'web-mode)
+  (defun my/use-tslint-from-node-modules ()
+    (let* ((root (locate-dominating-file
+                  (or (buffer-file-name) default-directory)
+                  "node_modules"))
+           (tslint (and root
+                        (expand-file-name "node_modules/tslint/bin/tslint"
+                                          root))))
+      (when (and tslint (file-executable-p tslint))
+        (setq-local flycheck-typescript-tslint-executable tslint))))
+
+;; (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
+(defun tsx-stuff ()
+  ;; we want to start this only when opening tsx, not just web-mode
+  (when (string= (file-name-extension buffer-file-name) "tsx")
+    (emmet-mode)
+    (setq-local emmet-expand-jsx-className? t)
+    (smartparens-mode)
+    (spacemacs/toggle-auto-completion-on)
+    (add-to-list 'company-backends 'company-tide)
+    (my/use-tslint-from-node-modules)
+    (flycheck-add-mode 'typescript-tslint 'web-mode)
+    ))
   ;; (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
   ;; (add-hook 'web-mode-hook 'prettier-js-mode)
 
@@ -573,6 +583,66 @@ See URL `https://sass-lang.com/libsass'."
   (flycheck-sassc-setup)
   (provide 'flycheck-sassc)
   (add-hook 'scss-mode-hook 'flycheck-sassc-setup)
+
+  (defun setup-school-local-shells ()
+    (interactive)
+    (persp-switch "School local shells")
+    (winum-select-window-1)
+    (split-window-right)
+    (split-window-below)
+    (split-window-right)
+    (winum-select-window-3)
+    (split-window-right)
+    (rename-buffer "General" 1)
+    (rename-buffer "Tunnel" 1)
+    (rename-buffer "Haskell maildaemon" 1)
+    (rename-buffer "Vterm" 1)
+    (let* ()
+      (winum-select-window-1)
+      (cd "~/ur-proj/school")
+      (vterm "General")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      )
+    (let* ()
+      (winum-select-window-2)
+      (cd "~/ur-proj/school")
+      (vterm "Tunnel")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      (vterm-send-string "make tunnel")
+      )
+    (let* ()
+      (winum-select-window-3)
+      (cd "~/ur-proj/school")
+      (vterm "Urweb school")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      (vterm-send-string "sudo make start")
+      )
+    (let* ()
+      (winum-select-window-4)
+      (cd "~/ur-proj/school")
+      (vterm "Haskell maildaemon")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      (vterm-send-string "make email_daemon")
+      )
+    (let* ()
+      (winum-select-window-5)
+      (cd "~/ur-proj/school")
+      (vterm "SQL")
+      (vterm-send-string "clear")
+      (vterm-send-return)
+      (vterm-send-string "psql urwebschool")
+      )
+    )
+
+  (defun restart-urweb ()
+      (interactive)
+      (with-current-buffer "Urweb school"
+        (vterm-send-string " ")
+        (vterm-send-return)))
 
   ;; Dummy var
   ;; (flycheck-def-config-file-var
