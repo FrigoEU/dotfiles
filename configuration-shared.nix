@@ -28,6 +28,9 @@ in
   boot.loader.grub.useOSProber = true;
 
   networking.hostName = "nixos-x1"; # Define your hostname.
+  # fill in <ifname> via nmcli device (eg: wlp0s20f3)
+  # fill in <pw>
+  # nmcli connection add con-name "M&S 2.4GHz Bonanza" type wifi ifname <ifname> ipv4.method auto autoconnect yes wifi.ssid "M&S 2.4GHz Bonanza" wifi-sec.psk "<pw>" wifi-sec.key-mgmt "wpa-psk"
   networking.networkmanager.enable = true;
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -126,6 +129,9 @@ in
   services.xserver.layout = "be";
   services.xserver.xkbOptions = "caps:swapescape";
 
+  # services.compton.enable = true;
+  # services.compton.backend = "xrender";
+
   # Enable touchpad support.
   # services.xserver.libinput.enable = true;
 
@@ -135,11 +141,11 @@ in
 
   # EXWM: Emacs Window Manager
   # https://www.reddit.com/r/NixOS/comments/8ghg4f/exwm_problem/
+  services.xserver.displayManager.sessionCommands = "${pkgs.xorg.xhost}/bin/xhost +SI:localuser:$USER";
   services.xserver.windowManager.session = lib.singleton {
     name = "exwm";
     start = ''
-      ${withOverlays.emacsGit}/bin/emacs --daemon -f exwm-enable
-      ${withOverlays.emacsGit}/bin/emacsclient -c
+      ${withOverlays.emacsGit}/bin/emacs --eval "(exwm-enable)"
     '';
   };
 
