@@ -44,7 +44,7 @@ in
 
   # Select internationalisation properties.
   i18n = {
-    consoleFont = "Lat2-Terminus16";
+    consoleFont = "PragmataPro Mono";
     consoleUseXkbConfig = true;
     defaultLocale = "en_US.UTF-8";
   };
@@ -130,8 +130,18 @@ in
   # services.xserver.libinput.enable = true;
 
   # Enable the KDE Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  # services.xserver.displayManager.sddm.enable = true;
+  # services.xserver.desktopManager.plasma5.enable = true;
+
+  # EXWM: Emacs Window Manager
+  # https://www.reddit.com/r/NixOS/comments/8ghg4f/exwm_problem/
+  services.xserver.windowManager.session = lib.singleton {
+    name = "exwm";
+    start = ''
+      ${withOverlays.emacsGit}/bin/emacs --daemon -f exwm-enable
+      ${withOverlays.emacsGit}/bin/emacsclient -c
+    '';
+  }
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.mutableUsers = false;
