@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, hwimports, ... }:
+{ config, pkgs, lib, hwimports, ... }:
 
 let 
   emacsOverlay = import (builtins.fetchTarball {
@@ -141,7 +141,7 @@ in
       ${withOverlays.emacsGit}/bin/emacs --daemon -f exwm-enable
       ${withOverlays.emacsGit}/bin/emacsclient -c
     '';
-  }
+  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.mutableUsers = false;
