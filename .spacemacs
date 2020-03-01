@@ -378,9 +378,17 @@ you should place your code here."
   (define-key transient-edit-map   (kbd "<escape>") 'transient-quit-one)
   (define-key transient-sticky-map (kbd "<escape>") 'transient-quit-seq)
 
+  (spacemacs/set-leader-keys "o" 'evil-jump-backward)
+
   (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (add-hook 'urweb-mode-hook 'flycheck-mode)
+
+  (require 'em-term)
+  (add-to-list 'eshell-visual-commands "psql")
+
+  (require 'em-alias)
+  (defalias 'uw "make build && restart-urweb && firefox localhost:8080")
 
   ;; https://github.com/purcell/exec-path-from-shell
   ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
@@ -467,7 +475,7 @@ you should place your code here."
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
   ;; UR-WEB
-  (load "~/.emacs.d/elpa/ur/urweb-mode-startup")
+  (load "~/urweb/src/elisp/urweb-mode-startup")
   (setq urweb-indent-level 2)
   (defun init-urweb-proj ()
     (smartparens-mode)
