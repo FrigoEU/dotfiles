@@ -9,6 +9,10 @@ let
       url = https://github.com/nix-community/emacs-overlay/archive/5f602f561ec0eaace6846656f5e6155c4d59a67b.tar.gz;
     });
   withOverlays = import <nixpkgs> { overlays = [ emacsOverlay ]; };
+  pragmatapro = import ./pragmatapro.nix {runCommand = pkgs.runCommand;
+                                          requireFile = pkgs.requireFile;
+                                          unzip = pkgs.unzip;
+                                         };
 in
 {
   imports = hwimports;
@@ -82,6 +86,9 @@ in
       shared_buffers = 80MB
     '';
   };
+  fonts.fonts = [
+    pragmatapro
+  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
