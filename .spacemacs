@@ -32,7 +32,7 @@ values."
    dotspacemacs-configuration-layers
    '(
      haskell
-     csv
+     ;; csv
      sml
      ;; graphviz
      ;; ruby
@@ -42,7 +42,7 @@ values."
      ;; ocaml
      ;; ruby
      ;; vimscript
-     markdown
+     ;; markdown
      sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -75,10 +75,10 @@ values."
      treemacs
      ;; themes-megapack
      ;; version-control
-     (exwm :variables
-           exwm-enable-systray t
-           ;; exwm-install-logind-lock-handler t
-           )
+     ;; (exwm :variables
+     ;;       exwm-enable-systray t
+     ;;       ;; exwm-install-logind-lock-handler t
+     ;;       )
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -89,6 +89,7 @@ values."
                                       ;; (anybar)
                                       (direnv)
                                       (exec-path-from-shell)
+                                      (doom-themes)
                                       ;; (lsp-ui)
                                       ;; (company-lsp)
                                       )
@@ -165,7 +166,8 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
+   dotspacemacs-themes '(doom-one
+                         spacemacs-dark
                          spacemacs-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
@@ -177,7 +179,8 @@ values."
                                :width normal
                                :powerline-scale 1.1)
 
-   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 0.8)
+   dotspacemacs-mode-line-theme '(doom)
+   ;; dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 0.8)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
@@ -366,6 +369,9 @@ you should place your code here."
   (setq scroll-margin 8)
   (setq vc-follow-symlinks t)
 
+  (setq doom-modeline-buffer-encoding nil)
+  (setq doom-modeline-percent-position nil)
+
   (define-key key-translation-map (kbd "M-9") (kbd "`"))
   (define-key key-translation-map (kbd "M-2") (kbd "~"))
 
@@ -388,11 +394,27 @@ you should place your code here."
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (add-hook 'urweb-mode-hook 'flycheck-mode)
 
+  (defun mk-compile-command-with-notifs (comp)
+    (if (string-equal system-type "darwin")
+        ;; Anybar
+        (s-concat "echo -n white | nc -4u -w1 localhost 1738;\n"
+                  "if " comp "; then\n"
+                  "  echo -n green | nc -4u -w1 localhost 1738\n"
+                  "else \n"
+                  "  echo -n red | nc -4u -w1 localhost 1738; exit 1\n"
+                  "fi")
+      ;; notify-send
+      (s-concat "if " comp "; then\n"
+                "  notify-send 'Compile OK' -i ~/dotfiles/checked.png -h string:sound-name:dialog-error\n"
+                "else \n"
+                "  notify-send 'Compile fail' -i ~/dotfiles/cancel.png -h string:sound-name:dialog-error; exit 1\n"
+                "fi")))
+
   (require 'em-term)
   (add-to-list 'eshell-visual-commands "psql")
 
   (require 'em-alias)
-  (defalias 'uw "make build && restart-urweb && firefox localhost:8080")
+  (defalias 'uw (mk-compile-command-with-notifs "make build && restart-urweb"))
 
   ;; https://github.com/purcell/exec-path-from-shell
   ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
@@ -400,7 +422,7 @@ you should place your code here."
     (exec-path-from-shell-initialize))
   (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
 
-  (require 'lsp)
+  (require 'lsp-mode)
   (setq lsp-language-id-configuration '((urweb-mode . "urweb")))
   (setq lsp-ui-doc-position 'top)
   (setq lsp-ui-doc-alignment 'window)
@@ -478,6 +500,9 @@ you should place your code here."
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
+  ;; OCAML
+  ;; (setq merlin-command "ocamlmerlin")
+
   ;; UR-WEB
   (load "~/urweb/src/elisp/urweb-mode-startup")
   (setq urweb-indent-level 2)
@@ -526,21 +551,6 @@ you should place your code here."
   ;; Smart compile: https://ambrevar.xyz/emacs/index.html
   (make-variable-buffer-local 'compile-command)
 
-  (defun mk-compile-command-with-notifs (comp)
-    (if (string-equal system-type "darwin")
-        ;; Anybar
-        (s-concat "echo -n white | nc -4u -w1 localhost 1738;\n"
-                  "if " comp "; then\n"
-                  "  echo -n green | nc -4u -w1 localhost 1738\n"
-                  "else \n"
-                  "  echo -n red | nc -4u -w1 localhost 1738; exit 1\n"
-                  "fi")
-      ;; notify-send
-      (s-concat "if " comp "; then\n"
-                "  notify-send 'Compile OK' -i ~/dotfiles/checked.png -h string:sound-name:dialog-error\n"
-                "else \n"
-                "  notify-send 'Compile fail' -i ~/dotfiles/cancel.png -h string:sound-name:dialog-error; exit 1\n"
-                "fi")))
   
   (defun urweb-set-compiler ()
     (let* ((proj-dir (urweb-get-proj-dir (buffer-file-name))))
