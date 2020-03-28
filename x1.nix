@@ -9,7 +9,9 @@ let
       "${nixoshw}/lenovo/thinkpad/x1/6th-gen/QHD"
       ./hardware-configuration-x1.nix ];
 in
-  import ./configuration-shared.nix {config = config;
-                                    pkgs = pkgs;
-                                    lib = lib;
-                                    hwimports = hwimports; }
+import ./configuration-shared.nix {
+  config = config;
+  pkgs = pkgs;
+  lib = lib;
+  hwimports = hwimports;
+}
