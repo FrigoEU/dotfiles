@@ -3,7 +3,10 @@ let
   specifics = 
     { config, lib, pkgs, ... }:
     {
-      services.xserver.videoDrivers = [ "amdgpu-pro" ];
+      networking.hostName = "nixos-desktop"; # Define your hostname.
+      nixpkgs.config.allowUnfree = true;
+       services.xserver.layout = "us";
+      # services.xserver.videoDrivers = [ "amdgpu-pro" ];
     };
   hwimports =
     [ # Include the results of the hardware scan.

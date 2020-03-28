@@ -27,7 +27,6 @@ in
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
 
-  networking.hostName = "nixos-x1"; # Define your hostname.
   # fill in <ifname> via nmcli device (eg: wlp0s20f3)
   # fill in <pw>
   # nmcli connection add con-name "M&S 2.4GHz Bonanza" type wifi ifname <ifname> ipv4.method auto autoconnect yes wifi.ssid "M&S 2.4GHz Bonanza" wifi-sec.psk "<pw>" wifi-sec.key-mgmt "wpa-psk"
@@ -126,8 +125,6 @@ in
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-  services.xserver.layout = "be";
-  services.xserver.xkbOptions = "caps:swapescape";
 
   # services.compton.enable = true;
   # services.compton.backend = "xrender";
