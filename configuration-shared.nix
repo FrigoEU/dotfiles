@@ -30,7 +30,7 @@ in
   # fill in <ifname> via nmcli device (eg: wlp0s20f3)
   # fill in <pw>
   # nmcli connection add con-name "M&S 2.4GHz Bonanza" type wifi ifname <ifname> ipv4.method auto autoconnect yes wifi.ssid "M&S 2.4GHz Bonanza" wifi-sec.psk "<pw>" wifi-sec.key-mgmt "wpa-psk"
-  networking.networkmanager.enable = true;
+  # networking.networkmanager.enable = true;
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -134,7 +134,9 @@ in
   # services.xserver.libinput.enable = true;
 
   # Enable the KDE Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
+  # services.xserver.displayManager.sddm.enable = true;
+  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.displayManager.lightdm.autoLogin = { enable = true; user = "simon"; };
   services.xserver.desktopManager.plasma5.enable = true;
 
   # EXWM: Emacs Window Manager
