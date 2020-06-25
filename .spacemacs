@@ -393,6 +393,9 @@ you should place your code here."
   (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (add-hook 'urweb-mode-hook 'flycheck-mode)
+  (defun two-screens-work ()
+    (interactive)
+    (shell-command "xrandr --output eDP-1 --scale 1x1 --mode 2560x1440 --pos 3840x0; xrandr --output HDMI-1 --scale 1.5x1.5 --mode 1920x1080 --pos 0x0"))
 
   (defun mk-compile-command-with-notifs (comp)
     (if (string-equal system-type "darwin")
@@ -562,8 +565,8 @@ you should place your code here."
 
   (defun sml-set-compiler ()
     (let* ((proj-dir (locate-dominating-file "." "Makefile")))
-      (setq default-directory proj-dir)
-      (setq compile-command (mk-compile-command-with-notifs "make"))))
+      (if proj-dir (setq default-directory proj-dir))
+      (if proj-dir (setq compile-command (mk-compile-command-with-notifs "make")))))
   (add-hook 'sml-mode-hook 'sml-set-compiler)
   
 
