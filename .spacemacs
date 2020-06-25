@@ -30,8 +30,7 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
-     haskell
+   '(haskell
      ;; csv
      sml
      ;; graphviz
@@ -502,9 +501,6 @@ you should place your code here."
   ;; (setq omnisharp-server-executable-path "/usr/local/bin/omnisharp")
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
-
-  ;; OCAML
-  ;; (setq merlin-command "ocamlmerlin")
 
   ;; UR-WEB
   (load "~/urweb/src/elisp/urweb-mode-startup")
