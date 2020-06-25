@@ -48,7 +48,6 @@ values."
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     lsp
      helm
      auto-completion
      ;; better-defaults
@@ -85,12 +84,10 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '((nix-mode)
                                       (add-node-modules-path)
-                                      ;; (anybar)
+                                      (anybar)
                                       (direnv)
                                       (exec-path-from-shell)
                                       (doom-themes)
-                                      ;; (lsp-ui)
-                                      ;; (company-lsp)
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -172,12 +169,11 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("PragmataPro Mono"
-                               :size 30
+   dotspacemacs-default-font '("PragmataPro Mono Liga"
+                               :size 16
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
-
    dotspacemacs-mode-line-theme '(doom)
    ;; dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 0.8)
    ;; The leader key
@@ -379,6 +375,7 @@ you should place your code here."
 
   (direnv-mode)
 
+  ;; magit: escape and q to abort / exit popup
   (require 'transient)
   (define-key transient-map        "q" 'transient-quit-one)
   (define-key transient-edit-map   "q" 'transient-quit-one)
@@ -426,36 +423,34 @@ you should place your code here."
 
   (require 'lsp-mode)
   (setq lsp-language-id-configuration '((urweb-mode . "urweb")))
-  (setq lsp-ui-doc-position 'top)
-  (setq lsp-ui-doc-alignment 'window)
-  (setq lsp-ui-doc-use-childframe t)
-  ;; (setq lsp-print-performance t)
-  ;; (setq lsp-print-io t)
-  ;; (setq lsp-trace t)
-  ;; (setq lsp-ui-doc-delay 0.2)
-  (require 'lsp-ui)
-  (setq lsp-ui-doc-enable nil)
-
-  ;; this overwrites an lsp layer binding, careful!
-  (spacemacs/set-leader-keys-for-major-mode 'lsp-mode "h" 'lsp-describe-thing-at-point)
+  (setq lsp-print-io t)
+  (setq lsp-trace t)
+  (setq lsp-report-if-no-buffer t)
+  (setq lsp-auto-configure t)
+  (customize-set-variable 'lsp-ui-sideline-enable t)
+  (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
+  (customize-set-variable 'lsp-ui-sideline-show-hover t)
+  (customize-set-variable 'lsp-ui-doc-alignment (quote window))
+  (customize-set-variable 'lsp-ui-doc-include-signature t)
+  (customize-set-variable 'lsp-ui-doc-position (quote at-point))
 
   ; Always show tooltip, even if there is only one match
   ; Otherwise if there is only one match a "preview" is shown and you don't see eg type info
   (setq company-frontends '(company-pseudo-tooltip-frontend
                             company-echo-metadata-frontend))
+                          
+  ;; (setq lsp-print-performance t)
 
+  ; Register urweb language server
+  (defcustom lsp-urweb-language-server-urpfile "school" "Urp file to choose if multiple")
+  (lsp-register-custom-settings '(("urweb.project.urpfile" lsp-urweb-language-server-urpfile)))
   (defgroup lsp-urweb nil
     "LSP support for Ur/Web."
     :group 'lsp-mode
     :link '(url-link "https://www.impredicative.com/ur"))
 
-  (defcustom lsp-urweb-language-server-urpfile "school" "Urp file to choose if multiple"
-    )
-  (lsp-register-custom-settings
-   '(("urweb.project.urpfile" lsp-urweb-language-server-urpfile)))
-
   (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/result/bin/urweb" "-startLspServer"))
+   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simonvancasteren/urweb/bin/urweb" "-startLspServer"))
                     :major-modes '(urweb-mode)
                     :server-id 'urweb-lsp
                     :initialization-options (lsp-configuration-section "urweb")))
@@ -474,19 +469,19 @@ you should place your code here."
                                           root))))
       (when (and tslint (file-executable-p tslint))
         (setq-local flycheck-typescript-tslint-executable tslint))))
-
-;; (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
-(defun tsx-stuff ()
-  ;; we want to start this only when opening tsx, not just web-mode
-  (when (string= (file-name-extension buffer-file-name) "tsx")
-    (emmet-mode)
-    (setq-local emmet-expand-jsx-className? t)
-    (smartparens-mode)
-    (spacemacs/toggle-auto-completion-on)
-    (add-to-list 'company-backends 'company-tide)
-    (my/use-tslint-from-node-modules)
-    (flycheck-add-mode 'typescript-tslint 'web-mode)
-    ))
+  
+  ;; (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
+  (defun tsx-stuff ()
+    ;; we want to start this only when opening tsx, not just web-mode
+    (when (string= (file-name-extension buffer-file-name) "tsx")
+      (emmet-mode)
+      (setq-local emmet-expand-jsx-className? t)
+      (smartparens-mode)
+      (spacemacs/toggle-auto-completion-on)
+      (add-to-list 'company-backends 'company-tide)
+      (my/use-tslint-from-node-modules)
+      (flycheck-add-mode 'typescript-tslint 'web-mode)
+      ))
   ;; (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
   ;; (add-hook 'web-mode-hook 'prettier-js-mode)
 
@@ -511,10 +506,6 @@ you should place your code here."
     (spacemacs/toggle-auto-completion-on)
     )
   (add-hook 'urweb-mode-hook 'init-urweb-proj)
-  (add-hook 'urweb-mode-hook 'lsp)
-  (spacemacs|define-jump-handlers urweb-mode)
-  (setq flycheck-chcker-error-threshold 10000)
-
 
   (defun urweb-get-projectname (dir)
     (let* ((filesInDir (directory-files dir))
@@ -543,12 +534,28 @@ you should place your code here."
                  (directory-files dir)
                (list '(dir)))))))
 
-  ;; (spacemacs/set-leader-keys-for-major-mode 'urweb-mode
-  ;;   "i" 'urweb-get-info)
+  (defun urweb-get-info ()
+    (interactive)
+    (let*
+        ((row (line-number-at-pos))
+         (col (evil-column))
+         (bfn (buffer-file-name))
+         (proj-dir (urweb-get-proj-dir bfn))
+         (filename (file-relative-name bfn proj-dir))
+         (loc (concat filename ":" (number-to-string row) ":" (number-to-string col)))
+         )
+      (require 's)
+      (require 'f)
+      (require 'simple)
+      (message (let
+                   ((default-directory proj-dir))
+                 (shell-command-to-string (concat "urweb -getInfo " loc))))))
 
+  (spacemacs/set-leader-keys-for-major-mode 'urweb-mode
+    "i" 'urweb-get-info)
 
   ;; Smart compile: https://ambrevar.xyz/emacs/index.html
-  (make-variable-buffer-local 'compile-command)
+  ;; (make-variable-buffer-local 'compile-command)
 
   
   (defun urweb-set-compiler ()
@@ -564,7 +571,6 @@ you should place your code here."
       (if proj-dir (setq default-directory proj-dir))
       (if proj-dir (setq compile-command (mk-compile-command-with-notifs "make")))))
   (add-hook 'sml-mode-hook 'sml-set-compiler)
-  
 
   (global-set-key (kbd "C-l") 'evil-window-right)
   (global-set-key (kbd "C-h") 'evil-window-left)
@@ -664,6 +670,7 @@ See URL `https://sass-lang.com/libsass'."
       (with-current-buffer "Urweb school"
         (vterm-send-string " ")
         (vterm-send-return)))
+
 
   ;; Dummy var
   ;; (flycheck-def-config-file-var
