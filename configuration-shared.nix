@@ -2,11 +2,15 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
+# sudo nix-channel --list is different from nix-channel --list !
+# update: sudo nixos-rebuild switch --upgrade
+
 { config, pkgs, lib, hwimports, ... }:
 
 let 
   emacsOverlay = import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/5f602f561ec0eaace6846656f5e6155c4d59a67b.tar.gz;
+    url = https://github.com/nix-community/emacs-overlay/archive/76689f5a1be8247382e7ac208c30ff7e759e5110.tar.gz;
+
     });
   withOverlays = import <nixpkgs> { overlays = [ emacsOverlay ]; };
   pragmatapro = import ./pragmatapro.nix {runCommand = pkgs.runCommand;
@@ -37,8 +41,6 @@ in
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
-  networking.interfaces.enp0s31f6.useDHCP = true;
-  networking.interfaces.wlp0s20f3.useDHCP = true;
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -58,12 +60,19 @@ in
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     wget vim firefox git
-    withOverlays.emacsGit 
-    # emacs vterm
-    withOverlays.emacsPackagesNg.emacs-libvterm
+    # emacs with vterm
+    ((withOverlays.emacsPackagesGen withOverlays.emacsGit).emacsWithPackages (epkgs: ([])))
+    
     gnumake direnv libnotify
     entr silver-searcher 
     unzip
+    autoconf automake libtool
+
+    (perl.withPackages(p: with p; [
+      RPCEPCService
+      DBI
+      DBDPg
+    ])) # edbi -> dbi:Pg:dbname=urwebschool
   ];
   services.lorri.enable = true;
   services.tlp.enable = true;
@@ -116,6 +125,15 @@ in
   sound.enable = true;
   hardware.pulseaudio.enable = true;
 
+  # keyboardio
+  services.udev.extraRules = ''
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2300",
+    SYMLINK+="model01", ENV{ID_MM_DEVICE_IGNORE}:="1",
+    ENV{ID_MM_CANDIDATE}:="0" SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209",
+    ATTRS{idProduct}=="2301", SYMLINK+="model01",
+    ENV{ID_MM_DEVICE_IGNORE}:="1", ENV{ID_MM_CANDIDATE}:="0"
+  '';
+
   environment.variables = {
     PLASMA_USE_QT_SCALING = "1";
 
@@ -154,7 +172,11 @@ in
   users.users.simon = {
     isNormalUser = true;
     hashedPassword = "$6$Jm3nlU.X$ssyK4RCasLJcEViRlsMBYAWD9e8rdgNUALMTEwhoTwQ.1Oeniu0yDSzetPz.3.T8tgr7mKXqw7DHWuQ7tgd./0";
-    extraGroups = [ "wheel" "networkmanager" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [
+      "wheel" # Enable ‘sudo’ for the user.
+      "dialout" # ao, keyboardio flashing
+      "networkmanager"
+    ];
   };
 
   # This value determines the NixOS release with which your system is to be

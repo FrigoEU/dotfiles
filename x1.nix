@@ -7,6 +7,8 @@ let
       services.xserver.layout = "be";
       services.xserver.xkbOptions = "caps:swapescape";
       networking.networkmanager.enable = true;
+      networking.interfaces.enp0s31f6.useDHCP = true;
+      networking.interfaces.wlp0s20f3.useDHCP = true;
     };
   nixoshw = builtins.fetchTarball {
 	  url = https://github.com/nixos/nixos-hardware/archive/6f502bc6e62ef8519be4a5ff37b03d8ca5007dce.tar.gz;
