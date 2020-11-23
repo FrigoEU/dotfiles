@@ -91,13 +91,13 @@ in
       host  all all 127.0.0.1/32 trust
       host  all all ::1/128      trust
     '';
-    extraConfig = ''
-      log_statement = 'all'
-      logging_collector = on
-      log_directory = 'pg_log'
-      max_connections = 300
-      shared_buffers = 80MB
-    '';
+    settings = {
+      log_statement = "all";
+      logging_collector = true;
+      log_directory = "pg_log";
+      max_connections = 300;
+      shared_buffers = "80MB";
+    };
   };
   fonts.fonts = [
     pragmatapro
