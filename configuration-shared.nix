@@ -61,7 +61,9 @@ in
   environment.systemPackages = with pkgs; [
     wget vim firefox git
     # emacs with vterm
-    ((withOverlays.emacsPackagesGen withOverlays.emacsGit).emacsWithPackages (epkgs: ([])))
+    ((withOverlays.emacsPackagesGen withOverlays.emacsGit).emacsWithPackages (epkgs: ([
+      epkgs.vterm
+    ])))
     
     gnumake direnv libnotify
     entr silver-searcher 
