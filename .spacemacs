@@ -30,8 +30,8 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
-     haskell
+   '(yaml
+     (haskell :variables haskell-completion-backend 'lsp)
      ;; csv
      sml
      ;; graphviz
@@ -43,6 +43,7 @@ values."
      ;; ruby
      ;; vimscript
      ;; markdown
+     (java :variables java-backend 'lsp)
      sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -52,15 +53,15 @@ values."
      helm
      auto-completion
      ;; better-defaults
-     ;; csharp
+     ;; (csharp :variables csharp-backend 'lsp)
      ;; emacs-lisp
      javascript
-     typescript
+     (typescript :variables typescript-backend 'tide)
      html
      ;; haskell
      ;; purescript
      git
-     lsp
+     (lsp :variables lsp-headerline-breadcrumb-segments nil)
      ;; spotify
      ;; clojure
      ;; idris
@@ -72,7 +73,8 @@ values."
             shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
-     treemacs
+     (treemacs :variables treemacs-use-follow-mode nil)
+     ;; treemacs
      ;; themes-megapack
      ;; version-control
      ;; (exwm :variables
@@ -166,6 +168,7 @@ values."
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(doom-one
+                         doom-gruvbox-light
                          spacemacs-dark
                          spacemacs-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
@@ -432,11 +435,71 @@ you should place your code here."
                 "  notify-send 'Compile fail' -i ~/dotfiles/cancel.png -h string:sound-name:dialog-error; exit 1\n"
                 "fi")))
 
+  ;; (setq open-edbi-connections '())
+
+  ;; (defun edbi:open-db-viewer-with-info (uri &optional user auth)
+  ;;   "Open Database viewer buffer with data source info."
+  ;;   (if ;; if the conn is already open -> reuse
+  ;;       (assoc uri open-edbi-connections)
+  ;;       (edbi:dbview-open (cdr (assoc uri open-edbi-connections)))
+  ;;     ;; else make a new conn and save
+  ;;     (message "yp")
+  ;;     (let ((data-source (edbi:data-source uri user auth))
+  ;;           (conn (edbi:start)))
+  ;;       (edbi:connect conn data-source)
+  ;;       ;; TODO: remove from open-edbi-connections if connection fails
+  ;;       (map-put open-edbi-connections uri conn)
+  ;;       (edbi:dbview-open conn))))
+
+  ;; usage: (edbi:open-db-viewer-with-info "dbi:Pg:dbname=xxxx" "username" "password")
+  ;; (defun school:connect-local ()
+  ;;   (interactive)
+  ;;   (edbi:open-db-viewer-with-info "dbi:Pg:dbname=urwebschool"))
+
+  ;; TODO: open SSH port forwarding if not already present
+  ;; ssh -L9999:localhost:5432 root@172.104.129.155
+  ;; (defun school:connect-remote ()
+  ;;   "Connect to De Rockschool DB via SSH post forwarded to 9999"
+  ;;   (interactive)
+  ;;   (edbi:open-db-viewer-with-info (concat "dbi:Pg:dbname=derockschool;host=localhost;port=9999") "nixcloud" "nixcloud"))
+
   (require 'em-term)
   (add-to-list 'eshell-visual-commands "psql")
 
   (require 'em-alias)
   (defalias 'uw (mk-compile-command-with-notifs "make build && restart-urweb"))
+
+
+  ;; use sql-connect to connect to one of these
+  (setq sql-postgres-login-params nil) 
+  (setq sql-connection-alist
+        '((aperi (sql-product 'postgres)
+                 (sql-database (concat "postgresql://"
+                                       "aperi"  ;; replace with your username
+                                       ":"
+                                       "aperi"
+                                       ;; (read-passwd "Enter password: ")
+                                       "@localhost"      ;; replace with your host
+                                       ":5432"      ;; replace with your port
+                                       "/aperi"  ;; replace with your database
+                                       )))
+          ("urwebschool"
+           (sql-product 'postgres)
+           (sql-database "urwebschool"))
+          ("hamaril"
+           (sql-product 'postgres)
+           (sql-user "nixcloud")
+           (sql-database "hamaril")
+           (sql-server "tunnel")) (* TODO automate SSH port forwarding *)
+          ;; (secondary-db (sql-product 'postgres)
+          ;;               (sql-database (concat "postgresql://"
+          ;;                                     "username:"
+          ;;                                     (read-passwd "Enter password: ")
+          ;;                                     "@host"
+          ;;                                     ":port"
+          ;;                                     "/database")))
+          ))
+
 
   ;; https://github.com/purcell/exec-path-from-shell
   ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
@@ -446,8 +509,8 @@ you should place your code here."
 
   (require 'lsp-mode)
   (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
-  (setq lsp-print-io t)
-  (setq lsp-trace t)
+  ;; (setq lsp-print-io t)
+  ;; (setq lsp-trace t)
   (setq lsp-report-if-no-buffer t)
   (setq lsp-auto-configure t)
   (customize-set-variable 'lsp-ui-sideline-enable t)
@@ -456,6 +519,8 @@ you should place your code here."
   (customize-set-variable 'lsp-ui-doc-alignment (quote window))
   (customize-set-variable 'lsp-ui-doc-include-signature t)
   (customize-set-variable 'lsp-ui-doc-position (quote at-point))
+
+  (setq lsp-disabled-clients '(eslint)) ;; eslint is annoying, always wants to loads 1000's of files that are irrelevant to me. If you want to use it, get it configured properly first
 
   ;; Default left-to-right, perf
   (setq bidi-paragraph-direction 'left-to-right)
@@ -490,32 +555,34 @@ you should place your code here."
   ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
 
   ;; TYPESCRIPT/TSX
-  ;; (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
-  (add-hook 'find-file-hook 'tsx-stuff)
-  (defun my/use-tslint-from-node-modules ()
-    (let* ((root (locate-dominating-file
-                  (or (buffer-file-name) default-directory)
-                  "node_modules"))
-           (tslint (and root
-                        (expand-file-name "node_modules/tslint/bin/tslint"
-                                          root))))
-      (when (and tslint (file-executable-p tslint))
-        (setq-local flycheck-typescript-tslint-executable tslint))))
+  (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
+
+  ;; (add-hook 'find-file-hook 'tsx-stuff)
+  ;; (defun my/use-tslint-from-node-modules ()
+  ;;   (let* ((root (locate-dominating-file
+  ;;                 (or (buffer-file-name) default-directory)
+  ;;                 "node_modules"))
+  ;;          (tslint (and root
+  ;;                       (expand-file-name "node_modules/tslint/bin/tslint"
+  ;;                                         root))))
+  ;;     (when (and tslint (file-executable-p tslint))
+  ;;       (setq-local flycheck-typescript-tslint-executable tslint))))
   
   ;; (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
-  (defun tsx-stuff ()
-    ;; we want to start this only when opening tsx, not just web-mode
-    (when (string= (file-name-extension buffer-file-name) "tsx")
-      (emmet-mode)
-      (setq-local emmet-expand-jsx-className? t)
-      (smartparens-mode)
-      (spacemacs/toggle-auto-completion-on)
-      (add-to-list 'company-backends 'company-tide)
-      (my/use-tslint-from-node-modules)
-      (flycheck-add-mode 'typescript-tslint 'web-mode)
-      ))
+  ;; (defun tsx-stuff ()
+  ;;   ;; we want to start this only when opening tsx, not just web-mode
+  ;;   (when (string= (file-name-extension buffer-file-name) "tsx")
+  ;;     (emmet-mode)
+  ;;     (setq-local emmet-expand-jsx-className? t)
+  ;;     (smartparens-mode)
+  ;;     (spacemacs/toggle-auto-completion-on)
+  ;;     (add-to-list 'company-backends 'company-tide)
+  ;;     (my/use-tslint-from-node-modules)
+  ;;     (flycheck-add-mode 'typescript-tslint 'web-mode)
+  ;;     ))
   ;; (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
-  ;; (add-hook 'web-mode-hook 'prettier-js-mode)
+  (add-hook 'typescript-mode-hook 'prettier-js-mode)
+  (add-hook 'web-mode-hook 'prettier-js-mode)
 
 
 
@@ -526,6 +593,7 @@ you should place your code here."
 
   ;; CSHARP
   ;; (setq omnisharp-server-executable-path "/usr/local/bin/omnisharp")
+
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
@@ -590,6 +658,8 @@ you should place your code here."
   (global-set-key (kbd "C-h") 'evil-window-left)
   (global-set-key (kbd "C-j") 'evil-window-down)
   (global-set-key (kbd "C-k") 'evil-window-up)
+  (global-set-key [f10] '(lambda () (interactive) (profiler-start 'cpu)))
+  (global-set-key [f11] 'profiler-report)
   (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
   (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
@@ -766,25 +836,75 @@ you should place your code here."
  '(paradox-github-token t)
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
- '(sql-connection-alist
-   '(("urwebschool"
-      (sql-product 'postgres)
-      (sql-user "Simon")
-      (sql-database "urwebschool")
-      (sql-server ""))
-     ("hamaril"
-      (sql-product 'postgres)
-      (sql-user "nixcloud")
-      (sql-database "hamaril")
-      (sql-server ""))
-     ("derockschool-prod"
-      (sql-product 'postgres)
-      (sql-user "nixcloud")
-      (sql-database "derockschool")
-      (sql-server "")))))
+ )
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
+ '(evil-want-Y-yank-to-eol nil)
+ '(hl-todo-keyword-faces
+   '(("TODO" . "#dc752f")
+     ("NEXT" . "#dc752f")
+     ("THEM" . "#2d9574")
+     ("PROG" . "#4f97d7")
+     ("OKAY" . "#4f97d7")
+     ("DONT" . "#f2241f")
+     ("FAIL" . "#f2241f")
+     ("DONE" . "#86dc2f")
+     ("NOTE" . "#b1951d")
+     ("KLUDGE" . "#b1951d")
+     ("HACK" . "#b1951d")
+     ("TEMP" . "#b1951d")
+     ("FIXME" . "#dc752f")
+     ("XXX+" . "#dc752f")
+     ("\\?\\?\\?+" . "#dc752f")))
+ '(lsp-ui-doc-alignment 'window t)
+ '(lsp-ui-doc-include-signature t t)
+ '(lsp-ui-doc-position 'at-point t)
+ '(lsp-ui-sideline-enable t t)
+ '(lsp-ui-sideline-show-diagnostics t t)
+ '(lsp-ui-sideline-show-hover nil t)
+ '(package-selected-packages
+   '(yasnippet-snippets writeroom-mode visual-fill-column treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil terminal-here symbol-overlay password-generator magit-section lsp-ui lsp-treemacs treemacs cfrs posframe lsp-haskell forge ghub editorconfig dante lcr lsp-mode ht all-the-icons undo-tree spinner parent-mode pkg-info epl flx company-edbi s edbi epc ctable concurrent deferred bind-map bind-key popup direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
+ '(paradox-github-token t)
+ '(psc-ide-add-import-on-completion t t)
+ '(psc-ide-rebuild-on-save nil t)
+ '(safe-local-variable-values
+   '((sql-postgres-login-params
+      '((user :default "aperi")
+        (database :default "aperi-site")
+        (server :default "0.0.0.0")
+        (port :default 5432)))
+     (sql-postgres-login-params
+      '((user :default "aperi")
+        (database :default "aperi-site")
+        (server :default "localhost")
+        (port :default 5432)))
+     (lsp-enabled-clients ts-ls)
+     (typescript-backend . tide)
+     (typescript-backend . lsp)
+     (javascript-backend . tide)
+     (javascript-backend . tern)
+     (javascript-backend . lsp)))
+ )
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)

@@ -9,7 +9,10 @@ let
       networking.interfaces.enp0s31f6.useDHCP = true;
       services.xserver.videoDrivers = [ "amdgpu" ];
       environment.systemPackages = with pkgs; [
-        obs-studio openshot-qt
+        obs-studio
+        # openshot-qt
+        jetbrains.idea-community
+        jdk8
       ];
     };
   hwimports =
