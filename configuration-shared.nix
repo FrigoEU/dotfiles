@@ -41,6 +41,7 @@ in
   networking.extraHosts =
     ''
 192.168.202.235 kl0000.aperigroup.com
+192.168.50.30 kl2376.aperigroup.com
   '';
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -80,7 +81,7 @@ in
     unzip
     autoconf automake libtool
     teams
-    blender openvpn
+    blender openvpn unityhub
 
     docker
     docker-compose
@@ -121,40 +122,40 @@ in
     DefaultTimeoutStopSec=10s
   '';
 
-  systemd.user.services.writedockerregistryconf = { # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/27171
-    script = ''
-      rm ${dockerRegistryConfigPath} && echo '{"registry-mirrors": ["http://127.0.01:${toString dockerRegistryPort}"]}' > ${dockerRegistryConfigPath} 
-    '';
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-  };
+  # systemd.user.services.writedockerregistryconf = { # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/27171
+  #   script = ''
+  #     rm ${dockerRegistryConfigPath} && echo '{"registry-mirrors": ["http://127.0.01:${toString dockerRegistryPort}"]}' > ${dockerRegistryConfigPath} 
+  #   '';
+  #   wantedBy = [ "graphical-session.target" ];
+  #   partOf = [ "graphical-session.target" ];
+  # };
   # services.dockerRegistry = { # So we can cache gitlab runner docker images. https://docs.docker.com/registry/recipes/mirror/
   #   enable = true;
   #   port = dockerRegistryPort;
   #   extraConfig = { proxy.remoteurl = "https://registry-1.docker.io"; };
   # };
-  # services.gitlab-runner = {
-  #   enable = true;
-  #   concurrent = 16;
-  #   services = {
-  #     docker-images = {
-  #       # File should contain at least these two variables:
-  #       # `CI_SERVER_URL=xxx`
-  #       # `REGISTRATION_TOKEN=xxx`
-  #       executor = "docker";
-  #       registrationConfigFile = "/run/secrets/gitlab-runner-registration";
-  #       dockerImage = "docker:stable";
-  #       environmentVariables = { DOCKER_TLS_CERTDIR = ""; }; 
-  #       dockerPrivileged = true; # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1544#note_13439656
-  #       dockerVolumes = [
-  #         # "/var/run/docker.sock:/var/run/docker.sock" # removed:  https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4260#note_173549548
-  #         "${dockerRegistryConfigPath}:/etc/docker/daemon.json" # local file /tmp/daemon.json (contains registry address) gets mapped to /etc/docker/daemon.json in docker which is it's well-known config file location
-  #         "/cache"
-  #         "/certs/client" # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4501
-  #       ];
-  #     };
-  #   };
-  # };
+  services.gitlab-runner = {
+    enable = true;
+    concurrent = 16;
+    services = {
+      docker-images = {
+        # File should contain at least these two variables:
+        # `CI_SERVER_URL=xxx`
+        # `REGISTRATION_TOKEN=xxx`
+        executor = "docker";
+        registrationConfigFile = "/run/secrets/gitlab-runner-registration";
+        dockerImage = "docker:stable";
+        environmentVariables = { DOCKER_TLS_CERTDIR = ""; }; 
+        dockerPrivileged = true; # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1544#note_13439656
+        dockerVolumes = [
+          # "/var/run/docker.sock:/var/run/docker.sock" # removed:  https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4260#note_173549548
+          # "${dockerRegistryConfigPath}:/etc/docker/daemon.json" # local file /tmp/daemon.json (contains registry address) gets mapped to /etc/docker/daemon.json in docker which is it's well-known config file location
+          "/cache"
+          "/certs/client" # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4501
+        ];
+      };
+    };
+  };
   fonts.fonts = [
     pragmatapro
   ];
@@ -193,9 +194,9 @@ in
     # module-udev-detect:
     # https://wiki.archlinux.org/index.php/PulseAudio/Troubleshooting#Glitches,_skips_or_crackling
     extraConfig = ''
-      set-default-source alsa_input.usb-Native_Instruments_Komplete_Audio_1_00007D92-00.analog-stereo
-      set-default-sink alsa_output.pci-0000_00_1f.3.analog-stereo
-      load-module module-echo-cancel use_master_format=1 aec_method=webrtc aec_args="analog_gain_control=0\ digital_gain_control=1" source_name=echoCancel_source sink_name=echoCancel_sink
+      # set-default-source alsa_input.usb-Native_Instruments_Komplete_Audio_1_00007D92-00.analog-stereo
+      # set-default-sink alsa_output.pci-0000_00_1f.3.analog-stereo
+      load-module module-echo-cancel aec_method=webrtc adjust_time=5 aec_args="analog_gain_control=0\ digital_gain_control=1" source_master=alsa_input.usb-Native_Instruments_Komplete_Audio_1_00007D92-00.analog-stereo sink_master=alsa_output.usb-Native_Instruments_Komplete_Audio_1_00007D92-00.analog-stereo source_name=echoCancel_source sink_name=echoCancel_sink
       set-default-source echoCancel_source
       set-default-sink echoCancel_sink
       load-module module-udev-detect tsched=0
