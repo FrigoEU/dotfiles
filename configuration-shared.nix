@@ -48,6 +48,16 @@ in
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
+  networking.interfaces.br-5f63e8c54cf3.useDHCP = true;
+  networking.interfaces.br-641ea6177424.useDHCP = true;
+  networking.interfaces.br-6a08ed9bc73d.useDHCP = true;
+  networking.interfaces.br-89dd2147bcac.useDHCP = true;
+  networking.interfaces.br-c11bc3afca50.useDHCP = true;
+  networking.interfaces.br-d3743917c436.useDHCP = true;
+  networking.interfaces.br-e30495c9b7e6.useDHCP = true;
+  networking.interfaces.br-f49da29c9eb0.useDHCP = true;
+  networking.interfaces.docker0.useDHCP = true;
+  networking.interfaces.enp0s31f6.useDHCP = true;
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -75,7 +85,7 @@ in
     ]))
 
     htop jq
-    
+
     gnumake direnv libnotify
     entr silver-searcher 
     unzip
@@ -85,6 +95,9 @@ in
 
     docker
     docker-compose
+
+    obs-studio
+    jdk8
     jetbrains.idea-community
     maven
 
@@ -272,7 +285,7 @@ in
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.stateVersion = "19.09"; # Did you read the comment?
+  system.stateVersion = "21.05"; # Did you read the comment?
 
 }
 
