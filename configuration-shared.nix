@@ -47,17 +47,27 @@ in
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
-  networking.useDHCP = false;
-  networking.interfaces.br-5f63e8c54cf3.useDHCP = true;
-  networking.interfaces.br-641ea6177424.useDHCP = true;
-  networking.interfaces.br-6a08ed9bc73d.useDHCP = true;
-  networking.interfaces.br-89dd2147bcac.useDHCP = true;
-  networking.interfaces.br-c11bc3afca50.useDHCP = true;
-  networking.interfaces.br-d3743917c436.useDHCP = true;
-  networking.interfaces.br-e30495c9b7e6.useDHCP = true;
-  networking.interfaces.br-f49da29c9eb0.useDHCP = true;
-  networking.interfaces.docker0.useDHCP = true;
-  networking.interfaces.enp0s31f6.useDHCP = true;
+  # networking.useDHCP = false;
+  # networking.interfaces.br-5f63e8c54cf3.useDHCP = true;
+  # networking.interfaces.br-641ea6177424.useDHCP = true;
+  # networking.interfaces.br-6a08ed9bc73d.useDHCP = true;
+  # networking.interfaces.br-89dd2147bcac.useDHCP = true;
+  # networking.interfaces.br-c11bc3afca50.useDHCP = true;
+  # networking.interfaces.br-d3743917c436.useDHCP = true;
+  # networking.interfaces.br-e30495c9b7e6.useDHCP = true;
+  # networking.interfaces.br-f49da29c9eb0.useDHCP = true;
+  # networking.interfaces.docker0.useDHCP = true;
+  # networking.interfaces.enp0s31f6.useDHCP = true;
+
+  # networking.defaultGateway = "192.168.1.1";
+  # networking.nameservers = [ "8.8.8.8" ];
+  # networking.interfaces.enp0s31f6.ipv4.addresses = [ {
+  #   address = "192.168.1.2";
+  #   prefixLength = 24;
+  # } ];
+
+  # networking.networkmanager.enable = true;
+
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -83,7 +93,7 @@ in
   # console.font = "pragmata-pro-0828";
   # console.font = "PragmataPro-Regular0.828";
 
-  virtualisation.docker.enable = true;
+  # virtualisation.docker.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Brussels";
@@ -91,7 +101,7 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    wget vim google-chrome chromium firefox git teams
+    wget vim google-chrome chromium firefox git
 
     ((emacsPackagesNgGen emacs).emacsWithPackages (epkgs: [
       epkgs.vterm
@@ -238,13 +248,13 @@ in
   nixpkgs.config.pulseaudio = true;
 
   # keyboardio
-  services.udev.extraRules = ''
-    SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2300",
-    SYMLINK+="model01", ENV{ID_MM_DEVICE_IGNORE}:="1",
-    ENV{ID_MM_CANDIDATE}:="0" SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209",
-    ATTRS{idProduct}=="2301", SYMLINK+="model01",
-    ENV{ID_MM_DEVICE_IGNORE}:="1", ENV{ID_MM_CANDIDATE}:="0"
-  '';
+  # services.udev.extraRules = ''
+  #   SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2300",
+  #   SYMLINK+="model01", ENV{ID_MM_DEVICE_IGNORE}:="1",
+  #   ENV{ID_MM_CANDIDATE}:="0" SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209",
+  #   ATTRS{idProduct}=="2301", SYMLINK+="model01",
+  #   ENV{ID_MM_DEVICE_IGNORE}:="1", ENV{ID_MM_CANDIDATE}:="0"
+  # '';
 
   environment.variables = {
     PLASMA_USE_QT_SCALING = "1";
