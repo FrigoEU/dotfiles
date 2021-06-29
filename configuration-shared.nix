@@ -64,11 +64,9 @@ in
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Select internationalisation properties.
-  i18n = {
-    consoleFont = "PragmataPro Mono";
-    consoleUseXkbConfig = true;
-    defaultLocale = "en_US.UTF-8";
-  };
+  i18n.defaultLocale = "en_US.UTF-8";
+  console.useXkbConfig = true;
+  console.font = "PragmataPro Mono";
 
   virtualisation.docker.enable = true;
 
@@ -254,7 +252,9 @@ in
   # Enable the KDE Desktop Environment.
   # services.xserver.displayManager.sddm.enable = true;
   services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.displayManager.lightdm.autoLogin = { enable = true; user = "simon"; };
+  services.xserver.displayManager.autoLogin.user = "simon";
+  services.xserver.displayManager.autoLogin.enable = true;
+
   services.xserver.desktopManager.plasma5.enable = true;
 
   # EXWM: Emacs Window Manager
