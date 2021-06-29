@@ -63,10 +63,25 @@ in
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
+
+  fonts = {
+    fontconfig = {
+      defaultFonts = {
+        monospace = ["PragmataPro Mono"];
+      };
+    };
+    fonts = [
+      pragmatapro
+    ];
+  };
+
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   console.useXkbConfig = true;
-  console.font = "PragmataPro Mono";
+  # console.packages = [pragmatapro];
+  # console.font = "PragmataPro Mono";
+  # console.font = "pragmata-pro-0828";
+  # console.font = "PragmataPro-Regular0.828";
 
   virtualisation.docker.enable = true;
 
@@ -79,7 +94,7 @@ in
     wget vim google-chrome chromium firefox git teams
 
     ((emacsPackagesNgGen emacs).emacsWithPackages (epkgs: [
-      epkgs.emacs-libvterm
+      epkgs.vterm
     ]))
 
     htop jq
@@ -98,6 +113,8 @@ in
     jdk8
     jetbrains.idea-community
     maven
+
+    pragmatapro
 
     # (perl.withPackages(p: with p; [
     #   RPCEPCService
@@ -167,9 +184,6 @@ in
       };
     };
   };
-  fonts.fonts = [
-    pragmatapro
-  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
