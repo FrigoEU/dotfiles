@@ -2,17 +2,18 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
+# sudo nix-channel --list is different from nix-channel --list !
+# update: sudo nixos-rebuild switch --upgrade
+
 { config, pkgs, lib, hwimports, ... }:
 
 let 
-  emacsOverlay = import (builtins.fetchTarball {
-    url = https://github.com/nix-community/emacs-overlay/archive/b3b8bcce385ea339289d03b6c2083b417e15e82b.tar.gz;
-    });
-  withOverlays = import <nixpkgs> { overlays = [ emacsOverlay ]; };
   pragmatapro = import ./pragmatapro.nix {runCommand = pkgs.runCommand;
                                           requireFile = pkgs.requireFile;
                                           unzip = pkgs.unzip;
                                          };
+  dockerRegistryPort = 5000;
+  dockerRegistryConfigPath = "/tmp/daemon.json";
 in
 {
   imports = hwimports;
@@ -32,13 +33,36 @@ in
   # nmcli connection add con-name "M&S 2.4GHz Bonanza" type wifi ifname <ifname> ipv4.method auto autoconnect yes wifi.ssid "M&S 2.4GHz Bonanza" wifi-sec.psk "<pw>" wifi-sec.key-mgmt "wpa-psk"
   # networking.networkmanager.enable = true;
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking.extraHosts =
+    ''
+192.168.202.235 kl0000.aperigroup.com
+192.168.50.30 kl2376.aperigroup.com
+  '';
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
-  networking.useDHCP = false;
-  networking.interfaces.enp0s31f6.useDHCP = true;
-  networking.interfaces.wlp0s20f3.useDHCP = true;
+  # networking.useDHCP = false;
+  # networking.interfaces.br-5f63e8c54cf3.useDHCP = true;
+  # networking.interfaces.br-641ea6177424.useDHCP = true;
+  # networking.interfaces.br-6a08ed9bc73d.useDHCP = true;
+  # networking.interfaces.br-89dd2147bcac.useDHCP = true;
+  # networking.interfaces.br-c11bc3afca50.useDHCP = true;
+  # networking.interfaces.br-d3743917c436.useDHCP = true;
+  # networking.interfaces.br-e30495c9b7e6.useDHCP = true;
+  # networking.interfaces.br-f49da29c9eb0.useDHCP = true;
+  # networking.interfaces.docker0.useDHCP = true;
+  # networking.interfaces.enp0s31f6.useDHCP = true;
+
+  # networking.defaultGateway = "192.168.1.1";
+  # networking.nameservers = [ "8.8.8.8" ];
+  # networking.interfaces.enp0s31f6.ipv4.addresses = [ {
+  #   address = "192.168.1.2";
+  #   prefixLength = 24;
+  # } ];
+
+  # networking.networkmanager.enable = true;
+
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -51,6 +75,27 @@ in
     defaultLocale = "nl_BE.UTF-8";
   };
 
+  fonts = {
+    fontconfig = {
+      defaultFonts = {
+        monospace = ["PragmataPro Mono"];
+      };
+    };
+    fonts = [
+      pragmatapro
+    ];
+  };
+
+  # Select internationalisation properties.
+  i18n.defaultLocale = "en_US.UTF-8";
+  console.useXkbConfig = true;
+  # console.packages = [pragmatapro];
+  # console.font = "PragmataPro Mono";
+  # console.font = "pragmata-pro-0828";
+  # console.font = "PragmataPro-Regular0.828";
+
+  # virtualisation.docker.enable = true;
+
   # Set your time zone.
   time.timeZone = "Europe/Brussels";
 
@@ -58,20 +103,38 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    wget vim firefox git google-chrome
-    emacs
-    # emacs vterm
-    withOverlays.emacsPackagesNg.emacs-libvterm
+    wget vim google-chrome firefox git
+
+    ((emacsPackagesNgGen emacs).emacsWithPackages (epkgs: [
+      epkgs.vterm
+    ]))
+
+    htop jq
+
     gnumake direnv libnotify
     entr silver-searcher 
-    unzip vlc
+    unzip
+    autoconf automake libtool
+    teams
+    # blender
+    openvpn
+    # unityhub
+
     docker
     docker-compose
-    visidata
 
+    # obs-studio
     jdk8
     jetbrains.idea-community
     maven
+
+    pragmatapro
+
+    # (perl.withPackages(p: with p; [
+    #   RPCEPCService
+    #   DBI
+    #   DBDPg
+    # ])) # edbi -> dbi:Pg:dbname=urwebschool
   ];
   services.lorri.enable = true;
   services.tlp.enable = true;
@@ -119,12 +182,25 @@ in
       logging_collector = true;
       log_directory = "pg_log";
       max_connections = 300;
-      shared_buffers = 80;
+      shared_buffers = "80MB";
     };
   };
-  fonts.fonts = [
-    pragmatapro
-  ];
+  systemd.extraConfig = ''
+    DefaultTimeoutStopSec=10s
+  '';
+
+  # systemd.user.services.writedockerregistryconf = { # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/27171
+  #   script = ''
+  #     rm ${dockerRegistryConfigPath} && echo '{"registry-mirrors": ["http://127.0.01:${toString dockerRegistryPort}"]}' > ${dockerRegistryConfigPath} 
+  #   '';
+  #   wantedBy = [ "graphical-session.target" ];
+  #   partOf = [ "graphical-session.target" ];
+  # };
+  # services.dockerRegistry = { # So we can cache gitlab runner docker images. https://docs.docker.com/registry/recipes/mirror/
+  #   enable = true;
+  #   port = dockerRegistryPort;
+  #   extraConfig = { proxy.remoteurl = "https://registry-1.docker.io"; };
+  # };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -134,8 +210,8 @@ in
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-  programs.ssh.startAgent = true;
+  services.openssh.enable = true;
+  programs.ssh.startAgent = true; # Using keys in ~/.ssh to eg. authenticate with Github / Bitbucket
 
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [
@@ -152,23 +228,7 @@ in
 
   # Enable sound.
   sound.enable = true;
-
-  hardware.pulseaudio.enable = true;
-  # Bluetooth support:
-  # * bluetooth is heel goeie audio met A2DP, maar dan kan je niet babbelen
-  # * HSP/HFP is om ook te kunnen babbelen, maar dan is de kwaliteit echt slecht
-  #
-  hardware.pulseaudio.package = pkgs.pulseaudioFull;
-  hardware.pulseaudio.extraModules = [ pkgs.pulseaudio-modules-bt ];
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.config = {
-    General = {
-      Enable = "Source,Sink,Media,Socket";
-    };
-  };
-#   hardware.pulseaudio.extraConfig = "
-#   load-module module-switch-on-connect
-# ";
+  nixpkgs.config.pulseaudio = true;
 
   environment.variables = {
     PLASMA_USE_QT_SCALING = "1";
@@ -190,7 +250,9 @@ in
   # Enable the KDE Desktop Environment.
   # services.xserver.displayManager.sddm.enable = true;
   services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.displayManager.lightdm.autoLogin = { enable = true; user = "simon"; };
+  services.xserver.displayManager.autoLogin.user = "simon";
+  services.xserver.displayManager.autoLogin.enable = true;
+
   services.xserver.desktopManager.plasma5.enable = true;
 
   # EXWM: Emacs Window Manager
@@ -208,14 +270,22 @@ in
   users.users.simon = {
     isNormalUser = true;
     hashedPassword = "$6$Jm3nlU.X$ssyK4RCasLJcEViRlsMBYAWD9e8rdgNUALMTEwhoTwQ.1Oeniu0yDSzetPz.3.T8tgr7mKXqw7DHWuQ7tgd./0";
-    extraGroups = [ "wheel" "networkmanager" "postgres" "docker" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [
+      "wheel" # Enable ‘sudo’ for the user.
+      "dialout" # ao, keyboardio flashing
+      "networkmanager"
+      "postgres"
+      "audio"
+      "docker"
+    ];
   };
 
   # This value determines the NixOS release with which your system is to be
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.stateVersion = "20.09"; # Did you read the comment?
+  # system.stateVersion = "20.09"; # Did you read the comment?
+  # system.stateVersion = "21.05"; # Did you read the comment?
 
 }
 

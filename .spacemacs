@@ -1,4 +1,4 @@
-;; -*- mode: emacs-lisp -*-
+;; -*- 
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
@@ -32,7 +32,7 @@ values."
    dotspacemacs-configuration-layers
    '(
      ;; ocaml
-     (rust :variables rust-backend 'lsp)
+     ;; (rust :variables rust-backend 'lsp)
      ;; (haskell :variables haskell-completion-backend 'lsp)
      ;; csv
      sml
@@ -45,7 +45,8 @@ values."
      ;; ruby
      ;; vimscript
      ;; markdown
-     (fsharp :variables fsharp-backend 'lsp)
+     ;; (fsharp :variables fsharp-backend 'lsp)
+     ;; (java :variables java-backend 'lsp)
      sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -55,7 +56,7 @@ values."
      helm
      auto-completion
      ;; better-defaults
-     ;; csharp
+     ;; (csharp :variables csharp-backend 'lsp)
      ;; emacs-lisp
      javascript
      (typescript :variables
@@ -69,6 +70,7 @@ values."
      ;; haskell
      ;; purescript
      git
+     (lsp :variables lsp-headerline-breadcrumb-segments nil)
      ;; spotify
      ;; clojure
      ;; idris
@@ -80,6 +82,7 @@ values."
             shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
+     (treemacs :variables treemacs-use-follow-mode nil)
      ;; treemacs
      ;; themes-megapack
      ;; version-control
@@ -93,7 +96,6 @@ values."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '((nix-mode)
-                                      (anybar)
                                       (direnv)
                                       ;; (exec-path-from-shell)
                                       (doom-themes)
@@ -173,6 +175,7 @@ values."
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(doom-one
+                         doom-gruvbox-light
                          spacemacs-dark
                          spacemacs-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
@@ -184,8 +187,8 @@ values."
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
-   dotspacemacs-mode-line-theme '(doom)
-   ;; dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 0.8)
+   ;; dotspacemacs-mode-line-theme '(doom)
+   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
@@ -276,7 +279,7 @@ values."
    ;; If non nil the frame is maximized when Emacs starts up.
    ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
    ;; (default nil) (Emacs 24.4+ only)
-   dotspacemacs-maximized-at-startup 1
+   dotspacemacs-maximized-at-startup t
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
@@ -374,8 +377,9 @@ you should place your code here."
   (setq scroll-margin 8)
   (setq vc-follow-symlinks t)
 
-  (setq doom-modeline-buffer-encoding nil)
-  (setq doom-modeline-percent-position nil)
+  ;; (setq doom-modeline-buffer-encoding nil)
+  ;; (setq doom-modeline-percent-position nil)
+  ;; (setq doom-modeline-buffer-state-icon t)
 
   (define-key key-translation-map (kbd "M-9") (kbd "`"))
   (define-key key-translation-map (kbd "M-2") (kbd "~"))
@@ -394,8 +398,23 @@ you should place your code here."
   (define-key transient-map        (kbd "<escape>") 'transient-quit-one)
   (define-key transient-edit-map   (kbd "<escape>") 'transient-quit-one)
   (define-key transient-sticky-map (kbd "<escape>") 'transient-quit-seq)
+  (define-key evil-motion-state-map (kbd "C-z") nil) ;; Disable, is by default switch to / from emacs keybinds
 
   (spacemacs/set-leader-keys "o" 'evil-jump-backward)
+
+  ;; (setq avy-orders-alist
+  ;;       '((avy-goto-char . avy-order-closest)
+  ;;         (avy-goto-word-0 . avy-order-closest)))
+  ;; (setq avy-keys (number-sequence ?a ?z))
+  ;; (spacemacs/set-leader-keys "j" 'avy-goto-char)
+
+  (setq avy-orders-alist
+        '((avy-goto-char . avy-order-closest)
+          (avy-goto-word-1 . avy-order-closest)
+          (avy-goto-char-timer . avy-order-closest)
+          ))
+  (setq avy-keys (number-sequence ?a ?z))
+  (spacemacs/set-leader-keys "j" 'avy-goto-word-1) ;; experimentje, overwrite veel bindings van spacemacs zelf
 
   (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
@@ -404,6 +423,11 @@ you should place your code here."
   (defun two-screens-work ()
     (interactive)
     (shell-command "xrandr --output eDP-1 --scale 1x1 --mode 2560x1440 --pos 3840x0; xrandr --output HDMI-1 --scale 1.5x1.5 --mode 1920x1080 --pos 0x0"))
+
+  (defun eshell-new()
+    "Open a new instance of eshell."
+    (interactive)
+    (eshell 'N))
 
   (defun mk-compile-command-with-notifs (comp)
     (if (string-equal system-type "darwin")
@@ -421,11 +445,71 @@ you should place your code here."
                 "  notify-send 'Compile fail' -i ~/dotfiles/cancel.png -h string:sound-name:dialog-error; exit 1\n"
                 "fi")))
 
+  ;; (setq open-edbi-connections '())
+
+  ;; (defun edbi:open-db-viewer-with-info (uri &optional user auth)
+  ;;   "Open Database viewer buffer with data source info."
+  ;;   (if ;; if the conn is already open -> reuse
+  ;;       (assoc uri open-edbi-connections)
+  ;;       (edbi:dbview-open (cdr (assoc uri open-edbi-connections)))
+  ;;     ;; else make a new conn and save
+  ;;     (message "yp")
+  ;;     (let ((data-source (edbi:data-source uri user auth))
+  ;;           (conn (edbi:start)))
+  ;;       (edbi:connect conn data-source)
+  ;;       ;; TODO: remove from open-edbi-connections if connection fails
+  ;;       (map-put open-edbi-connections uri conn)
+  ;;       (edbi:dbview-open conn))))
+
+  ;; usage: (edbi:open-db-viewer-with-info "dbi:Pg:dbname=xxxx" "username" "password")
+  ;; (defun school:connect-local ()
+  ;;   (interactive)
+  ;;   (edbi:open-db-viewer-with-info "dbi:Pg:dbname=urwebschool"))
+
+  ;; TODO: open SSH port forwarding if not already present
+  ;; ssh -L9999:localhost:5432 root@172.104.129.155
+  ;; (defun school:connect-remote ()
+  ;;   "Connect to De Rockschool DB via SSH post forwarded to 9999"
+  ;;   (interactive)
+  ;;   (edbi:open-db-viewer-with-info (concat "dbi:Pg:dbname=derockschool;host=localhost;port=9999") "nixcloud" "nixcloud"))
+
   (require 'em-term)
   (add-to-list 'eshell-visual-commands "psql")
 
   (require 'em-alias)
   (defalias 'uw (mk-compile-command-with-notifs "make build && restart-urweb"))
+
+
+  ;; use sql-connect to connect to one of these
+  (setq sql-postgres-login-params nil) 
+  (setq sql-connection-alist
+        '((aperi (sql-product 'postgres)
+                 (sql-database (concat "postgresql://"
+                                       "aperi"  ;; replace with your username
+                                       ":"
+                                       "aperi"
+                                       ;; (read-passwd "Enter password: ")
+                                       "@localhost"      ;; replace with your host
+                                       ":5432"      ;; replace with your port
+                                       "/aperi"  ;; replace with your database
+                                       )))
+          ("urwebschool"
+           (sql-product 'postgres)
+           (sql-database "urwebschool"))
+          ("hamaril"
+           (sql-product 'postgres)
+           (sql-user "nixcloud")
+           (sql-database "hamaril")
+           (sql-server "tunnel")) (* TODO automate SSH port forwarding *)
+          ;; (secondary-db (sql-product 'postgres)
+          ;;               (sql-database (concat "postgresql://"
+          ;;                                     "username:"
+          ;;                                     (read-passwd "Enter password: ")
+          ;;                                     "@host"
+          ;;                                     ":port"
+          ;;                                     "/database")))
+          ))
+
 
   ;; https://github.com/purcell/exec-path-from-shell
   ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so, mac only I think
@@ -437,14 +521,25 @@ you should place your code here."
   (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
   ;; (setq lsp-print-io t)
   ;; (setq lsp-trace t)
-  ;; (setq lsp-report-if-no-buffer t)
-  ;; (setq lsp-auto-configure t)
-  ;; (customize-set-variable 'lsp-ui-sideline-enable t)
-  ;; (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
-  ;; (customize-set-variable 'lsp-ui-sideline-show-hover t)
-  ;; (customize-set-variable 'lsp-ui-doc-alignment (quote window))
-  ;; (customize-set-variable 'lsp-ui-doc-include-signature t)
-  ;; (customize-set-variable 'lsp-ui-doc-position (quote at-point))
+  (setq lsp-report-if-no-buffer t)
+  (setq lsp-auto-configure t)
+  (customize-set-variable 'lsp-ui-sideline-enable t)
+  (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
+  (customize-set-variable 'lsp-ui-sideline-show-hover nil)
+  (customize-set-variable 'lsp-ui-doc-alignment (quote window))
+  (customize-set-variable 'lsp-ui-doc-include-signature t)
+  (customize-set-variable 'lsp-ui-doc-position (quote at-point))
+
+  (setq lsp-disabled-clients '(eslint)) ;; eslint is annoying, always wants to loads 1000's of files that are irrelevant to me. If you want to use it, get it configured properly first
+
+  ;; Default left-to-right, perf
+  (setq bidi-paragraph-direction 'left-to-right)
+  (if (version<= "27.1" emacs-version)
+      (setq bidi-inhibit-bpa t))
+
+  ;; Global so-long mode: if files have possible perf issues -> switch to basic so-long mode for perf
+  (if (version<= "27.1" emacs-version)
+      (global-so-long-mode 1))
 
   ; Always show tooltip, even if there is only one match
   ; Otherwise if there is only one match a "preview" is shown and you don't see eg type info
@@ -470,13 +565,13 @@ you should place your code here."
   ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
 
   ;; rust
-  (setq rust-format-on-save t)
+  ;; (setq rust-format-on-save t)
 
   ;; FSHARP
-  (setq doom-modeline-major-mode-icon nil) ;; Issue with icon bomps perf of fsharp
+  ;; (setq doom-modeline-major-mode-icon nil) ;; Issue with icon bomps perf of fsharp
 
   ;; https://github.com/haskell/haskell-ide-engine/issues/881#issuecomment-508967691
-  (add-hook 'haskell-mode-hook (lambda ()  (setq tab-width 2)))
+  ;; (add-hook 'haskell-mode-hook (lambda ()  (setq tab-width 2)))
   ;; (lsp-haskell-set-formatter "brittany")
   ;; (lsp-haskell--set-configuration)
   ;; (setq tab-width 2)
@@ -484,6 +579,7 @@ you should place your code here."
 
   ;; CSHARP
   ;; (setq omnisharp-server-executable-path "/usr/local/bin/omnisharp")
+
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
@@ -546,30 +642,9 @@ you should place your code here."
                  (directory-files dir)
                (list '(dir)))))))
 
-  (defun urweb-get-info ()
-    (interactive)
-    (let*
-        ((row (line-number-at-pos))
-         (col (evil-column))
-         (bfn (buffer-file-name))
-         (proj-dir (urweb-get-proj-dir bfn))
-         (filename (file-relative-name bfn proj-dir))
-         (loc (concat filename ":" (number-to-string row) ":" (number-to-string col)))
-         )
-      (require 's)
-      (require 'f)
-      (require 'simple)
-      (message (let
-                   ((default-directory proj-dir))
-                 (shell-command-to-string (concat "urweb -getInfo " loc))))))
-
-  (spacemacs/set-leader-keys-for-major-mode 'urweb-mode
-    "i" 'urweb-get-info)
-
   ;; Smart compile: https://ambrevar.xyz/emacs/index.html
   ;; (make-variable-buffer-local 'compile-command)
 
-  
   (defun urweb-set-compiler ()
     (let* ((proj-dir (urweb-get-proj-dir (buffer-file-name))))
       (if proj-dir (setq default-directory proj-dir))
@@ -588,6 +663,8 @@ you should place your code here."
   (global-set-key (kbd "C-h") 'evil-window-left)
   (global-set-key (kbd "C-j") 'evil-window-down)
   (global-set-key (kbd "C-k") 'evil-window-up)
+  (global-set-key [f10] '(lambda () (interactive) (profiler-start 'cpu)))
+  (global-set-key [f11] 'profiler-report)
   (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
   (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
@@ -636,65 +713,95 @@ See URL `https://sass-lang.com/libsass'."
   (provide 'flycheck-sassc)
   (add-hook 'scss-mode-hook 'flycheck-sassc-setup)
 
-  (defun setup-school-local-shells ()
-    (interactive)
-    (persp-switch "School local shells")
-    (winum-select-window-1)
-    (split-window-right)
-    (split-window-below)
-    (split-window-right)
-    (winum-select-window-3)
-    (split-window-right)
-    (rename-buffer "General" 1)
-    (rename-buffer "Tunnel" 1)
-    (rename-buffer "Haskell maildaemon" 1)
-    (rename-buffer "Vterm" 1)
-    (let* ()
-      (winum-select-window-1)
-      (cd "~/ur-proj/school")
-      (vterm "General")
-      (vterm-send-string "clear")
-      (vterm-send-return)
-      )
-    (let* ()
-      (winum-select-window-2)
-      (cd "~/ur-proj/school")
-      (vterm "Tunnel")
-      (vterm-send-string "clear")
-      (vterm-send-return)
-      (vterm-send-string "make tunnel")
-      )
-    (let* ()
-      (winum-select-window-3)
-      (cd "~/ur-proj/school")
-      (vterm "Urweb school")
-      (vterm-send-string "clear")
-      (vterm-send-return)
-      (vterm-send-string "sudo make start")
-      )
-    (let* ()
-      (winum-select-window-4)
-      (cd "~/ur-proj/school")
-      (vterm "Haskell maildaemon")
-      (vterm-send-string "clear")
-      (vterm-send-return)
-      (vterm-send-string "make email_daemon")
-      )
-    (let* ()
-      (winum-select-window-5)
-      (cd "~/ur-proj/school")
-      (vterm "SQL")
-      (vterm-send-string "clear")
-      (vterm-send-return)
-      (vterm-send-string "psql urwebschool")
-      )
-    )
+  ;; sassc
+;;   (require 'flycheck)
 
-  (defun restart-urweb ()
-      (interactive)
-      (with-current-buffer "Urweb school"
-        (vterm-send-string " ")
-        (vterm-send-return)))
+;;   (flycheck-define-checker sassc
+;;     "A Sass syntax checker using the SassC compiler.
+;; See URL `https://sass-lang.com/libsass'."
+;;     :command ("sassc"
+;;               "--line-numbers"
+;;               "--stdin")
+;;     :standard-input t
+;;     :error-patterns
+;;     ((error line-start
+;;             (or "Syntax error: " "Error: ")
+;;             (message (one-or-more not-newline)
+;;                      (zero-or-more "\n"
+;;                                    (one-or-more " ")
+;;                                    (one-or-more not-newline)))
+;;             (optional "\r") "\n" (one-or-more " ") "on line " line ":" column
+;;             " of stdin"
+;;             line-end))
+;;     :modes scss-mode)
+
+;;   (defun flycheck-sassc-setup ()
+;;     "Set up the flycheck-sassc checker."
+;;     (interactive)
+;;     (add-to-list 'flycheck-checkers 'sassc))
+;;   (flycheck-sassc-setup)
+;;   (provide 'flycheck-sassc)
+;;   (add-hook 'scss-mode-hook 'flycheck-sassc-setup)
+
+  ;; (defun setup-school-local-shells ()
+  ;;   (interactive)
+  ;;   (persp-switch "School local shells")
+  ;;   (winum-select-window-1)
+  ;;   (split-window-right)
+  ;;   (split-window-below)
+  ;;   (split-window-right)
+  ;;   (winum-select-window-3)
+  ;;   (split-window-right)
+  ;;   (rename-buffer "General" 1)
+  ;;   (rename-buffer "Tunnel" 1)
+  ;;   (rename-buffer "Haskell maildaemon" 1)
+  ;;   (rename-buffer "Vterm" 1)
+  ;;   (let* ()
+  ;;     (winum-select-window-1)
+  ;;     (cd "~/ur-proj/school")
+  ;;     (vterm "General")
+  ;;     (vterm-send-string "clear")
+  ;;     (vterm-send-return)
+  ;;     )
+  ;;   (let* ()
+  ;;     (winum-select-window-2)
+  ;;     (cd "~/ur-proj/school")
+  ;;     (vterm "Tunnel")
+  ;;     (vterm-send-string "clear")
+  ;;     (vterm-send-return)
+  ;;     (vterm-send-string "make tunnel")
+  ;;     )
+  ;;   (let* ()
+  ;;     (winum-select-window-3)
+  ;;     (cd "~/ur-proj/school")
+  ;;     (vterm "Urweb school")
+  ;;     (vterm-send-string "clear")
+  ;;     (vterm-send-return)
+  ;;     (vterm-send-string "sudo make start")
+  ;;     )
+  ;;   (let* ()
+  ;;     (winum-select-window-4)
+  ;;     (cd "~/ur-proj/school")
+  ;;     (vterm "Haskell maildaemon")
+  ;;     (vterm-send-string "clear")
+  ;;     (vterm-send-return)
+  ;;     (vterm-send-string "make email_daemon")
+  ;;     )
+  ;;   (let* ()
+  ;;     (winum-select-window-5)
+  ;;     (cd "~/ur-proj/school")
+  ;;     (vterm "SQL")
+  ;;     (vterm-send-string "clear")
+  ;;     (vterm-send-return)
+  ;;     (vterm-send-string "psql urwebschool")
+  ;;     )
+  ;;   )
+
+  ;; (defun restart-urweb ()
+  ;;     (interactive)
+  ;;     (with-current-buffer "Urweb school"
+  ;;       (vterm-send-string " ")
+  ;;       (vterm-send-return)))
 
 
   ;; Dummy var
@@ -769,12 +876,57 @@ See URL `https://sass-lang.com/libsass'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   (quote
-    ("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default)))
+   '("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
-   (quote
-    (direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
+   '(undo-tree spinner parent-mode pkg-info epl flx company-edbi s edbi epc ctable concurrent deferred bind-map bind-key popup direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
+ '(paradox-github-token t)
+ '(psc-ide-add-import-on-completion t t)
+ '(psc-ide-rebuild-on-save nil t)
+ )
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
+ '(evil-want-Y-yank-to-eol nil)
+ '(hl-todo-keyword-faces
+   '(("TODO" . "#dc752f")
+     ("NEXT" . "#dc752f")
+     ("THEM" . "#2d9574")
+     ("PROG" . "#4f97d7")
+     ("OKAY" . "#4f97d7")
+     ("DONT" . "#f2241f")
+     ("FAIL" . "#f2241f")
+     ("DONE" . "#86dc2f")
+     ("NOTE" . "#b1951d")
+     ("KLUDGE" . "#b1951d")
+     ("HACK" . "#b1951d")
+     ("TEMP" . "#b1951d")
+     ("FIXME" . "#dc752f")
+     ("XXX+" . "#dc752f")
+     ("\\?\\?\\?+" . "#dc752f")))
+ '(lsp-ui-doc-alignment 'window t)
+ '(lsp-ui-doc-include-signature t t)
+ '(lsp-ui-doc-position 'at-point t)
+ '(lsp-ui-sideline-enable t t)
+ '(lsp-ui-sideline-show-diagnostics t t)
+ '(lsp-ui-sideline-show-hover nil t)
+ '(package-selected-packages
+   '(yasnippet-snippets writeroom-mode visual-fill-column treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil terminal-here symbol-overlay password-generator magit-section lsp-ui lsp-treemacs treemacs cfrs posframe lsp-haskell forge ghub editorconfig dante lcr lsp-mode ht all-the-icons undo-tree spinner parent-mode pkg-info epl flx company-edbi s edbi epc ctable concurrent deferred bind-map bind-key popup direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
  '(paradox-github-token t)
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
