@@ -588,7 +588,7 @@ you should place your code here."
     "Format sql files with sql-formatter if present"
     (when
         (and (eq major-mode 'sql-mode)
-             (executable-find "sql-formatter"))
+             (executable-find "pg_format"))
       (let ((buffer-with-sql (current-buffer)))
         (with-temp-buffer
           (let ((my-temp-buffer (current-buffer)))
@@ -597,7 +597,7 @@ you should place your code here."
                 (shell-command-on-region
                  (point-min)
                  (point-max)
-                 "sql-formatter -u -l postgresql"
+                 "pg_format -s 2 -w 80 -B"
                  my-temp-buffer
                  nil
                  nil
