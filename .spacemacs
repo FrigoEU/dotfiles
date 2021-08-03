@@ -584,8 +584,9 @@ you should place your code here."
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
   ;; SQL
-  (defun sql-formatter-run-on-save ()
+  (defun sql-formatter ()
     "Format sql files with sql-formatter if present"
+    (interactive)
     (when
         (and (eq major-mode 'sql-mode)
              (executable-find "pg_format"))
@@ -597,7 +598,7 @@ you should place your code here."
                 (shell-command-on-region
                  (point-min)
                  (point-max)
-                 "pg_format -s 2 -w 80 -B"
+                 "pg_format -s 2 -W 1 -B"
                  my-temp-buffer
                  nil
                  nil
@@ -605,7 +606,7 @@ you should place your code here."
                  )
                 (replace-buffer-contents my-temp-buffer))))))))
   
-  (add-hook 'before-save-hook #'sql-formatter-run-on-save)
+  (add-hook 'before-save-hook #'sql-formatter)
 
 
   ;; UR-WEB
@@ -956,7 +957,7 @@ This function is called at the very end of Spacemacs initialization."
        (quote postgres))
       (sql-user "nixcloud")
       (sql-database "derockschool")
-      (sql-server ""))))))
+      (sql-server "")))))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1015,3 +1016,4 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  )
 )
+
