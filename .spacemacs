@@ -589,19 +589,22 @@ you should place your code here."
     (when
         (and (eq major-mode 'sql-mode)
              (executable-find "sql-formatter"))
-      (let ((buffer-with-sql (current-buffer))
-            (buffer-with-sql-name buffer-file-name)
-            )
+      (let ((buffer-with-sql (current-buffer)))
         (with-temp-buffer
           (let ((my-temp-buffer (current-buffer)))
-            (shell-command
-             (format "sql-formatter %s" buffer-with-sql-name)
-             my-temp-buffer
-             )
-            (with-current-buffer
-                buffer-with-sql
-              (replace-buffer-contents my-temp-buffer)))))))
-
+            (with-current-buffer buffer-with-sql
+              (progn
+                (shell-command-on-region
+                 (point-min)
+                 (point-max)
+                 "sql-formatter"
+                 my-temp-buffer
+                 nil
+                 nil
+                 t
+                 )
+                (replace-buffer-contents my-temp-buffer))))))))
+  
   (add-hook 'before-save-hook #'sql-formatter-run-on-save)
 
 
