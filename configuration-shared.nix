@@ -6,7 +6,7 @@
 
 let 
   emacsOverlay = import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/5f602f561ec0eaace6846656f5e6155c4d59a67b.tar.gz;
+    url = https://github.com/nix-community/emacs-overlay/archive/b3b8bcce385ea339289d03b6c2083b417e15e82b.tar.gz;
     });
   withOverlays = import <nixpkgs> { overlays = [ emacsOverlay ]; };
   pragmatapro = import ./pragmatapro.nix {runCommand = pkgs.runCommand;
@@ -48,27 +48,61 @@ in
   i18n = {
     consoleFont = "PragmataPro Mono";
     consoleUseXkbConfig = true;
-    defaultLocale = "en_US.UTF-8";
+    defaultLocale = "nl_BE.UTF-8";
   };
 
   # Set your time zone.
   time.timeZone = "Europe/Brussels";
 
+  nixpkgs.config.allowUnfree = true; # For Chrome
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    wget vim firefox git
-    withOverlays.emacsGit 
+    wget vim firefox git google-chrome
+    emacs
     # emacs vterm
     withOverlays.emacsPackagesNg.emacs-libvterm
     gnumake direnv libnotify
     entr silver-searcher 
-    unzip
+    unzip vlc
+    docker
+    docker-compose
+    visidata
+
+    jdk8
+    jetbrains.idea-community
+    maven
   ];
   services.lorri.enable = true;
   services.tlp.enable = true;
 
+  virtualisation.docker.enable = true;
+
+
+  # services.gitlab-runner = {
+  #   enable = true;
+  #   concurrent = 16;
+  #   services = {
+  #     docker-images = {
+  #       # File should contain at least these two variables:
+  #       # `CI_SERVER_URL=xxx`
+  #       # `REGISTRATION_TOKEN=xxx`
+  #       executor = "docker";
+  #       registrationConfigFile = "/run/secrets/gitlab-runner-registration";
+  #       dockerImage = "docker:stable";
+  #       environmentVariables = { DOCKER_TLS_CERTDIR = ""; }; 
+  #       dockerPrivileged = true; # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1544#note_13439656
+  #       dockerVolumes = [
+  #         # "/var/run/docker.sock:/var/run/docker.sock" # removed:  https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4260#note_173549548
+  #         "/cache"
+  #         "/certs/client" # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4501
+  #       ];
+  #     };
+  #   };
+  # };
+
   services.postgresql = {
+    package = pkgs.postgresql_12;
     enable = true;
     initialScript = pkgs.writeText "backend-initScript" ''
       CREATE USER simon;
@@ -80,13 +114,13 @@ in
       host  all all 127.0.0.1/32 trust
       host  all all ::1/128      trust
     '';
-    extraConfig = ''
-      log_statement = 'all'
-      logging_collector = on
-      log_directory = 'pg_log'
-      max_connections = 300
-      shared_buffers = 80MB
-    '';
+    settings = {
+      log_statement = "all";
+      logging_collector = true;
+      log_directory = "pg_log";
+      max_connections = 300;
+      shared_buffers = 80;
+    };
   };
   fonts.fonts = [
     pragmatapro
@@ -104,7 +138,11 @@ in
   programs.ssh.startAgent = true;
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
+  networking.firewall.allowedTCPPorts = [
+    8080
+    8010 # VLC chromecast
+  ];
+  services.avahi.enable = true; # VLC chromecasting
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
@@ -114,7 +152,23 @@ in
 
   # Enable sound.
   sound.enable = true;
+
   hardware.pulseaudio.enable = true;
+  # Bluetooth support:
+  # * bluetooth is heel goeie audio met A2DP, maar dan kan je niet babbelen
+  # * HSP/HFP is om ook te kunnen babbelen, maar dan is de kwaliteit echt slecht
+  #
+  hardware.pulseaudio.package = pkgs.pulseaudioFull;
+  hardware.pulseaudio.extraModules = [ pkgs.pulseaudio-modules-bt ];
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.config = {
+    General = {
+      Enable = "Source,Sink,Media,Socket";
+    };
+  };
+#   hardware.pulseaudio.extraConfig = "
+#   load-module module-switch-on-connect
+# ";
 
   environment.variables = {
     PLASMA_USE_QT_SCALING = "1";
@@ -154,14 +208,14 @@ in
   users.users.simon = {
     isNormalUser = true;
     hashedPassword = "$6$Jm3nlU.X$ssyK4RCasLJcEViRlsMBYAWD9e8rdgNUALMTEwhoTwQ.1Oeniu0yDSzetPz.3.T8tgr7mKXqw7DHWuQ7tgd./0";
-    extraGroups = [ "wheel" "networkmanager" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" "networkmanager" "postgres" "docker" ]; # Enable ‘sudo’ for the user.
   };
 
   # This value determines the NixOS release with which your system is to be
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.stateVersion = "19.09"; # Did you read the comment?
+  system.stateVersion = "20.09"; # Did you read the comment?
 
 }
 

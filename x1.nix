@@ -22,5 +22,5 @@ import ./configuration-shared.nix {
   config = config;
   pkgs = pkgs;
   lib = lib;
-  hwimports = hwimports;
+  hwimports = hwimports ++ [/etc/nixos/cachix.nix];
 }

@@ -30,7 +30,10 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(haskell
+   '(
+     ;; ocaml
+     (rust :variables rust-backend 'lsp)
+     ;; (haskell :variables haskell-completion-backend 'lsp)
      ;; csv
      sml
      ;; graphviz
@@ -42,6 +45,7 @@ values."
      ;; ruby
      ;; vimscript
      ;; markdown
+     (fsharp :variables fsharp-backend 'lsp)
      sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -54,8 +58,14 @@ values."
      ;; csharp
      ;; emacs-lisp
      javascript
-     typescript
+     (typescript :variables
+                 typescript-backend 'tide
+                 typescript-fmt-tool 'prettier
+                 typescript-fmt-on-save t
+                 )
      html
+     lsp
+     dap
      ;; haskell
      ;; purescript
      git
@@ -70,7 +80,7 @@ values."
             shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
-     treemacs
+     ;; treemacs
      ;; themes-megapack
      ;; version-control
      ;; (exwm :variables
@@ -83,11 +93,11 @@ values."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '((nix-mode)
-                                      (add-node-modules-path)
                                       (anybar)
                                       (direnv)
-                                      (exec-path-from-shell)
+                                      ;; (exec-path-from-shell)
                                       (doom-themes)
+                                      ;; (fsharp-mode)
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -170,7 +180,7 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("PragmataPro Mono Liga"
-                               :size 16
+                               :size 32
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -373,6 +383,7 @@ you should place your code here."
   ;; Nog niet zeker, uitproberen
   (setq company-idle-delay 0.2)
 
+  (evil-escape-mode -1)
   (direnv-mode)
 
   ;; magit: escape and q to abort / exit popup
@@ -389,6 +400,7 @@ you should place your code here."
   (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (add-hook 'urweb-mode-hook 'flycheck-mode)
+  (setq flycheck-check-syntax-automatically '(save))
   (defun two-screens-work ()
     (interactive)
     (shell-command "xrandr --output eDP-1 --scale 1x1 --mode 2560x1440 --pos 3840x0; xrandr --output HDMI-1 --scale 1.5x1.5 --mode 1920x1080 --pos 0x0"))
@@ -416,23 +428,23 @@ you should place your code here."
   (defalias 'uw (mk-compile-command-with-notifs "make build && restart-urweb"))
 
   ;; https://github.com/purcell/exec-path-from-shell
-  ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize))
-  (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
+  ;; LD_LIBRARY_PATH needed for shared library liburweb_http.so, mac only I think
+  ;; (when (memq window-system '(mac ns x))
+  ;;   (exec-path-from-shell-initialize))
+  ;; (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
 
   (require 'lsp-mode)
-  (setq lsp-language-id-configuration '((urweb-mode . "urweb")))
-  (setq lsp-print-io t)
-  (setq lsp-trace t)
-  (setq lsp-report-if-no-buffer t)
-  (setq lsp-auto-configure t)
-  (customize-set-variable 'lsp-ui-sideline-enable t)
-  (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
-  (customize-set-variable 'lsp-ui-sideline-show-hover t)
-  (customize-set-variable 'lsp-ui-doc-alignment (quote window))
-  (customize-set-variable 'lsp-ui-doc-include-signature t)
-  (customize-set-variable 'lsp-ui-doc-position (quote at-point))
+  (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
+  ;; (setq lsp-print-io t)
+  ;; (setq lsp-trace t)
+  ;; (setq lsp-report-if-no-buffer t)
+  ;; (setq lsp-auto-configure t)
+  ;; (customize-set-variable 'lsp-ui-sideline-enable t)
+  ;; (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
+  ;; (customize-set-variable 'lsp-ui-sideline-show-hover t)
+  ;; (customize-set-variable 'lsp-ui-doc-alignment (quote window))
+  ;; (customize-set-variable 'lsp-ui-doc-include-signature t)
+  ;; (customize-set-variable 'lsp-ui-doc-position (quote at-point))
 
   ; Always show tooltip, even if there is only one match
   ; Otherwise if there is only one match a "preview" is shown and you don't see eg type info
@@ -450,52 +462,52 @@ you should place your code here."
     :link '(url-link "https://www.impredicative.com/ur"))
 
   (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simonvancasteren/urweb/bin/urweb" "-startLspServer"))
+   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/result/bin/urweb" "-startLspServer"))
                     :major-modes '(urweb-mode)
                     :server-id 'urweb-lsp
                     :initialization-options (lsp-configuration-section "urweb")))
 
   ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
 
-  ;; TYPESCRIPT/TSX
-  ;; (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
-  (add-hook 'find-file-hook 'tsx-stuff)
-  (defun my/use-tslint-from-node-modules ()
-    (let* ((root (locate-dominating-file
-                  (or (buffer-file-name) default-directory)
-                  "node_modules"))
-           (tslint (and root
-                        (expand-file-name "node_modules/tslint/bin/tslint"
-                                          root))))
-      (when (and tslint (file-executable-p tslint))
-        (setq-local flycheck-typescript-tslint-executable tslint))))
-  
-  ;; (add-hook 'flycheck-mode-hook #'my/use-tslint-from-node-modules)
-  (defun tsx-stuff ()
-    ;; we want to start this only when opening tsx, not just web-mode
-    (when (string= (file-name-extension buffer-file-name) "tsx")
-      (emmet-mode)
-      (setq-local emmet-expand-jsx-className? t)
-      (smartparens-mode)
-      (spacemacs/toggle-auto-completion-on)
-      (add-to-list 'company-backends 'company-tide)
-      (my/use-tslint-from-node-modules)
-      (flycheck-add-mode 'typescript-tslint 'web-mode)
-      ))
-  ;; (add-hook 'typescript-mode-hook 'my/use-tslint-from-node-modules)
-  ;; (add-hook 'web-mode-hook 'prettier-js-mode)
+  ;; rust
+  (setq rust-format-on-save t)
 
+  ;; FSHARP
+  (setq doom-modeline-major-mode-icon nil) ;; Issue with icon bomps perf of fsharp
 
-
-  ;; HASKELL
-  ;; (setq-default dotspacemacs-configuration-layers
-  ;;               '(auto-completion
-  ;;                 (haskell :variables haskell-completion-backend 'intero)))
+  ;; https://github.com/haskell/haskell-ide-engine/issues/881#issuecomment-508967691
+  (add-hook 'haskell-mode-hook (lambda ()  (setq tab-width 2)))
+  ;; (lsp-haskell-set-formatter "brittany")
+  ;; (lsp-haskell--set-configuration)
+  ;; (setq tab-width 2)
+  ;; (lsp-register-custom-settings '(("ormolu" lsp-haskell-formatting-provider)))
 
   ;; CSHARP
   ;; (setq omnisharp-server-executable-path "/usr/local/bin/omnisharp")
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
+
+  ;; SQL
+  (defun sql-formatter-run-on-save ()
+    "Format sql files with sql-formatter if present"
+    (when
+        (and (eq major-mode 'sql-mode)
+             (executable-find "sql-formatter"))
+      (let ((buffer-with-sql (current-buffer))
+            (buffer-with-sql-name buffer-file-name)
+            )
+        (with-temp-buffer
+          (let ((my-temp-buffer (current-buffer)))
+            (shell-command
+             (format "sql-formatter %s" buffer-with-sql-name)
+             my-temp-buffer
+             )
+            (with-current-buffer
+                buffer-with-sql
+              (replace-buffer-contents my-temp-buffer)))))))
+
+  (add-hook 'before-save-hook #'sql-formatter-run-on-save)
+
 
   ;; UR-WEB
   (load "~/urweb/src/elisp/urweb-mode-startup")
@@ -580,6 +592,19 @@ you should place your code here."
   (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
+
+  ;; dap
+
+  ;; Setup for node debugger:
+
+  ;; (defun init-dap-node ()
+  ;;   (let* ()
+  ;;     (require 'dap-node)
+  ;;     (dap-node-setup)
+  ;;     (setq dap-debug-restart-keep-session nil)
+  ;;     ))
+  ;; (add-hook 'typescript-tsx-mode-hook 'init-dap-node)
+  ;; (add-hook 'typescript-mode-hook 'init-dap-node)
 
   ;; sassc
   (require 'flycheck)
@@ -758,15 +783,19 @@ See URL `https://sass-lang.com/libsass'."
     (("urwebschool"
       (sql-product
        (quote postgres))
-      (sql-user "Simon")
-      (sql-database "urwebschool")
-      (sql-server ""))
+      (sql-database "urwebschool"))
      ("hamaril"
       (sql-product
        (quote postgres))
       (sql-user "nixcloud")
       (sql-database "hamaril")
       (sql-server ""))
+     ("aperi"
+      (sql-product
+       (quote postgres))
+      (sql-user "aperi")
+      (sql-database "aperi")
+      (sql-server "localhost"))
      ("derockschool-prod"
       (sql-product
        (quote postgres))
@@ -779,3 +808,55 @@ See URL `https://sass-lang.com/libsass'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
+ '(evil-want-Y-yank-to-eol nil)
+ '(package-selected-packages
+   '(helm-gtags ggtags flycheck-ocaml dune counsel-gtags counsel swiper ivy direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
+ '(paradox-github-token t)
+ '(psc-ide-add-import-on-completion t t)
+ '(psc-ide-rebuild-on-save nil t)
+ '(safe-local-variable-values
+   '((lsp-enabled-clients ts-ls)
+     (typescript-backend . tide)
+     (typescript-backend . lsp)
+     (javascript-backend . tide)
+     (javascript-backend . tern)
+     (javascript-backend . lsp)))
+ '(sql-connection-alist
+   '(("urwebschool"
+      (sql-product 'postgres)
+      (sql-database "urwebschool"))
+     ("hamaril"
+      (sql-product 'postgres)
+      (sql-user "nixcloud")
+      (sql-database "hamaril")
+      (sql-server ""))
+     ("aperi"
+      (sql-product
+       (quote postgres))
+      (sql-user "aperi")
+      (sql-database "aperi")
+      (sql-server "localhost"))
+     ("derockschool-prod"
+      (sql-product 'postgres)
+      (sql-user "nixcloud")
+      (sql-database "derockschool")
+      (sql-server "")))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
