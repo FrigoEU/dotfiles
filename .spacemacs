@@ -597,7 +597,7 @@ you should place your code here."
                 (shell-command-on-region
                  (point-min)
                  (point-max)
-                 "sql-formatter"
+                 "sql-formatter -u -l postgresql"
                  my-temp-buffer
                  nil
                  nil
