@@ -72,7 +72,7 @@ in
   i18n = {
     consoleFont = "PragmataPro Mono";
     consoleUseXkbConfig = true;
-    defaultLocale = "nl_BE.UTF-8";
+    defaultLocale = "en_US.UTF-8";
   };
 
   fonts = {
@@ -87,7 +87,6 @@ in
   };
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
   console.useXkbConfig = true;
   # console.packages = [pragmatapro];
   # console.font = "PragmataPro Mono";
