@@ -14,6 +14,12 @@ let
                                          };
   dockerRegistryPort = 5000;
   dockerRegistryConfigPath = "/tmp/daemon.json";
+  pinnedNixpkgs = import (builtins.fetchTarball {
+    name = "nixpkgs-21.05";
+    url = https://github.com/NixOS/nixpkgs/archive/21.05.tar.gz;
+    # Hash obtained using `nix-prefetch-url --unpack <url>`
+    # sha256 = "0mhqhq21y5vrr1f30qd2bvydv4bbbslvyzclhw0kdxmkgg3z4c92";
+  }) { config.allowUnfree = true; }; 
 in
 {
   imports = hwimports;
@@ -37,6 +43,7 @@ in
     ''
 192.168.202.235 kl0000.aperigroup.com
 192.168.50.30 kl2376.aperigroup.com
+10.120.0.20 kl9861.aperigroup.com
   '';
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -97,11 +104,12 @@ in
 
   # Set your time zone.
   time.timeZone = "Europe/Brussels";
+  programs.adb.enable = true;
 
-  nixpkgs.config.allowUnfree = true; # For Chrome
+  nixpkgs.config.allowUnfree = true; # For Chrome ao.
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pinnedNixpkgs; [
     wget vim google-chrome firefox git
 
     ((emacsPackagesNgGen emacs).emacsWithPackages (epkgs: [
@@ -109,15 +117,19 @@ in
     ]))
 
     htop jq
+    android-studio
 
     gnumake direnv libnotify
     entr silver-searcher 
     unzip
     autoconf automake libtool
     teams
-    # blender
+
+    vscode
+    blender
+    unityhub
+
     openvpn
-    # unityhub
 
     docker
     docker-compose
@@ -276,6 +288,7 @@ in
       "postgres"
       "audio"
       "docker"
+      "adbusers"
     ];
   };
 

@@ -56,7 +56,10 @@ values."
      helm
      auto-completion
      ;; better-defaults
-     ;; (csharp :variables csharp-backend 'lsp)
+     (csharp :variables
+             csharp-backend 'lsp
+             ;; csharp-backend 'omnisharp
+             )
      ;; emacs-lisp
      javascript
      (typescript :variables
@@ -352,6 +355,7 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
+
   )
 
 (defun dotspacemacs/user-config ()
@@ -578,7 +582,8 @@ you should place your code here."
   ;; (lsp-register-custom-settings '(("ormolu" lsp-haskell-formatting-provider)))
 
   ;; CSHARP
-  ;; (setq omnisharp-server-executable-path "/usr/local/bin/omnisharp")
+  (setq omnisharp-server-executable-path "/nix/store/wyz33mr8njm7cafnk9nccsy6i64jcgc0-omnisharp-roslyn-1.37.8/bin/omnisharp")
+  (setq lsp-csharp-server-path "/nix/store/wyz33mr8njm7cafnk9nccsy6i64jcgc0-omnisharp-roslyn-1.37.8/bin/omnisharp")
 
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
