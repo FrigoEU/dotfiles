@@ -44,6 +44,7 @@ values."
      ;; vimscript
      ;; markdown
      (java :variables java-backend 'lsp)
+     ;; (java :variables java-backend 'meghanada)
      sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -91,8 +92,8 @@ values."
                                       (direnv)
                                       (exec-path-from-shell)
                                       (doom-themes)
-                                      (edbi)
-                                      (company-edbi :location (recipe :fetcher github :repo "dvzubarev/company-edbi"))
+                                      ;; (edbi)
+                                      ;; (company-edbi :location (recipe :fetcher github :repo "dvzubarev/company-edbi"))
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -380,8 +381,8 @@ you should place your code here."
   ;; Nog niet zeker, uitproberen
   (setq company-idle-delay 0.2)
 
-  (require 'company)
-  (add-to-list 'company-backends 'company-edbi)
+  ;; (require 'company)
+  ;; (add-to-list 'company-backends 'company-edbi)
   (direnv-mode)
 
   ;; magit: escape and q to abort / exit popup
@@ -596,6 +597,30 @@ you should place your code here."
 
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
+
+  (defun sql-formatter-format-buffer ()
+    "Format sql files with sql-formatter if present"
+    (interactive)
+    (when
+        (and (eq major-mode 'sql-mode)
+             (executable-find "pg_format"))
+      (let ((buffer-with-sql (current-buffer)))
+        (with-temp-buffer
+          (let ((my-temp-buffer (current-buffer)))
+            (with-current-buffer buffer-with-sql
+              (progn
+                (shell-command-on-region
+                 (point-min)
+                 (point-max)
+                 "pg_format -s 2 -w 80 -B"
+                 my-temp-buffer
+                 nil
+                 nil
+                 t
+                 )
+                (replace-buffer-contents my-temp-buffer))))))))
+  
+  ;; (add-hook 'before-save-hook #'sql-formatter-format-buffer)
 
   ;; OCAML
   ;; (setq merlin-command "ocamlmerlin")
