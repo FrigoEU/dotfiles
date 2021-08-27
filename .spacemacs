@@ -45,8 +45,9 @@ values."
      ;; ruby
      ;; vimscript
      ;; markdown
+     (java :variables java-backend 'lsp)
+     ;; (java :variables java-backend 'meghanada)
      ;; (fsharp :variables fsharp-backend 'lsp)
-     ;; (java :variables java-backend 'lsp)
      sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -102,6 +103,8 @@ values."
                                       (direnv)
                                       ;; (exec-path-from-shell)
                                       (doom-themes)
+                                      ;; (edbi)
+                                      ;; (company-edbi :location (recipe :fetcher github :repo "dvzubarev/company-edbi"))
                                       ;; (fsharp-mode)
                                       )
    ;; A list of packages that cannot be updated.
@@ -391,6 +394,8 @@ you should place your code here."
   ;; Nog niet zeker, uitproberen
   (setq company-idle-delay 0.2)
 
+  ;; (require 'company)
+  ;; (add-to-list 'company-backends 'company-edbi)
   (evil-escape-mode -1)
   (direnv-mode)
 
@@ -588,8 +593,7 @@ you should place your code here."
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
-  ;; SQL
-  (defun sql-formatter ()
+  (defun sql-formatter-format-buffer ()
     "Format sql files with sql-formatter if present"
     (interactive)
     (when
@@ -603,16 +607,18 @@ you should place your code here."
                 (shell-command-on-region
                  (point-min)
                  (point-max)
-                 "pg_format -s 2 -W 1 -B"
+                 "pg_format -s 2 -w 80 -B"
                  my-temp-buffer
                  nil
                  nil
                  t
                  )
                 (replace-buffer-contents my-temp-buffer))))))))
-  
-  (add-hook 'before-save-hook #'sql-formatter)
 
+  ;; (add-hook 'before-save-hook #'sql-formatter-format-buffer)
+
+  ;; OCAML
+  ;; (setq merlin-command "ocamlmerlin")
 
   ;; UR-WEB
   (load "~/urweb/src/elisp/urweb-mode-startup")
@@ -1021,4 +1027,3 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  )
 )
-
