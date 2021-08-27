@@ -9,6 +9,24 @@ let
       networking.networkmanager.enable = true;
       networking.interfaces.enp0s31f6.useDHCP = true;
       networking.interfaces.wlp0s20f3.useDHCP = true;
+
+      # Bluetooth support:
+      # * bluetooth is heel goeie audio met A2DP, maar dan kan je niet babbelen
+      # * HSP/HFP is om ook te kunnen babbelen, maar dan is de kwaliteit echt slecht
+      #
+      hardware.pulseaudio = {
+        enable = true;
+        package = pkgs.pulseaudioFull;
+        extraModules = [ pkgs.pulseaudio-modules-bt ];
+      };
+      hardware.bluetooth.enable = true;
+      hardware.bluetooth.config = {
+        General = {
+          Enable = "Source,Sink,Media,Socket";
+        };
+      };
+
+      system.stateVersion = "20.09"; # Did you read the comment?
     };
   nixoshw = builtins.fetchTarball {
 	  url = https://github.com/nixos/nixos-hardware/archive/6f502bc6e62ef8519be4a5ff37b03d8ca5007dce.tar.gz;
@@ -24,5 +42,5 @@ import ./configuration-shared.nix {
   config = config;
   pkgs = pkgs;
   lib = lib;
-  hwimports = hwimports;
+  hwimports = hwimports ++ [/etc/nixos/cachix.nix];
 }

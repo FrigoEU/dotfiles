@@ -5,13 +5,18 @@
 
 {
   imports =
-    [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
-    ];
+    [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix> ];
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
+
+  hardware.pulseaudio.extraConfig = ''
+    load-module module-alsa-sink   device=hw:0,0 channels=4
+    load-module module-alsa-source device=hw:0,6 channels=4
+  '';
+
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/2c3a0564-6e77-4a06-aa82-cbec153871b4";
@@ -25,6 +30,7 @@
 
   swapDevices = [ ];
 
+  # networking.firewall.enable = false;
   nix.maxJobs = lib.mkDefault 8;
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   # High-DPI console
