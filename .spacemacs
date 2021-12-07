@@ -30,7 +30,7 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(yaml
      ;; ocaml
      ;; (rust :variables rust-backend 'lsp)
      ;; (haskell :variables haskell-completion-backend 'lsp)
@@ -58,8 +58,8 @@ values."
      auto-completion
      ;; better-defaults
      (csharp :variables
-             csharp-backend 'lsp
-             ;; csharp-backend 'omnisharp
+             ;; csharp-backend 'lsp
+             csharp-backend 'omnisharp
              )
      ;; emacs-lisp
      javascript
@@ -189,7 +189,7 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("PragmataPro Mono Liga"
-                               :size 32
+                               :size 18
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -410,6 +410,7 @@ you should place your code here."
   (define-key evil-motion-state-map (kbd "C-z") nil) ;; Disable, is by default switch to / from emacs keybinds
 
   (spacemacs/set-leader-keys "o" 'evil-jump-backward)
+  (spacemacs/set-leader-keys "ct" 'typescript-expect-test)
 
   ;; (setq avy-orders-alist
   ;;       '((avy-goto-char . avy-order-closest)
@@ -615,6 +616,7 @@ you should place your code here."
                  )
                 (replace-buffer-contents my-temp-buffer))))))))
 
+
   ;; (add-hook 'before-save-hook #'sql-formatter-format-buffer)
 
   ;; OCAML
@@ -697,6 +699,42 @@ you should place your code here."
   ;;     ))
   ;; (add-hook 'typescript-tsx-mode-hook 'init-dap-node)
   ;; (add-hook 'typescript-mode-hook 'init-dap-node)
+  (defun typescript-expect-test ()
+    (interactive)
+    (let* ((current-buff (window-buffer (minibuffer-selected-window)))
+           (filename (buffer-file-name current-buff))
+           (filename-corrected (concat filename ".corrected")))
+      (with-temp-buffer
+        (let ((output-buffer (current-buffer)))
+          (shell-command
+           (format "npx expect_test %s" filename)
+           output-buffer)
+          (if
+              ;; some output was written -> corrected file was made
+              (/= (buffer-size output-buffer) 0)
+              (let* ((existing-buffer (find-buffer-visiting filename-corrected)))
+                (if existing-buffer
+                    (progn
+                      (with-current-buffer existing-buffer
+                        (revert-buffer :ignore-auto :noconfirm))
+                      (ediff-buffers
+                       current-buff
+                       existing-buffer
+                       )
+                      )
+                  (ediff
+                   filename
+                   filename-corrected
+                   )
+                  )
+                (delete-file filename-corrected)
+                )
+            (message "All expect tests passed")
+            )
+          )
+        )
+      )
+    )
 
   ;; sassc
   (require 'flycheck)
@@ -918,83 +956,14 @@ This function is called at the very end of Spacemacs initialization."
  '(custom-safe-themes
    '("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
  '(evil-want-Y-yank-to-eol nil)
- '(hl-todo-keyword-faces
-   '(("TODO" . "#dc752f")
-     ("NEXT" . "#dc752f")
-     ("THEM" . "#2d9574")
-     ("PROG" . "#4f97d7")
-     ("OKAY" . "#4f97d7")
-     ("DONT" . "#f2241f")
-     ("FAIL" . "#f2241f")
-     ("DONE" . "#86dc2f")
-     ("NOTE" . "#b1951d")
-     ("KLUDGE" . "#b1951d")
-     ("HACK" . "#b1951d")
-     ("TEMP" . "#b1951d")
-     ("FIXME" . "#dc752f")
-     ("XXX+" . "#dc752f")
-     ("\\?\\?\\?+" . "#dc752f")))
- '(lsp-ui-doc-alignment 'window t)
- '(lsp-ui-doc-include-signature t t)
- '(lsp-ui-doc-position 'at-point t)
- '(lsp-ui-sideline-enable t t)
- '(lsp-ui-sideline-show-diagnostics t t)
- '(lsp-ui-sideline-show-hover nil t)
- '(package-selected-packages
-   '(yasnippet-snippets writeroom-mode visual-fill-column treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil terminal-here symbol-overlay password-generator magit-section lsp-ui lsp-treemacs treemacs cfrs posframe lsp-haskell forge ghub editorconfig dante lcr lsp-mode ht all-the-icons undo-tree spinner parent-mode pkg-info epl flx company-edbi s edbi epc ctable concurrent deferred bind-map bind-key popup direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
- '(paradox-github-token t)
- '(psc-ide-add-import-on-completion t t)
- '(psc-ide-rebuild-on-save nil t)
- '(sql-connection-alist
-   (quote
-    (("urwebschool"
-      (sql-product
-       (quote postgres))
-      (sql-database "urwebschool"))
-     ("hamaril"
-      (sql-product
-       (quote postgres))
-      (sql-user "nixcloud")
-      (sql-database "hamaril")
-      (sql-server ""))
-     ("aperi"
-      (sql-product
-       (quote postgres))
-      (sql-user "aperi")
-      (sql-database "aperi")
-      (sql-server "localhost"))
-     ("derockschool-prod"
-      (sql-product
-       (quote postgres))
-      (sql-user "nixcloud")
-      (sql-database "derockschool")
-      (sql-server "")))))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
- '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    '(helm-gtags ggtags flycheck-ocaml dune counsel-gtags counsel swiper ivy direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
  '(paradox-github-token t)
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
  '(safe-local-variable-values
-   '((lsp-enabled-clients ts-ls)
+   '((lsp-java-vmargs "-noverify" "-Xmx1G" "-XX:+UseG1GC" "-XX:+UseStringDeduplication" "-javaagent:/home/simon/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar" "-Xbootclasspath/a:/home/simon/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar")
+     (lsp-enabled-clients ts-ls)
      (typescript-backend . tide)
      (typescript-backend . lsp)
      (javascript-backend . tide)
@@ -1010,8 +979,7 @@ This function is called at the very end of Spacemacs initialization."
       (sql-database "hamaril")
       (sql-server ""))
      ("aperi"
-      (sql-product
-       (quote postgres))
+      (sql-product 'postgres)
       (sql-user "aperi")
       (sql-database "aperi")
       (sql-server "localhost"))
@@ -1019,7 +987,7 @@ This function is called at the very end of Spacemacs initialization."
       (sql-product 'postgres)
       (sql-user "nixcloud")
       (sql-database "derockschool")
-      (sql-server "")))))
+      (sql-server ""))) t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1027,3 +995,10 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  )
 )
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+

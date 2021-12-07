@@ -1,5 +1,9 @@
 { config, pkgs, lib, ... }:
 let 
+  nixpkgsUnstable20211004 = import ( builtins.fetchTarball { # for newer gitlab-runner
+    name = "nixpkgs-unstable-20211004";
+    url = https://github.com/NixOS/nixpkgs/archive/573317418695d7d634e7d3f652bf9db3b3897589.tar.gz;
+  }) {};
   specifics = 
     { config, lib, pkgs, ... }:
     {
@@ -8,11 +12,13 @@ let
       services.xserver.layout = "us";
       services.xserver.videoDrivers = [ "amdgpu" ];
 
+
       services.gitlab-runner = {
         enable = true;
         concurrent = 16;
+        package = nixpkgsUnstable20211004.gitlab-runner;
         services = {
-          docker-images = {
+          aperi-ci = {
             # File should contain at least these two variables:
             # `CI_SERVER_URL=xxx`
             # `REGISTRATION_TOKEN=xxx`
@@ -30,6 +36,19 @@ let
           };
         };
       };
+
+      # systemd.user.services.writedockerregistryconf = { # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/27171
+      #   script = ''
+      #     rm ${dockerRegistryConfigPath} && echo '{"registry-mirrors": ["http://127.0.01:${toString dockerRegistryPort}"]}' > ${dockerRegistryConfigPath} 
+      #   '';
+      #   wantedBy = [ "graphical-session.target" ];
+      #   partOf = [ "graphical-session.target" ];
+      # };
+      # services.dockerRegistry = { # So we can cache gitlab runner docker images. https://docs.docker.com/registry/recipes/mirror/
+      #   enable = true;
+      #   port = dockerRegistryPort;
+      #   extraConfig = { proxy.remoteurl = "https://registry-1.docker.io"; };
+      # };
 
       hardware.pulseaudio = {
         enable = true;

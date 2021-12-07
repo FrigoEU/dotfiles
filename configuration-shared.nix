@@ -22,6 +22,12 @@ let
   }) { config.allowUnfree = true; }; 
 in
 {
+  nix = {
+    package = pkgs.nixFlakes;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
   imports = hwimports;
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -44,6 +50,9 @@ in
 192.168.202.235 kl0000.aperigroup.com
 192.168.50.30 kl2376.aperigroup.com
 10.120.0.20 kl9861.aperigroup.com
+192.168.50.17 kl9999.aperigroup.com
+192.168.50.26 kl8888.aperigroup.com
+192.168.50.18 webrtcdemo.aperigroup.com
   '';
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -77,11 +86,8 @@ in
 
   # Select internationalisation properties.
   i18n = {
-    consoleFont = "PragmataPro Mono";
-    consoleUseXkbConfig = true;
     defaultLocale = "en_US.UTF-8";
   };
-
   fonts = {
     fontconfig = {
       defaultFonts = {
@@ -117,7 +123,7 @@ in
     ]))
 
     htop jq
-    android-studio
+    # android-studio
 
     gnumake direnv libnotify
     entr silver-searcher 
@@ -128,6 +134,7 @@ in
     vscode
     blender
     unityhub
+    omnisharp-roslyn
 
     openvpn
 
@@ -152,28 +159,6 @@ in
 
   virtualisation.docker.enable = true;
 
-
-  # services.gitlab-runner = {
-  #   enable = true;
-  #   concurrent = 16;
-  #   services = {
-  #     docker-images = {
-  #       # File should contain at least these two variables:
-  #       # `CI_SERVER_URL=xxx`
-  #       # `REGISTRATION_TOKEN=xxx`
-  #       executor = "docker";
-  #       registrationConfigFile = "/run/secrets/gitlab-runner-registration";
-  #       dockerImage = "docker:stable";
-  #       environmentVariables = { DOCKER_TLS_CERTDIR = ""; }; 
-  #       dockerPrivileged = true; # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1544#note_13439656
-  #       dockerVolumes = [
-  #         # "/var/run/docker.sock:/var/run/docker.sock" # removed:  https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4260#note_173549548
-  #         "/cache"
-  #         "/certs/client" # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4501
-  #       ];
-  #     };
-  #   };
-  # };
 
   services.postgresql = {
     package = pkgs.postgresql_12;
@@ -200,18 +185,6 @@ in
     DefaultTimeoutStopSec=10s
   '';
 
-  # systemd.user.services.writedockerregistryconf = { # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/27171
-  #   script = ''
-  #     rm ${dockerRegistryConfigPath} && echo '{"registry-mirrors": ["http://127.0.01:${toString dockerRegistryPort}"]}' > ${dockerRegistryConfigPath} 
-  #   '';
-  #   wantedBy = [ "graphical-session.target" ];
-  #   partOf = [ "graphical-session.target" ];
-  # };
-  # services.dockerRegistry = { # So we can cache gitlab runner docker images. https://docs.docker.com/registry/recipes/mirror/
-  #   enable = true;
-  #   port = dockerRegistryPort;
-  #   extraConfig = { proxy.remoteurl = "https://registry-1.docker.io"; };
-  # };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -228,6 +201,9 @@ in
   networking.firewall.allowedTCPPorts = [
     8080
     8010 # VLC chromecast
+    8000 # docker testing
+    8001 # docker testing
+    8002 # docker testing
   ];
   services.avahi.enable = true; # VLC chromecasting
   # networking.firewall.allowedUDPPorts = [ ... ];
@@ -291,6 +267,30 @@ in
       "adbusers"
     ];
   };
+
+
+  # Gamepad stuff
+  # services.udev.extraRules = ''
+  #   # https://steamcommunity.com/app/353370/discussions/0/490123197956024380/
+  #   # This rule is necessary for gamepad emulation.
+  #   KERNEL=="uinput", MODE="0660", GROUP="users", OPTIONS+="static_node=uinput"
+
+  #   # DualShock 4 over USB hidraw
+  #   KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="05c4", MODE="0666"
+
+  #   # DualShock 4 wireless adapter over USB hidraw
+  #   KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="0ba0", MODE="0666"
+
+  #   # DualShock 4 Slim over USB hidraw
+  #   KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="09cc", MODE="0666"
+
+  #   # DualShock 4 over bluetooth hidraw
+  #   KERNEL=="hidraw*", KERNELS=="*054C:05C4*", MODE="0666"
+
+  #   # DualShock 4 Slim over bluetooth hidraw
+  #   KERNEL=="hidraw*", KERNELS=="*054C:09CC*", MODE="0666"
+  # '';
+
 
   # This value determines the NixOS release with which your system is to be
   # compatible, in order to avoid breaking some software such as database
