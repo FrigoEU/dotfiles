@@ -12,6 +12,11 @@ let
       services.xserver.layout = "us";
       services.xserver.videoDrivers = [ "amdgpu" ];
 
+      services.plex = {
+        enable = true;
+        openFirewall = true;
+        user = "simon";
+      };
 
       services.gitlab-runner = {
         enable = true;

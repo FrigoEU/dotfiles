@@ -410,7 +410,15 @@ you should place your code here."
   (define-key evil-motion-state-map (kbd "C-z") nil) ;; Disable, is by default switch to / from emacs keybinds
 
   (spacemacs/set-leader-keys "o" 'evil-jump-backward)
-  (spacemacs/set-leader-keys "ct" 'typescript-expect-test)
+
+  (spacemacs/declare-prefix-for-mode 'typescript-mode "mt" "test")
+  (spacemacs/declare-prefix-for-mode 'typescript-tsx-mode "mt" "test")
+  (spacemacs/set-leader-keys-for-major-mode 'typescript-tsx-mode "tt" 'typescript-expect-test-normal)
+  (spacemacs/set-leader-keys-for-major-mode 'typescript-mode "tt" 'typescript-expect-test-normal)
+  (spacemacs/set-leader-keys-for-major-mode 'typescript-tsx-mode "td" 'typescript-expect-test-debug)
+  (spacemacs/set-leader-keys-for-major-mode 'typescript-mode "td" 'typescript-expect-test-debug)
+  (spacemacs/set-leader-keys-for-major-mode 'typescript-tsx-mode "rt" 'tide-refactor)
+  (spacemacs/set-leader-keys-for-major-mode 'typescript-mode "rt" 'tide-refactor)
 
   ;; (setq avy-orders-alist
   ;;       '((avy-goto-char . avy-order-closest)
@@ -699,7 +707,14 @@ you should place your code here."
   ;;     ))
   ;; (add-hook 'typescript-tsx-mode-hook 'init-dap-node)
   ;; (add-hook 'typescript-mode-hook 'init-dap-node)
-  (defun typescript-expect-test ()
+  (defun typescript-expect-test-normal ()
+    (interactive)
+    (typescript-expect-test nil))
+  (defun typescript-expect-test-debug ()
+    (interactive)
+    (typescript-expect-test 1))
+
+  (defun typescript-expect-test (inspect)
     (interactive)
     (let* ((current-buff (window-buffer (minibuffer-selected-window)))
            (filename (buffer-file-name current-buff))
@@ -707,12 +722,13 @@ you should place your code here."
       (with-temp-buffer
         (let ((output-buffer (current-buffer)))
           (shell-command
-           (format "npx expect_test %s" filename)
+           (format "npx expect_test %s %s" filename (if inspect "--inspect" ""))
            output-buffer)
           (if
               ;; some output was written -> corrected file was made
               (/= (buffer-size output-buffer) 0)
               (let* ((existing-buffer (find-buffer-visiting filename-corrected)))
+                ;; if we don't do this, every second test run we get a confirmation dialog saying "file has changed on disk, reload y/n...."
                 (if existing-buffer
                     (progn
                       (with-current-buffer existing-buffer

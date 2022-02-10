@@ -53,6 +53,9 @@ in
 192.168.50.17 kl9999.aperigroup.com
 192.168.50.26 kl8888.aperigroup.com
 192.168.50.18 webrtcdemo.aperigroup.com
+172.20.4.20 kl0091.aperigroup.com
+23.88.107.148 classyprod
+159.69.6.177 classyacc
   '';
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.

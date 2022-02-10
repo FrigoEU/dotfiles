@@ -5,6 +5,6 @@ ln -s $PWD/.bashrc ~/.bashrc
 ln -s $PWD/.spacemacs ~/.spacemacs
 
 # for x1: 
-sudo ln -s $PWD/x1.nix /etc/nixos/configuration.nix
+sudo ln -s $PWD/flake.nix /etc/nixos/flake.nix
 
-ln -s $PWD/spacemacsOS ~/.emacs.d/private/exwm
+# ln -s $PWD/spacemacsOS ~/.emacs.d/private/exwm
