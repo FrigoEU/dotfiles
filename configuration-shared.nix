@@ -5,21 +5,15 @@
 # sudo nix-channel --list is different from nix-channel --list !
 # update: sudo nixos-rebuild switch --upgrade
 
-{ config, pkgs, lib, hwimports, ... }:
+{ config, pkgs, lib, ... }:
 
-let 
+let
   pragmatapro = import ./pragmatapro.nix {runCommand = pkgs.runCommand;
                                           requireFile = pkgs.requireFile;
                                           unzip = pkgs.unzip;
                                          };
   dockerRegistryPort = 5000;
   dockerRegistryConfigPath = "/tmp/daemon.json";
-  pinnedNixpkgs = import (builtins.fetchTarball {
-    name = "nixpkgs-21.05";
-    url = https://github.com/NixOS/nixpkgs/archive/21.05.tar.gz;
-    # Hash obtained using `nix-prefetch-url --unpack <url>`
-    # sha256 = "0mhqhq21y5vrr1f30qd2bvydv4bbbslvyzclhw0kdxmkgg3z4c92";
-  }) { config.allowUnfree = true; }; 
 in
 {
   nix = {
@@ -28,7 +22,6 @@ in
       experimental-features = nix-command flakes
     '';
   };
-  imports = hwimports;
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -118,7 +111,7 @@ in
   nixpkgs.config.allowUnfree = true; # For Chrome ao.
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pinnedNixpkgs; [
+  environment.systemPackages = with pkgs; [
     wget vim google-chrome firefox git
 
     ((emacsPackagesNgGen emacs).emacsWithPackages (epkgs: [
