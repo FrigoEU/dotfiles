@@ -10,21 +10,23 @@
     user = "simon";
   };
 
+  boot.kernel.sysctl."net.ipv4.ip_forward" = true; # https://nixos.wiki/wiki/Gitlab_runner
   services.gitlab-runner = {
     enable = true;
     concurrent = 16;
     services = {
       aperi-ci = {
         # File should contain at least these two variables:
-        # `CI_SERVER_URL=xxx`
-        # `REGISTRATION_TOKEN=xxx`
+        # `CI_SERVER_URL=https://gitlab.com`
+        # `REGISTRATION_TOKEN=hEtJFpnddxLEzyTdssnJ`
         executor = "docker";
         registrationConfigFile = "/run/secrets/gitlab-runner-registration";
         dockerImage = "docker:stable";
         environmentVariables = { DOCKER_TLS_CERTDIR = ""; }; 
+        dockerDisableCache = false;
         dockerPrivileged = true; # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1544#note_13439656
         dockerVolumes = [
-          # "/var/run/docker.sock:/var/run/docker.sock" # removed:  https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4260#note_173549548
+          "/var/run/docker.sock:/var/run/docker.sock" # removed:  https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4260#note_173549548 UPDATE: toch terug erbij gestoken na fout "error during connect: Post http://docker:2375/v1.40/auth: dial tcp: lookup docker on 195.130.130.1:53: no such host"
           # "${dockerRegistryConfigPath}:/etc/docker/daemon.json" # local file /tmp/daemon.json (contains registry address) gets mapped to /etc/docker/daemon.json in docker which is it's well-known config file location
           "/cache"
           "/certs/client" # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4501
