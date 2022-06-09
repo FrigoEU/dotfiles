@@ -23,7 +23,7 @@ in
     '';
   };
   # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
+  # boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
   boot.loader.grub.enable = true;
@@ -114,7 +114,7 @@ in
   environment.systemPackages = with pkgs; [
     wget vim google-chrome firefox git
 
-    ((emacsPackagesNgGen emacs).emacsWithPackages (epkgs: [
+    ((emacsPackagesFor emacs).emacsWithPackages (epkgs: [
       epkgs.vterm
     ]))
 
