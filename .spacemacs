@@ -420,6 +420,11 @@ you should place your code here."
   (spacemacs/set-leader-keys-for-major-mode 'typescript-tsx-mode "rt" 'tide-refactor)
   (spacemacs/set-leader-keys-for-major-mode 'typescript-mode "rt" 'tide-refactor)
 
+  (require 'tide)
+  (setq tide-completion-enable-autoimport-suggestions t)
+  (setq tide-completion-ignore-case t)
+  (setq tide-completion-detailed t)
+
   ;; (setq avy-orders-alist
   ;;       '((avy-goto-char . avy-order-closest)
   ;;         (avy-goto-word-0 . avy-order-closest)))
