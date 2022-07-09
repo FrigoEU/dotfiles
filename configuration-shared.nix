@@ -19,7 +19,6 @@ in
   nix = {
     package = pkgs.nixFlakes;
     extraOptions = ''
-      experimental-features = nix-command flakes
     '';
   };
   # Use the systemd-boot EFI boot loader.
