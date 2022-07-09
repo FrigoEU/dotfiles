@@ -36,15 +36,18 @@
 
     plugins = with pkgs.vimPlugins; [
       plenary-nvim
-      which-key-nvim
-      project-nvim
-      telescope-nvim
-      telescope-fzf-native-nvim
-      telescope-project-nvim
-      tokyonight-nvim
-      toggleterm-nvim
-      surround-nvim
-      nvim-lspconfig
+      # which-key-nvim
+      # project-nvim
+      {
+        plugin = telescope-nvim;
+        config = "lua require('telescope').setup()";
+      }
+      # telescope-fzf-native-nvim
+      # telescope-project-nvim
+      # tokyonight-nvim
+      # toggleterm-nvim
+      # surround-nvim
+      # nvim-lspconfig
 
       # telescope-ui-select-nvim
       (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))
