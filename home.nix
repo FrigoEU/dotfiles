@@ -17,4 +17,15 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+
+  programs.neovim = {
+    enable = true;
+    viAlias = true;
+    vimAlias = true;
+
+    plugins = with pkgs.vimPlugins; [
+      packer-nvim
+      (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))
+    ];
+  };
 }
