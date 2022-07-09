@@ -112,16 +112,6 @@ in
     "/share/nix-direnv"
   ];
 
-  nix = {
-    package = pkgs.nixFlakes;
-    # keep-outputs + keep-derivations: nix-direnv gc
-    extraOptions = ''
-      experimental-features = nix-command flakes
-      keep-outputs = true
-      keep-derivations = true
-    '';
-  };
-
   nixpkgs.config.allowUnfree = true; # For Chrome ao.
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -312,7 +302,7 @@ in
   # servers. You should change this only after NixOS release notes say you
   # should.
   # system.stateVersion = "20.09"; # Did you read the comment?
-  # system.stateVersion = "21.05"; # Did you read the comment?
+  system.stateVersion = "22.05"; # Did you read the comment?
 
 }
 
