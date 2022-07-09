@@ -19,7 +19,11 @@ let
     url = https://github.com/NixOS/nixpkgs/archive/21.05.tar.gz;
     # Hash obtained using `nix-prefetch-url --unpack <url>`
     # sha256 = "0mhqhq21y5vrr1f30qd2bvydv4bbbslvyzclhw0kdxmkgg3z4c92";
-  }) { config.allowUnfree = true; }; 
+  }) { config.allowUnfree = true;
+       overlays = [
+         (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; } )
+       ];
+     };
 in
 {
   imports = hwimports;
@@ -44,6 +48,8 @@ in
 192.168.202.235 kl0000.aperigroup.com
 192.168.50.30 kl2376.aperigroup.com
 10.120.0.20 kl9861.aperigroup.com
+23.88.107.148 classyprod
+159.69.6.177 classyacc
   '';
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -106,11 +112,27 @@ in
   time.timeZone = "Europe/Brussels";
   programs.adb.enable = true;
 
+  environment.pathsToLink = [
+    "/share/nix-direnv"
+  ];
+
+  nix = {
+    package = pkgs.nixFlakes;
+    # keep-outputs + keep-derivations: nix-direnv gc
+    extraOptions = ''
+      experimental-features = nix-command flakes
+      keep-outputs = true
+      keep-derivations = true
+    '';
+  };
+
   nixpkgs.config.allowUnfree = true; # For Chrome ao.
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pinnedNixpkgs; [
-    wget vim google-chrome firefox git
+    wget vim firefox git
+    (google-chrome.override { commandLineArgs = "--force-device-scale-factor=1.5" ;})
+    # (google-chrome.override { commandLineArgs = "" ;})
 
     ((emacsPackagesNgGen emacs).emacsWithPackages (epkgs: [
       epkgs.vterm
@@ -175,6 +197,11 @@ in
   #   };
   # };
 
+  services.mysql = {
+    enable = true;
+    package = pkgs.mariadb;
+  };
+
   services.postgresql = {
     package = pkgs.postgresql_12;
     enable = true;
@@ -228,6 +255,7 @@ in
   networking.firewall.allowedTCPPorts = [
     8080
     8010 # VLC chromecast
+    8000 8001 8002 # aperi
   ];
   services.avahi.enable = true; # VLC chromecasting
   # networking.firewall.allowedUDPPorts = [ ... ];
