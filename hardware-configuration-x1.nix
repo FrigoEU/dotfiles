@@ -13,12 +13,6 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  hardware.pulseaudio.extraConfig = ''
-    load-module module-alsa-sink   device=hw:0,0 channels=4
-    load-module module-alsa-source device=hw:0,6 channels=4
-  '';
-
-
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/2c3a0564-6e77-4a06-aa82-cbec153871b4";
       fsType = "ext4";
