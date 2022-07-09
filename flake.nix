@@ -26,6 +26,8 @@
             ./desktop.nix
           ];
         };
+
+        # sudo nixos-rebuild switch --flake .#nixos-x1
         nixosConfigurations.nixos-x1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
