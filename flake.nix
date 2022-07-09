@@ -30,10 +30,10 @@
           system = "x86_64-linux";
           modules = [
             ({ config, pkgs, ... }: { nixpkgs.overlays = [ overlay ]; })
+            "${nixos-hardware}/lenovo/thinkpad/x1/7th-gen"
             ./hardware-configuration-x1.nix
             ./configuration-shared.nix
             ./x1.nix
-            "${nixos-hardware}/lenovo/thinkpad/x1/7th-gen"
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
