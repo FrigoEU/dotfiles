@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
@@ -9,6 +9,12 @@
       EDITOR = "neovim";
     };
     stateVersion = "22.05";
+    packages = with pkgs; [
+      xclip # For neovim clipboard integration
+    ];
+    shellAliases = {
+      nv = "neovide --frame None";
+    };
   };
 
   # This value determines the Home Manager release that your
@@ -23,7 +29,10 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
-  home.file.".config/nvim/init.lua".source = ./init.lua;
+  programs.gitui = {
+    enable = true;
+    keyConfig = ./gituikeyconfig.ron;
+  };
 
   programs.neovim = {
     enable = true;
@@ -33,24 +42,45 @@
     extraPackages = [
       pkgs.ripgrep
     ];
+    extraConfig = builtins.concatStringsSep "\n" [
+      # (lib.strings.fileContents ./base.vim)
+      # (lib.strings.fileContents ./plugins.vim)
+      # (lib.strings.fileContents ./lsp.vim)
+      #(lib.strings.fileContents ./coc.vim)
+      ''
+        lua << EOF
+        ${lib.strings.fileContents ./init.lua}
+        EOF
+      ''
+    ];
 
     plugins = with pkgs.vimPlugins; [
       plenary-nvim
-      # which-key-nvim
-      # project-nvim
-      {
-        plugin = telescope-nvim;
-        config = "lua require('telescope').setup()";
-      }
-      # telescope-fzf-native-nvim
-      # telescope-project-nvim
-      # tokyonight-nvim
-      # toggleterm-nvim
-      # surround-nvim
-      # nvim-lspconfig
+      telescope-nvim
+
+      which-key-nvim
+      tokyonight-nvim
+      (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))
+
+      project-nvim
+
+      telescope-fzf-native-nvim
+      bufdelete-nvim
+
+      surround-nvim
+
+      kommentary
+      nvim-autopairs
+      neoformat
+      impatient-nvim
+      nvim-tree-lua
+
+      toggleterm-nvim
 
       # telescope-ui-select-nvim
-      (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))
+      # nvim-lspconfig
+
+
     ];
 
   };
