@@ -10,6 +10,7 @@ vim.g.neovide_cursor_animation_length=0.0
 vim.g.neovide_cursor_trail_length=0.0
 vim.opt.splitbelow = true
 vim.opt.splitright = true
+vim.opt.termguicolors = true
 
 -- Easily move between windows
 vim.api.nvim_set_keymap('n', '<C-h>', '<C-w>h', { noremap = true, silent = true })
@@ -17,7 +18,13 @@ vim.api.nvim_set_keymap('n', '<C-j>', '<C-w>j', { noremap = true, silent = true 
 vim.api.nvim_set_keymap('n', '<C-k>', '<C-w>k', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-l>', '<C-w>l', { noremap = true, silent = true })
 
-vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { noremap = true, silent = true })
+function _set_terminal_esc()
+  vim.api.nvim_buf_set_keymap(0, 't', '<Esc>', '<C-\\><C-n>', { noremap = true, silent = true })
+end
+
+vim.api.nvim_create_autocmd("TermOpen", {
+  command = "lua _set_terminal_esc()",
+})
 
 -- Indentation
 vim.opt.smartindent = true
@@ -37,7 +44,7 @@ require("telescope").setup {
       i = {
         ["<C-j>"] = "move_selection_next",
         ["<C-k>"] = "move_selection_previous",
-        ["<C-w>"] = "select_horizontal",
+        ["<C-s>"] = "select_horizontal",
         ["<C-v>"] = "select_vertical",
         ["<C-h>"] = "which_key", -- help
       }
@@ -51,12 +58,14 @@ require("telescope").setup {
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('projects')
 
+-- require('neogit').setup {}
+
 local wk = require("which-key")
 wk.setup {}
 wk.register({
   ["<leader>"] = {
-    ["/"] = { "<cmd>Telescope grep_string<cr>", "Find string under cursor" },
-    ["*"] = { "<cmd>Telescope live_grep<cr>", "Grep" },
+    ["/"] = { "<cmd>Telescope live_grep<cr>", "Grep" },
+    ["*"] = { "<cmd>Telescope grep_string<cr>", "Find string under cursor" },
     ["-"] = { "<cmd>Telescope resume<cr>", "Resume previous telescope" },
     [" "] = { "<cmd>Telescope help_tags<cr>", "Help list" },
     -- ["'"] = { "<cmd>1ToggleTerm<cr>", "Toggle terminal" },
@@ -70,7 +79,11 @@ wk.register({
     },
     g = {
       name = "+git",
-      s = { "<cmd>lua _gitui_toggle()<CR>", "Git status" },
+      -- s = { "<cmd>lua require('neogit').open({ kind = 'split' })<cr>", "Git status" },
+      l = { "<cmd>lua _lazygit_toggle()<CR>", "Lazygit" },
+      u = { "<cmd>lua _gitui_toggle()<CR>", "Gitui" },
+      d = { "<cmd>Telescope git_status<CR>", "Diffs" },
+      t = { "<cmd>Telescope git_bcommits<CR>", "Time machine" },
     },
     p = {
       name = "+project",
@@ -92,7 +105,7 @@ wk.register({
       ["K"] = { "<C-w>K", "Move up" },
       ["L"] = { "<C-w>L", "Move right" },
       ["V"] = { "<cmd>vsplit<cr>", "Split vertically" },
-      ["W"] = { "<cmd>wsplit<cr>", "Split horizontally" },
+      ["S"] = { "<cmd>split<cr>", "Split horizontally" },
       ["1"] = { "1<c-w>w", "1"},
       ["2"] = { "2<c-w>w", "2"},
       ["3"] = { "3<c-w>w", "3"},
@@ -118,17 +131,44 @@ require("toggleterm").setup {
   start_in_insert = false,
 }
 local Terminal  = require('toggleterm.terminal').Terminal
-local gitui = Terminal:new({ cmd = "gitui", hidden = true, direction = "float" })
+local lazygit = Terminal:new({ 
+  cmd = "lazygit", 
+  hidden = true, 
+  direction = "float",   
+  close_on_exit = true,
+  on_open = function(term)
+    vim.cmd("startinsert!")
+    vim.api.nvim_buf_set_keymap(term.bufnr, "t", '<esc>', "<cmd>close<CR>", {silent = false, noremap = true})
+    if vim.fn.mapcheck("<esc>", "t") ~= "" then
+      vim.api.nvim_buf_del_keymap(term.bufnr, "t", "<esc>")
+    end
+  end,
+})
+function _lazygit_toggle()
+  lazygit:toggle()
+end
+
+local gitui = Terminal:new({ 
+  cmd = "gitui", 
+  hidden = true, 
+  direction = "float",   
+  close_on_exit = true,
+  on_open = function(term)
+    vim.cmd("startinsert!")
+    vim.api.nvim_buf_set_keymap(term.bufnr, "t", '<esc>', "<cmd>close<CR>", {silent = false, noremap = true})
+    if vim.fn.mapcheck("<esc>", "t") ~= "" then
+      vim.api.nvim_buf_del_keymap(term.bufnr, "t", "<esc>")
+    end
+  end,
+})
 function _gitui_toggle()
   gitui:toggle()
 end
 
-local fixedterm = Terminal:new({ cmd = "", hidden = false, direction = "float" })
+local fixedterm = Terminal:new({ cmd = "", hidden = true })
 function _fixedterm_toggle()
   fixedterm:toggle()
 end
-
-
 
 require("surround").setup {mappings_style = "surround"}
 require("nvim-autopairs").setup {}

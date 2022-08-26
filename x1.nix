@@ -3,7 +3,10 @@
   networking.hostName = "nixos-x1"; # Define your hostname.
   services.xserver.layout = "be";
   services.xserver.xkbOptions = "caps:swapescape";
+
   networking.networkmanager.enable = true;
+  programs.nm-applet.enable = true;
+
   networking.interfaces.enp0s31f6.useDHCP = true;
   networking.interfaces.wlp0s20f3.useDHCP = true;
 

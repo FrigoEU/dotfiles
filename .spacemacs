@@ -3,14 +3,14 @@
 ;; It must be stored in your home directory.
 
 (defun dotspacemacs/layers ()
-  "Configuration Layers declaration.
-You should not put any user code in this function besides modifying the variable
-values."
+  "Layer configuration:
+This function should only modify configuration layer settings."
   (setq-default
    ;; Base distribution to use. This is a layer contained in the directory
    ;; `+distribution'. For now available distributions are `spacemacs-base'
    ;; or `spacemacs'. (default 'spacemacs)
    dotspacemacs-distribution 'spacemacs
+
    ;; Lazy installation of layers (i.e. layers are installed only when a file
    ;; with a supported type is opened). Possible values are `all', `unused'
    ;; and `nil'. `unused' will lazy install only unused layers (i.e. layers
@@ -21,13 +21,15 @@ values."
    ;; variable `dotspacemacs-configuration-layers' to install it.
    ;; (default 'unused)
    dotspacemacs-enable-lazy-installation 'unused
+
    ;; If non-nil then Spacemacs will ask for confirmation before installing
    ;; a layer lazily. (default t)
    dotspacemacs-ask-for-lazy-installation t
-   ;; If non-nil layers with lazy install support are lazy installed.
+
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path '()
+
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(yaml
@@ -46,16 +48,29 @@ values."
      ;; ruby
      ;; vimscript
      ;; markdown
+     tree-sitter
+     theming
      (java :variables java-backend 'lsp)
      ;; (java :variables java-backend 'meghanada)
      ;; (fsharp :variables fsharp-backend 'lsp)
-     sql
+     (sql :variables
+          sql-backend 'lsp
+          ;; lsp-sqls-workspace-config-path 'workspace
+          lsp-sqls-workspace-config-path nil
+          lsp-sqls-connections
+          '(((alias . "aperi")
+             (driver . "postgresql")
+             (dataSourceName . "host=localhost port=5432 user=aperi password=aperi dbname=aperi sslmode=disable"))))
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
-     ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
-     ;; <M-m f e R> (Emacs style) to install them.
+     ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
+     ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
+
      helm
+     ;; (compleseus :variables
+     ;;             compleseus-engine 'selectrum)
+
      auto-completion
      ;; better-defaults
      (csharp :variables
@@ -66,8 +81,8 @@ values."
      javascript
      (typescript :variables
                  typescript-backend 'tide
-                 typescript-fmt-tool 'prettier
-                 typescript-fmt-on-save t
+                 ;; typescript-fmt-tool 'prettier
+                 ;; typescript-fmt-on-save t
                  )
      html
      ;; lsp
@@ -87,7 +102,9 @@ values."
             shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
-     (treemacs :variables treemacs-use-follow-mode nil)
+     (treemacs :variables
+               treemacs-collapse-dirs 0
+               treemacs-use-follow-mode nil)
      ;; treemacs
      ;; themes-megapack
      ;; version-control
@@ -102,33 +119,35 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '((nix-mode)
                                       (direnv)
+                                      (dirvish)
                                       ;; (exec-path-from-shell)
                                       (doom-themes)
+                                      (eshell-vterm) ;; Run "visual" commands like htop and psql in vterm instead of term
+                                      (apheleia) ;; async formatting
                                       ;; (edbi)
                                       ;; (company-edbi :location (recipe :fetcher github :repo "dvzubarev/company-edbi"))
                                       ;; (fsharp-mode)
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
+
    ;; A list of packages that will not be installed and loaded.
    dotspacemacs-excluded-packages '()
+
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
-   ;; `used-only' installs only explicitly used packages and uninstall any
-   ;; unused packages as well as their unused dependencies.
-   ;; `used-but-keep-unused' installs only the used packages but won't uninstall
-   ;; them if they become unused. `all' installs *all* packages supported by
-   ;; Spacemacs and never uninstall them. (default is `used-only')
+   ;; `used-only' installs only explicitly used packages and deletes any unused
+   ;; packages as well as their unused dependencies. `used-but-keep-unused'
+   ;; installs only the used packages but won't delete unused ones. `all'
+   ;; installs *all* packages supported by Spacemacs and never uninstalls them.
+   ;; (default is `used-only')
    dotspacemacs-install-packages 'used-only))
 
-
-
 (defun dotspacemacs/init ()
-  "Initialization function.
-This function is called at the very startup of Spacemacs initialization
-before layers configuration.
-You should not put any user code in there besides modifying the variable
-values."
+  "Initialization:
+This function is called at the very beginning of Spacemacs startup,
+before layer configuration.
+It should only modify the values of Spacemacs settings."
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
@@ -162,7 +181,9 @@ values."
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
    dotspacemacs-elpa-https t
+
    ;; Maximum allowed time in seconds to contact an ELPA repository.
+   ;; (default 5)
    dotspacemacs-elpa-timeout 5
 
    ;; Set `gc-cons-threshold' and `gc-cons-percentage' when startup finishes.
@@ -194,6 +215,7 @@ values."
    ;; new versions works via git commands, thus it calls GitHub services
    ;; whenever you start Emacs. (default nil)
    dotspacemacs-check-for-update nil
+
    ;; If non-nil, a form that evaluates to a package directory. For example, to
    ;; use different package directories for different Emacs versions, set this
    ;; to `emacs-version'. (default 'emacs-version)
@@ -237,8 +259,10 @@ values."
    ;; pair of numbers, e.g. `(recents-by-project . (7 .  5))', where the first
    ;; number is the project limit and the second the limit on the recent files
    ;; within a project.
-   dotspacemacs-startup-lists '((recents . 5)
-                                (projects . 7))
+   dotspacemacs-startup-lists '(
+                                ;; (recents . 5)
+                                ;; (projects . 7)
+                                )
 
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
@@ -278,8 +302,8 @@ values."
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(doom-one
-                         doom-gruvbox-light
                          spacemacs-dark
+                         doom-gruvbox-light
                          spacemacs-light)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
@@ -289,14 +313,16 @@ values."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
+   dotspacemacs-mode-line-theme '(spacemacs)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("PragmataPro Mono Liga"
+   dotspacemacs-default-font '(
+                               ;; "PragmataPro Mono Liga"
+                               "Victor Mono"
                                :size 22
                                :weight normal
                                :width normal)
@@ -609,14 +635,33 @@ you should place your code here."
   (setq web-mode-css-indent-offset 2)
   (setq web-mode-code-indent-level 2)
   (setq web-mode-code-indent-offset 2)
+  (setq web-mode-enable-auto-quoting nil)
   (setq css-indent-offset 2)
   (setq json-indent-offset 2)
+  ;; (setq helm-external-commands-list ...)
+
+
+  (setq theming-modifications
+        '((doom-one
+           ;; Give comments a different look
+           (font-lock-comment-face :slant italic
+                                   :weight bold
+                                   ;; :foreground "#ff0095"
+                                   )
+           ;; Give docs a different look
+           (font-lock-doc-face :slant italic
+                               :weight bold
+                               )
+           ))
+        )
 
   (setq system-uses-terminfo nil)
   (setq-default spacemacs-show-trailing-whitespace nil)
   (setq mac-right-option-modifier 'nil)
   (setq scroll-margin 8)
   (setq vc-follow-symlinks t)
+
+  (setq warning-minimum-level :error) ;; Only show errors in messages buffer, not warnings. Native comp introduces tons of these
 
   ;; (setq doom-modeline-buffer-encoding nil)
   ;; (setq doom-modeline-percent-position nil)
@@ -632,6 +677,7 @@ you should place your code here."
   ;; (add-to-list 'company-backends 'company-edbi)
   (evil-escape-mode -1)
   (direnv-mode)
+  (eshell-vterm-mode)
 
   ;; magit: escape and q to abort / exit popup
   (require 'transient)
@@ -654,10 +700,26 @@ you should place your code here."
   (spacemacs/set-leader-keys-for-major-mode 'typescript-tsx-mode "rt" 'tide-refactor)
   (spacemacs/set-leader-keys-for-major-mode 'typescript-mode "rt" 'tide-refactor)
 
+  (global-set-key (kbd "C-l") 'evil-window-right)
+  (global-set-key (kbd "C-h") 'evil-window-left)
+  (global-set-key (kbd "C-j") 'evil-window-down)
+  (global-set-key (kbd "C-k") 'evil-window-up)
+  ;; (global-set-key [f10] '(lambda () (interactive) (profiler-start 'cpu)))
+  ;; (global-set-key [f11] 'profiler-report)
+  (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
+  (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
+  (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
+  (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
+
+
   (require 'tide)
   (setq tide-completion-enable-autoimport-suggestions t)
   (setq tide-completion-ignore-case t)
-  (setq tide-completion-detailed t)
+  (setq tide-always-show-documentation t)
+
+  ;; formatting - prettier mostly
+  (apheleia-global-mode +1)
+
 
   ;; (setq avy-orders-alist
   ;;       '((avy-goto-char . avy-order-closest)
@@ -752,15 +814,23 @@ you should place your code here."
                                        )))
           ("urwebschool"
            (sql-product 'postgres)
-           (sql-database "urwebschool"))
+           (sql-database "urwebschool")
+           (sql-user "simon")
+           (sql-server "localhost")
+           (sql-port 5432)
+           )
           ("sqltypertest"
            (sql-product 'postgres)
            (sql-database "sqltypertest"))
-          ("hamaril"
+          (* First run make tunnel_pg *)
+          ("popcollege"
            (sql-product 'postgres)
            (sql-user "nixcloud")
-           (sql-database "hamaril")
-           (sql-server "tunnel")) (* TODO automate SSH port forwarding *)
+           (sql-database "popcollege")
+           (sql-server "localhost")
+           (sql-password "nixcloud")
+           (sql-port 3000)
+           ) (* TODO automate SSH port forwarding *)
           ;; (secondary-db (sql-product 'postgres)
           ;;               (sql-database (concat "postgresql://"
           ;;                                     "username:"
@@ -845,37 +915,71 @@ you should place your code here."
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
-  (defun sql-formatter-format-buffer ()
-    "Format sql files with sql-formatter if present"
+  (defun sqlfmt-format-buffer ()
+    "Format sql files with cockroack sqlfmt if present"
     (interactive)
     (when
         (and (eq major-mode 'sql-mode)
-             (executable-find "pg_format"))
+             (executable-find "cockroach"))
       (let ((buffer-with-sql (current-buffer)))
         (with-temp-buffer
-          (let ((my-temp-buffer (current-buffer)))
-            (with-current-buffer buffer-with-sql
-              (progn
-                (shell-command-on-region
-                 (point-min)
-                 (point-max)
-                 "pg_format -s 2 -w 80 -B"
-                 my-temp-buffer
-                 nil
-                 nil
-                 t
-                 )
-                (replace-buffer-contents my-temp-buffer))))))))
+          (let ((temp-buffer-orig-with-replacements (current-buffer)))
+            (with-temp-buffer
+              (let ((temp-buffer-result (current-buffer))
+                    (matches '())
+                    (i 1))
+                (with-current-buffer buffer-with-sql
+                  (progn
+                    (copy-to-buffer temp-buffer-orig-with-replacements (point-min) (point-max))
+                    (with-current-buffer temp-buffer-orig-with-replacements
+                      ;; Replace :variable with $11111
+                      ;; :variable is not valid syntax. So we replace it with the valid placholder syntax $1
+                      ;; Max int value = 65000 so we use 11111 to approximate length of :variable string
+                      ;; We also save the matches to reverse the replacement
+                      (while (re-search-forward "[^:]\\(:[_A-Za-z0-9]+\\)"nil t)
+                        (add-to-ordered-list 'matches (match-string 1) i)
+                        (replace-match "$11111" nil nil nil 1)
+                        (set 'i (+ i 1))
+                        )
+                      (let
+                          ;; Run sqlfmt into temp-buffer-result
+                          ((retcode (shell-command-on-region
+                                     (point-min)
+                                     (point-max)
+                                     "cockroach sqlfmt --align full --use-spaces"
+                                     temp-buffer-result
+                                     nil
+                                     "**sqlfmt-error**"
+                                     nil
+                                     )))
+                        (when
+                            (= retcode 0)
+                          (with-current-buffer temp-buffer-result
+                            (progn
+                              ;; Reverse :var -> $11111
+                              (set 'i 0)
+                              (goto-char (point-min))
+                              (while (re-search-forward "\\$\\w+" nil t)
+                                (replace-match (nth i matches))
+                                (set 'i (+ i 1)))
+                              (with-current-buffer buffer-with-sql
+                                ;; Write buffer
+                                (replace-buffer-contents temp-buffer-result ))
+                              )
+                            )
+                          ))))))))))))
 
+  (add-hook 'sql-mode-hook
+             (lambda ()
+               (add-hook 'before-save-hook #'sqlfmt-format-buffer)))
 
-  ;; (add-hook 'before-save-hook #'sql-formatter-format-buffer)
 
   ;; OCAML
   ;; (setq merlin-command "ocamlmerlin")
 
   ;; UR-WEB
-  (load "~/urweb/src/elisp/urweb-mode-startup")
   (setq urweb-indent-level 2)
+  (load "~/urweb/src/elisp/urweb-mode-startup")
   (defun init-urweb-proj ()
     (smartparens-mode)
     (require 'company)
@@ -926,17 +1030,6 @@ you should place your code here."
       (if proj-dir (setq default-directory proj-dir))
       (if proj-dir (setq compile-command (mk-compile-command-with-notifs "make")))))
   (add-hook 'sml-mode-hook 'sml-set-compiler)
-
-  (global-set-key (kbd "C-l") 'evil-window-right)
-  (global-set-key (kbd "C-h") 'evil-window-left)
-  (global-set-key (kbd "C-j") 'evil-window-down)
-  (global-set-key (kbd "C-k") 'evil-window-up)
-  (global-set-key [f10] '(lambda () (interactive) (profiler-start 'cpu)))
-  (global-set-key [f11] 'profiler-report)
-  (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
-  (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
-  (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
-  (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 
   ;; dap
 
@@ -1199,12 +1292,7 @@ See URL `https://sass-lang.com/libsass'."
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
  )
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
 (defun dotspacemacs/emacs-custom-settings ()
   "Emacs custom settings.
 This is an auto-generated function, do not modify its content directly, use

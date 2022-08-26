@@ -18,8 +18,11 @@ in
 {
   nix = {
     package = pkgs.nixFlakes;
+    # keep-outputs + keep-derivations: for nix-direnv
     extraOptions = ''
       experimental-features = nix-command flakes
+      keep-outputs = true
+      keep-derivations = true
     '';
   };
   # Use the systemd-boot EFI boot loader.
@@ -45,6 +48,7 @@ in
 10.120.0.20 kl9861.aperigroup.com
 192.168.50.17 kl9999.aperigroup.com
 192.168.50.26 kl8888.aperigroup.com
+10.107.4.16 kl0044.aperigroup.com
 192.168.50.18 webrtcdemo.aperigroup.com
 172.20.4.20 kl0091.aperigroup.com
 23.88.107.148 classyprod
@@ -73,8 +77,6 @@ in
   #   prefixLength = 24;
   # } ];
 
-  # networking.networkmanager.enable = true;
-
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -92,6 +94,7 @@ in
     };
     fonts = [
       pragmatapro
+      pkgs.victor-mono
     ];
   };
 
@@ -108,24 +111,22 @@ in
   time.timeZone = "Europe/Brussels";
   programs.adb.enable = true;
 
-  environment.pathsToLink = [
-    "/share/nix-direnv"
-  ];
-
   nixpkgs.config.allowUnfree = true; # For Chrome ao.
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     wget google-chrome firefox git
 
-    ((emacsPackagesFor emacs).emacsWithPackages (epkgs: [
+    ((emacsPackagesFor emacs28NativeComp).emacsWithPackages (epkgs: [
       epkgs.vterm
     ]))
+
+    linphone
 
     htop jq
     # android-studio
 
-    gnumake direnv libnotify
+    gnumake direnv nix-direnv libnotify
     entr silver-searcher 
     unzip
     autoconf automake libtool
@@ -151,14 +152,25 @@ in
 
     zoom-us
 
+    cockroachdb
+
     # (perl.withPackages(p: with p; [
     #   RPCEPCService
     #   DBI
     #   DBDPg
     # ])) # edbi -> dbi:Pg:dbname=urwebschool
   ];
-  services.lorri.enable = true;
   services.tlp.enable = true;
+
+  # nix-direnv
+  # https://github.com/nix-community/nix-direnv#via-configurationnix-in-nixos
+  environment.pathsToLink = [
+    "/share/nix-direnv"
+  ];
+  # nix-direnv support for flakes 
+  nixpkgs.overlays = [
+    (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; } )
+  ];
 
   virtualisation.docker.enable = true;
 
@@ -224,13 +236,7 @@ in
   sound.enable = true;
   nixpkgs.config.pulseaudio = true;
 
-  environment.variables = {
-    PLASMA_USE_QT_SCALING = "1";
-
-    # Preferred applications
-    # EDITOR = "emacsclient -c";
-    BROWSER = "firefox";
-  };
+  environment.variables.BROWSER = "firefox";
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
@@ -242,12 +248,17 @@ in
   # services.xserver.libinput.enable = true;
 
   # Enable the KDE Desktop Environment.
+
+  services.xserver.desktopManager.plasma5.enable = true;
+  # environment.variables.PLASMA_USE_QT_SCALING = "1";
+  # services.xserver.desktopManager.xfce.enable = true;
+  # services.xserver.desktopManager.lumina.enable = true;
   # services.xserver.displayManager.sddm.enable = true;
   services.xserver.displayManager.lightdm.enable = true;
   services.xserver.displayManager.autoLogin.user = "simon";
   services.xserver.displayManager.autoLogin.enable = true;
 
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.libinput.mouse.leftHanded = true;
 
   # EXWM: Emacs Window Manager
   # https://www.reddit.com/r/NixOS/comments/8ghg4f/exwm_problem/

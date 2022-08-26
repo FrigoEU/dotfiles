@@ -1,4 +1,10 @@
 { config, pkgs, lib, ... }:
+let
+#  pragmatapro = import ./pragmatapro.nix {runCommand = pkgs.runCommand;
+#                                          requireFile = pkgs.requireFile;
+#                                          unzip = pkgs.unzip;
+#                                         };
+in
 {
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
@@ -17,6 +23,10 @@
     };
   };
 
+  xresources = {
+    path = ./tokyo-xresources;
+  };
+
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
   # when a new Home Manager release introduces backwards
@@ -28,6 +38,9 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+  programs.lazygit = {
+    enable = true;
+  };
 
   programs.gitui = {
     enable = true;
@@ -39,9 +52,7 @@
     viAlias = true;
     vimAlias = true;
 
-    extraPackages = [
-      pkgs.ripgrep
-    ];
+    extraPackages = [];
     extraConfig = builtins.concatStringsSep "\n" [
       # (lib.strings.fileContents ./base.vim)
       # (lib.strings.fileContents ./plugins.vim)
@@ -76,6 +87,9 @@
       nvim-tree-lua
 
       toggleterm-nvim
+
+      vim-nix
+      neogit
 
       # telescope-ui-select-nvim
       # nvim-lspconfig
