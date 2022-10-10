@@ -43,16 +43,18 @@ in
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.extraHosts =
     ''
-192.168.202.235 kl0000.aperigroup.com
 192.168.50.30 kl2376.aperigroup.com
 10.120.0.20 kl9861.aperigroup.com
 192.168.50.17 kl9999.aperigroup.com
-192.168.50.26 kl8888.aperigroup.com
 10.107.4.16 kl0044.aperigroup.com
 192.168.50.18 webrtcdemo.aperigroup.com
 172.20.4.20 kl0091.aperigroup.com
 23.88.107.148 classyprod
 159.69.6.177 classyacc
+192.168.202.235 showroom
+192.168.202.240 showroom_500
+94.107.215.44 translations
+192.168.50.26 labo
   '';
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -253,10 +255,13 @@ in
   # environment.variables.PLASMA_USE_QT_SCALING = "1";
   # services.xserver.desktopManager.xfce.enable = true;
   # services.xserver.desktopManager.lumina.enable = true;
-  # services.xserver.displayManager.sddm.enable = true;
-  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.displayManager.sddm.enable = true;
+  # services.xserver.displayManager.lightdm.enable = true;
   services.xserver.displayManager.autoLogin.user = "simon";
   services.xserver.displayManager.autoLogin.enable = true;
+
+  # security.pam.services.lightdm.enableKwallet = true;
+  security.pam.services.sddm.enableKwallet = true;
 
   services.xserver.libinput.mouse.leftHanded = true;
 

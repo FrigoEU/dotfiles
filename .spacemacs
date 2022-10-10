@@ -718,6 +718,7 @@ you should place your code here."
   (setq tide-always-show-documentation t)
 
   ;; formatting - prettier mostly
+  ;; TODO - This should be only in ts/tsx/js/... imo - now it's in every mode
   (apheleia-global-mode +1)
 
 
