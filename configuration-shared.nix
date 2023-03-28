@@ -24,6 +24,7 @@ in
       keep-outputs = true
       keep-derivations = true
     '';
+    autoOptimiseStore = true;
   };
   # Use the systemd-boot EFI boot loader.
   # boot.loader.systemd-boot.enable = true;
@@ -49,13 +50,18 @@ in
 10.107.4.16 kl0044.aperigroup.com
 192.168.50.18 webrtcdemo.aperigroup.com
 172.20.4.20 kl0091.aperigroup.com
+10.210.0.15 kl0108.aperigroup.com
+10.141.0.15 kl2050.aperigroup.com
 23.88.107.148 classyprod
 159.69.6.177 classyacc
 192.168.202.235 showroom
 192.168.202.240 showroom_500
 94.107.215.44 translations
 192.168.50.26 labo
+10.131.0.16 flightcase
   '';
+
+ # 10.141.1.127
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -129,28 +135,33 @@ in
     # android-studio
 
     gnumake direnv nix-direnv libnotify
-    entr silver-searcher 
+    entr silver-searcher ripgrep
     unzip
     autoconf automake libtool
 
     vscode
-    blender
-    unityhub
-    omnisharp-roslyn
+    # blender
+    # unityhub
+    # omnisharp-roslyn
 
     openvpn
+
+    pgformatter
 
     docker
     docker-compose
 
     # obs-studio
     jdk8
+    gradle
     jetbrains.idea-community
     maven
 
-    neovide
+    # neovide
 
     pragmatapro
+
+    chrysalis
 
     zoom-us
 
@@ -162,7 +173,7 @@ in
     #   DBDPg
     # ])) # edbi -> dbi:Pg:dbname=urwebschool
   ];
-  services.tlp.enable = true;
+  #services.tlp.enable = true;
 
   # nix-direnv
   # https://github.com/nix-community/nix-direnv#via-configurationnix-in-nixos
@@ -225,6 +236,9 @@ in
     8000 # docker testing
     8001 # docker testing
     8002 # docker testing
+    8003 # engine testing
+    443
+    80
   ];
   services.avahi.enable = true; # VLC chromecasting
   # networking.firewall.allowedUDPPorts = [ ... ];
@@ -293,7 +307,15 @@ in
 
 
   # Gamepad stuff
-  # services.udev.extraRules = ''
+  services.udev.extraRules = ''
+
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2300", SYMLINK+="model01", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2301", SYMLINK+="model01", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2302", SYMLINK+="Atreus2", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2303", SYMLINK+="Atreus2", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="3496", ATTRS{idProduct}=="0005", SYMLINK+="model100", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="3496", ATTRS{idProduct}=="0006", SYMLINK+="model100", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
+'';
   #   # https://steamcommunity.com/app/353370/discussions/0/490123197956024380/
   #   # This rule is necessary for gamepad emulation.
   #   KERNEL=="uinput", MODE="0660", GROUP="users", OPTIONS+="static_node=uinput"

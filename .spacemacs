@@ -32,7 +32,10 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(yaml
+   '(
+     ;; protobuf
+     lua
+     yaml
      python
      ;; ocaml
      ;; (rust :variables rust-backend 'lsp)
@@ -53,14 +56,7 @@ This function should only modify configuration layer settings."
      (java :variables java-backend 'lsp)
      ;; (java :variables java-backend 'meghanada)
      ;; (fsharp :variables fsharp-backend 'lsp)
-     (sql :variables
-          sql-backend 'lsp
-          ;; lsp-sqls-workspace-config-path 'workspace
-          lsp-sqls-workspace-config-path nil
-          lsp-sqls-connections
-          '(((alias . "aperi")
-             (driver . "postgresql")
-             (dataSourceName . "host=localhost port=5432 user=aperi password=aperi dbname=aperi sslmode=disable"))))
+     sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -122,7 +118,7 @@ This function should only modify configuration layer settings."
                                       (dirvish)
                                       ;; (exec-path-from-shell)
                                       (doom-themes)
-                                      (eshell-vterm) ;; Run "visual" commands like htop and psql in vterm instead of term
+                                      ;; (eshell-vterm) ;; Run "visual" commands like htop and psql in vterm instead of term
                                       (apheleia) ;; async formatting
                                       ;; (edbi)
                                       ;; (company-edbi :location (recipe :fetcher github :repo "dvzubarev/company-edbi"))
@@ -323,7 +319,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-default-font '(
                                ;; "PragmataPro Mono Liga"
                                "Victor Mono"
-                               :size 22
+                               :size 16
                                :weight normal
                                :width normal)
 
@@ -461,7 +457,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Show the scroll bar while scrolling. The auto hide time can be configured
    ;; by setting this variable to a number. (default t)
-   dotspacemacs-scroll-bar-while-scrolling t
+   dotspacemacs-scroll-bar-while-scrolling f
 
    ;; Control line numbers activation.
    ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
@@ -677,7 +673,7 @@ you should place your code here."
   ;; (add-to-list 'company-backends 'company-edbi)
   (evil-escape-mode -1)
   (direnv-mode)
-  (eshell-vterm-mode)
+  ;; (eshell-vterm-mode)
 
   ;; magit: escape and q to abort / exit popup
   (require 'transient)
@@ -748,6 +744,11 @@ you should place your code here."
     "Open a new instance of eshell."
     (interactive)
     (eshell 'N))
+
+  (defun vterm-new()
+    "Open a new instance of vterm."
+    (interactive)
+    (vterm (random 100000)))
 
   (defun mk-compile-command-with-notifs (comp)
     (if (string-equal system-type "darwin")
@@ -916,12 +917,12 @@ you should place your code here."
 
   (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
-  (defun sqlfmt-format-buffer ()
-    "Format sql files with cockroack sqlfmt if present"
+  (defun pgformatter-format-buffer ()
+    "Format sql files with pgformatter if present"
     (interactive)
     (when
         (and (eq major-mode 'sql-mode)
-             (executable-find "cockroach"))
+             (executable-find "pg_format"))
       (let ((buffer-with-sql (current-buffer)))
         (with-temp-buffer
           (let ((temp-buffer-orig-with-replacements (current-buffer)))
@@ -947,7 +948,7 @@ you should place your code here."
                           ((retcode (shell-command-on-region
                                      (point-min)
                                      (point-max)
-                                     "cockroach sqlfmt --align full --use-spaces"
+                                     "pg_format"
                                      temp-buffer-result
                                      nil
                                      "**sqlfmt-error**"
@@ -970,10 +971,8 @@ you should place your code here."
                             )
                           ))))))))))))
 
-  (add-hook 'sql-mode-hook
-             (lambda ()
-               (add-hook 'before-save-hook #'sqlfmt-format-buffer)))
-
+  ;; (add-hook 'sql-mode-hook
+  ;;           (lambda () (add-hook 'before-save-hook 'pgformatter-format-buffer)))
 
   ;; OCAML
   ;; (setq merlin-command "ocamlmerlin")
@@ -1313,7 +1312,8 @@ This function is called at the very end of Spacemacs initialization."
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
  '(safe-local-variable-values
-   '(
+   '((lsp-enabled-clients ts-ls)
+     (lsp-java-vmargs "-noverify" "-Xmx1G" "-XX:+UseG1GC" "-XX:+UseStringDeduplication" "-javaagent:/home/simon/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar" "-Xbootclasspath/a:/home/simon/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar")
      (typescript-backend . tide)
      (typescript-backend . lsp)
      (javascript-backend . tide)
@@ -1346,6 +1346,6 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(highlight-parentheses-highlight ((nil (:weight ultra-bold))) t))
 )
 
