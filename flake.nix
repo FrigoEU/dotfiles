@@ -8,8 +8,9 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
   };
-  outputs = { self, nixpkgs, home-manager, nixos-hardware }:
+  outputs = { self, nixpkgs, home-manager, nixos-hardware, emacs-overlay }:
     let
       overlay = final: prev: (import nixpkgs {
         system = "x86_64-linux";
@@ -31,7 +32,10 @@
         nixosConfigurations.nixos-x1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ({ config, pkgs, ... }: { nixpkgs.overlays = [ overlay ]; })
+            ({ config, pkgs, ... }: { nixpkgs.overlays = [ 
+               overlay 
+               emacs-overlay
+          ]; })
             "${nixos-hardware}/lenovo/thinkpad/x1/7th-gen"
             ./hardware-configuration-x1.nix
             ./configuration-shared.nix
