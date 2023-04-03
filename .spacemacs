@@ -34,14 +34,14 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layers
    '(
      ;; protobuf
-     lua
-     yaml
-     python
+     ;; lua
+     ;; yaml
+     ;; python
      ;; ocaml
      ;; (rust :variables rust-backend 'lsp)
      ;; (haskell :variables haskell-completion-backend 'lsp)
      ;; csv
-     sml
+     ;; sml
      ;; graphviz
      ;; ruby
      ;; purescript
@@ -64,15 +64,14 @@ This function should only modify configuration layer settings."
      ;; ----------------------------------------------------------------
 
      helm
-     ;; (compleseus :variables
-     ;;             compleseus-engine 'selectrum)
+     ;; compleseus
 
      auto-completion
      ;; better-defaults
-     (csharp :variables
+     ;; (csharp :variables
              ;; csharp-backend 'lsp
-             csharp-backend 'omnisharp
-             )
+             ;; csharp-backend 'omnisharp
+             ;; )
      ;; emacs-lisp
      javascript
      (typescript :variables
@@ -115,11 +114,12 @@ This function should only modify configuration layer settings."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '((nix-mode)
                                       (direnv)
-                                      (dirvish)
+                                      (reformatter)
+                                      ;; (dirvish)
                                       ;; (exec-path-from-shell)
                                       (doom-themes)
                                       ;; (eshell-vterm) ;; Run "visual" commands like htop and psql in vterm instead of term
-                                      (apheleia) ;; async formatting
+                                      ;; (apheleia) ;; async formatting
                                       ;; (edbi)
                                       ;; (company-edbi :location (recipe :fetcher github :repo "dvzubarev/company-edbi"))
                                       ;; (fsharp-mode)
@@ -319,7 +319,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-default-font '(
                                ;; "PragmataPro Mono Liga"
                                "Victor Mono"
-                               :size 16
+                               :size 22
                                :weight normal
                                :width normal)
 
@@ -457,7 +457,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Show the scroll bar while scrolling. The auto hide time can be configured
    ;; by setting this variable to a number. (default t)
-   dotspacemacs-scroll-bar-while-scrolling f
+   dotspacemacs-scroll-bar-while-scrolling nil
 
    ;; Control line numbers activation.
    ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
@@ -654,7 +654,7 @@ you should place your code here."
   (setq system-uses-terminfo nil)
   (setq-default spacemacs-show-trailing-whitespace nil)
   (setq mac-right-option-modifier 'nil)
-  (setq scroll-margin 8)
+  (setq scroll-margin 8) ;; stay x lines away when scrolling up/down
   (setq vc-follow-symlinks t)
 
   (setq warning-minimum-level :error) ;; Only show errors in messages buffer, not warnings. Native comp introduces tons of these
@@ -708,37 +708,41 @@ you should place your code here."
   (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 
 
+  ;; TYPESCRIPT
   (require 'tide)
   (setq tide-completion-enable-autoimport-suggestions t)
   (setq tide-completion-ignore-case t)
   (setq tide-always-show-documentation t)
 
-  ;; formatting - prettier mostly
-  ;; TODO - This should be only in ts/tsx/js/... imo - now it's in every mode
-  (apheleia-global-mode +1)
+  (add-hook 'typescript-mode-hook 'tree-sitter-mode)
+  (add-hook 'typescript-tsx-mode-hook 'tree-sitter-mode)
+  (with-eval-after-load "tree-sitter"
+    (diminish 'tree-sitter-mode))
 
+  (with-eval-after-load "tide"
+    (diminish 'tide-mode))
 
-  ;; (setq avy-orders-alist
-  ;;       '((avy-goto-char . avy-order-closest)
-  ;;         (avy-goto-word-0 . avy-order-closest)))
-  ;; (setq avy-keys (number-sequence ?a ?z))
-  ;; (spacemacs/set-leader-keys "j" 'avy-goto-char)
-
-  (setq avy-orders-alist
-        '((avy-goto-char . avy-order-closest)
-          (avy-goto-word-1 . avy-order-closest)
-          (avy-goto-char-timer . avy-order-closest)
-          ))
-  (setq avy-keys (number-sequence ?a ?z))
-  (spacemacs/set-leader-keys "j" 'avy-goto-word-1) ;; experimentje, overwrite veel bindings van spacemacs zelf
+  (require 'reformatter)
+  (reformatter-define typescript-rome-or-prettier-format
+    :program (if (executable-find "rome") "rome" "prettier")
+    :args (let ((filename (if ;; just providing extension
+                            (s-equals? (file-name-extension (buffer-file-name)) "tsx")
+                            "t.tsx"
+                            "t.ts"
+                            )))
+           (if (executable-find "rome")
+              (list "format" "--stdin-file-path" filename)
+              (list "--stdin-filepath" filename)))
+    :stdin t
+    :stdout t
+    )
+  (add-hook 'typescript-mode-hook 'typescript-rome-or-prettier-format-on-save-mode)
+  (add-hook 'typescript-tsx-mode-hook 'typescript-rome-or-prettier-format-on-save-mode)
 
   (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (add-hook 'urweb-mode-hook 'flycheck-mode)
   (setq flycheck-check-syntax-automatically '(save))
-  (defun two-screens-work ()
-    (interactive)
-    (shell-command "xrandr --output eDP-1 --scale 1x1 --mode 2560x1440 --pos 3840x0; xrandr --output HDMI-1 --scale 1.5x1.5 --mode 1920x1080 --pos 0x0"))
 
   (defun eshell-new()
     "Open a new instance of eshell."
@@ -915,7 +919,7 @@ you should place your code here."
   (setq lsp-csharp-server-path "/nix/store/wyz33mr8njm7cafnk9nccsy6i64jcgc0-omnisharp-roslyn-1.37.8/bin/omnisharp")
 
 
-  (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
+  ;; (require 'helm-bookmark) ;; TODO remove when spacemacs gets updated
 
   (defun pgformatter-format-buffer ()
     "Format sql files with pgformatter if present"
