@@ -3,7 +3,9 @@
     "emacs-overlay": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1680458320,
@@ -72,22 +74,6 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1673540789,
-        "narHash": "sha256-xqnxBOK3qctIeUVxecydrEDbEXjsvHCPGPbvsl63M/U=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "0f213d0fee84280d8c3a97f7469b988d6fe5fcdf",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
-      "locked": {
         "lastModified": 1680334310,
         "narHash": "sha256-ISWz16oGxBhF7wqAxefMPwFag6SlsA9up8muV79V9ck=",
         "owner": "NixOS",
@@ -106,7 +92,7 @@
         "emacs-overlay": "emacs-overlay",
         "home-manager": "home-manager",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs"
       }
     },
     "utils": {
