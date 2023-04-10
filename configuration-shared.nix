@@ -20,7 +20,6 @@ in
     package = pkgs.nixFlakes;
     # keep-outputs + keep-derivations: for nix-direnv
     extraOptions = ''
-      experimental-features = nix-command flakes
       keep-outputs = true
       keep-derivations = true
     '';
@@ -129,7 +128,7 @@ in
       epkgs.vterm
     ]))
 
-    linphone
+    # linphone
 
     htop jq
     # android-studio
@@ -146,7 +145,7 @@ in
 
     openvpn
 
-    pgformatter
+    # pgformatter
 
     docker
     docker-compose
@@ -163,9 +162,11 @@ in
 
     chrysalis
 
-    zoom-us
+    # zoom-us
 
-    cockroachdb
+    alacritty
+
+    # cockroachdb
 
     # (perl.withPackages(p: with p; [
     #   RPCEPCService

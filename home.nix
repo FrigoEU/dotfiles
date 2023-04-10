@@ -38,14 +38,14 @@ in
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-  programs.lazygit = {
-    enable = true;
-  };
+  # programs.lazygit = {
+  #   enable = true;
+  # };
 
-  programs.gitui = {
-    enable = true;
-    keyConfig = ./gituikeyconfig.ron;
-  };
+  # programs.gitui = {
+  #   enable = true;
+  #   keyConfig = ./gituikeyconfig.ron;
+  # };
 
   programs.neovim = {
     enable = true;

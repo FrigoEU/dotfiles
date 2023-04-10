@@ -19,10 +19,10 @@
     package = pkgs.pulseaudioFull;
     extraModules = [ ];
   };
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.settings = {
-    General = {
-      Enable = "Source,Sink,Media,Socket";
-    };
-  };
+  # hardware.bluetooth.enable = true;
+  # hardware.bluetooth.settings = {
+  #   General = {
+  #     Enable = "Source,Sink,Media,Socket";
+  #   };
+  # };
 }

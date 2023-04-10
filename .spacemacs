@@ -115,9 +115,11 @@ This function should only modify configuration layer settings."
    dotspacemacs-additional-packages '((nix-mode)
                                       (direnv)
                                       (reformatter)
+                                      (doom-themes)
+                                      (multi-compile)
+                                      ;; (gptel)
                                       ;; (dirvish)
                                       ;; (exec-path-from-shell)
-                                      (doom-themes)
                                       ;; (eshell-vterm) ;; Run "visual" commands like htop and psql in vterm instead of term
                                       ;; (apheleia) ;; async formatting
                                       ;; (edbi)
@@ -637,19 +639,20 @@ you should place your code here."
   ;; (setq helm-external-commands-list ...)
 
 
-  (setq theming-modifications
-        '((doom-one
-           ;; Give comments a different look
-           (font-lock-comment-face :slant italic
-                                   :weight bold
-                                   ;; :foreground "#ff0095"
-                                   )
-           ;; Give docs a different look
-           (font-lock-doc-face :slant italic
-                               :weight bold
-                               )
-           ))
-        )
+
+  ;; (setq theming-modifications
+  ;;       '((doom-one
+  ;;          ;; Give comments a different look
+  ;;          (font-lock-comment-face :slant italic
+  ;;                                  :weight bold
+  ;;                                  ;; :foreground "#ff0095"
+  ;;                                  )
+  ;;          ;; Give docs a different look
+  ;;          (font-lock-doc-face :slant italic
+  ;;                              :weight bold
+  ;;                              )
+  ;;          ))
+  ;;       )
 
   (setq system-uses-terminfo nil)
   (setq-default spacemacs-show-trailing-whitespace nil)
@@ -662,6 +665,8 @@ you should place your code here."
   ;; (setq doom-modeline-buffer-encoding nil)
   ;; (setq doom-modeline-percent-position nil)
   ;; (setq doom-modeline-buffer-state-icon t)
+
+  ;; (require 'gptel)
 
   (define-key key-translation-map (kbd "M-9") (kbd "`"))
   (define-key key-translation-map (kbd "M-2") (kbd "~"))
@@ -686,6 +691,9 @@ you should place your code here."
   (define-key evil-motion-state-map (kbd "C-z") nil) ;; Disable, is by default switch to / from emacs keybinds
 
   (spacemacs/set-leader-keys "o" 'evil-jump-backward)
+
+  ;; choose from predefined commands in dir-locals (see multi-compile.el)
+  (spacemacs/set-leader-keys "pr" 'run-package-json-command)
 
   (spacemacs/declare-prefix-for-mode 'typescript-mode "mt" "test")
   (spacemacs/declare-prefix-for-mode 'typescript-tsx-mode "mt" "test")
@@ -722,6 +730,9 @@ you should place your code here."
   (with-eval-after-load "tide"
     (diminish 'tide-mode))
 
+  ;; Use rome if available (faster), otherwise use prettier
+  ;; This uses executable-find quite a lot so that cause latency
+  ;; Would be better if I could configure this once per project, eg by using .dir-locals.el
   (require 'reformatter)
   (reformatter-define typescript-rome-or-prettier-format
     :program (if (executable-find "rome") "rome" "prettier")
@@ -736,8 +747,40 @@ you should place your code here."
     :stdin t
     :stdout t
     )
+
   (add-hook 'typescript-mode-hook 'typescript-rome-or-prettier-format-on-save-mode)
   (add-hook 'typescript-tsx-mode-hook 'typescript-rome-or-prettier-format-on-save-mode)
+
+  (defun run-package-json-command ()
+    (interactive)
+    (let ((pr-root (projectile-project-root)))
+      (if pr-root
+          (let* ((package-json-path (concat pr-root "package.json"))
+                 (file (json-read-file package-json-path)))
+            (if file
+                (let* (
+                       (scripts-1 (cdr (assoc 'scripts file)))
+                       (scripts (cl-loop for (key . value) in scripts-1
+                                         collect (cons (symbol-name key) value)))
+                       (sorted-scripts (sort scripts (lambda (a b) (string< (car a) (car b)))))
+                       )
+                  (helm
+                   :sources (helm-build-sync-source
+                                "npm scripts"
+                              :candidates sorted-scripts
+                              :action '(lambda (x) (let ((default-directory (projectile-project-root)))(compile x)))
+                              )
+                   :buffer "*helm-package-json*"
+                   :prompt "Run script: "
+                   )
+                  )
+              (message "Failed to read or parse package.json")
+              )
+            )
+        (message "Project root not found")
+        )
+      ))
+
 
   (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
@@ -1316,7 +1359,37 @@ This function is called at the very end of Spacemacs initialization."
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
  '(safe-local-variable-values
-   '((lsp-enabled-clients ts-ls)
+   '((multi-compile-alist
+      ("\\.*"
+       ("css" . "npm run css")
+       ("sqltyper_domain" . "npm run sqltyper_domain")
+       ("setup_demo" . "npm run setup_demo")
+       ("translations" . "npm run download_translations && npm run run_translations")))
+     (multi-compile-alist
+      ("\\.*"
+       ("css" . "npm run css")
+       ("sqltyper_domain" . "npm run sqltyper_domain")))
+     (multi-compile-alist
+      ("\\.*"
+       ("css" . "npm run css")
+       ("sqltyper_domain" . "npm run sqltyper_domain")
+       ("check" . "npm run check")))
+     (multi-compile-alist
+      (typescript-mode
+       ("css" . "npm run css")
+       ("sqltyper_domain" . "npm run sqltyper_domain")
+       ("check" . "npm run check")))
+     (multi-compile-alist
+      (typescript-mode
+       ("css" . "npm run css")))
+     (multi-compile-alist quote
+                          ((typescript-mode
+                            ("css" . "npm run css"))))
+     (multi-compile-alist quote
+                          ((Trigger1
+                            ("css" . "npm run css"))))
+     (projectile-project-compilation-cmd . "npm run check")
+     (lsp-enabled-clients ts-ls)
      (lsp-java-vmargs "-noverify" "-Xmx1G" "-XX:+UseG1GC" "-XX:+UseStringDeduplication" "-javaagent:/home/simon/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar" "-Xbootclasspath/a:/home/simon/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar")
      (typescript-backend . tide)
      (typescript-backend . lsp)
