@@ -54,11 +54,6 @@ vim.api.nvim_create_autocmd("TermOpen", {
 vim.api.nvim_create_autocmd("TermOpen", {
   command = "startinsert",
 })
-vim.api.nvim_create_autocmd("FileType", {
-  group = flog,
-  pattern = "floggraph",
-  command = "nno <buffer> con :Git checkout %(h) -b"
-})
 
 --[[ vim.api.nvim_create_autocmd("TermOpen", {
   callback = function (instance)
@@ -156,6 +151,7 @@ vim.g.neoterm_callbacks = {
   end
 }
 
+-- Reserving terminal with ID 1 as our "project" terminal
 function open_main_terminal()
   vim.cmd(":botright 1Topen")
 end
@@ -171,11 +167,10 @@ wk.register({
     ["/"] = { "<cmd>Telescope live_grep<cr>", "Grep" },
     ["*"] = { "<cmd>Telescope grep_string<cr>", "Find string under cursor" },
     [" "] = { "<cmd>Telescope help_tags<cr>", "Help list" },
-    -- ["'"] = { "<cmd>ToggleTerm<cr>", "Toggle terminal" },
     ["'"] = { "<cmd>lua open_main_terminal()<cr>", "Toggle terminal" },
     r = { 
       name= "+resume",
-      t = {"<cmd>Telescope resume<cr>", "Resume Telescope"} ,
+      l = {"<cmd>Telescope resume<cr>", "Resume Telescope"} ,
       y = {"<cmd> Telescope yank_history<cr>", "Kill ring"}
     },
     b = {
