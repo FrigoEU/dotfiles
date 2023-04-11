@@ -1,5 +1,11 @@
 require('impatient') -- Needs to run before other plugins
 
+-- vim.cmd("colorscheme onedark_vivid")
+-- vim.cmd[[colorscheme kanagawa]]
+--
+require('onedark').setup { style = 'darker' }
+require('onedark').load()
+
 local actions = require("telescope.actions")
 
 vim.g.mapleader = ' '
@@ -18,6 +24,57 @@ vim.opt.guicursor="n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20"
 
 -- coc
 require("simon-coc-config")
+
+-- git
+vim.api.nvim_create_autocmd("BufWinEnter", {
+  pattern = "*",
+  callback = function()
+    if vim.bo.ft == "fugitive" then
+      local bufnr = vim.api.nvim_get_current_buf()
+      vim.keymap.set("n", "<leader>gP", function()
+        vim.cmd.Git('push')
+      end, {buffer = bufnr, remap = false, desc= 'Push'})
+
+      vim.keymap.set("n", "<leader>gF", function()
+        vim.cmd.Git('fetch --all')
+      end, {buffer = bufnr, remap = false, desc= 'Fetch'})
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "floggraph",
+  callback = function()
+    local bufnr = vim.api.nvim_get_current_buf()
+
+    vim.keymap.set("n", "<leader>gF", function()
+      vim.fn['flog#run_command']('Git fetch --all')
+    end, {buffer = bufnr, remap = false, desc = "Fetch"})
+  end,
+})
+
+--
+require("telescope").setup {
+  extensions = {
+    file_browser = {
+      theme = "ivy",
+      -- disables netrw and use telescope-file-browser in its place
+      hijack_netrw = true,
+      mappings = {
+        ["i"] = {
+          -- ["<esc>"] = function () vim.cmd("stopinsert") end,
+          ["<C-h>"] = actions.which_key, -- help
+        },
+        --[[ ["n"] = {
+          ["<C-h>"] = actions.which_key, -- help
+        }, ]]
+      },
+    },
+  },
+}
+-- To get telescope-file-browser loaded and working with telescope,
+-- you need to call load_extension, somewhere after setup function:
+require("telescope").load_extension "file_browser"
 
 -- yank/kill ring
 local mapping = require("yanky.telescope.mapping")
@@ -104,6 +161,20 @@ require("telescope").setup {
       }
     }
   },
+  pickers = {
+    git_bcommits = {
+      mappings = {
+        i = {
+          ["<cr>"] = function(prompt_bufnr)
+            actions.close(prompt_bufnr)
+            local action_state = require("telescope.actions.state")
+            local sha = action_state.get_selected_entry().value
+            vim.cmd("Git show -w " .. sha )
+          end,
+        }
+      }
+    },
+  },
   extensions = {
     fzf = {}
   }
@@ -111,14 +182,16 @@ require("telescope").setup {
 
 function find_files_in_project()
   require('telescope.builtin').find_files({hidden = true})
+  -- require('telescope.builtin').find_files(require("telescope.themes").get_ivy())
 end 
 
 function find_files_full()
-  require('telescope.builtin').find_files({
+  vim.cmd('Telescope file_browser path=%:p:h select_buffer=true')
+  --[[ require('telescope.builtin').find_files({
     hidden = true,
     cwd = "~/",
     search_file = "hello"
-  })
+  }) ]]
 end 
 
 
@@ -171,7 +244,8 @@ wk.register({
     r = { 
       name= "+resume",
       l = {"<cmd>Telescope resume<cr>", "Resume Telescope"} ,
-      y = {"<cmd> Telescope yank_history<cr>", "Kill ring"}
+      y = {"<cmd> Telescope yank_history<cr>", "Kill ring"},
+      c = {"<cmd>lua require('telescope.builtin').command_history()<cr>", "Command history"}
     },
     b = {
       name = "+buffer",
@@ -189,7 +263,8 @@ wk.register({
       s = { "<cmd>Git<cr>", "Git status" },
       d = { "<cmd>Telescope git_status<CR>", "Diffs" },
       t = { "<cmd>Telescope git_bcommits<CR>", "Time machine" },
-      l = { "<cmd>vertical Flogsplit-reflog<CR>", "Time machine" },
+      l = { "<cmd>vertical Flogsplit-reflog<CR>", "Log" },
+      b = { "<cmd>Git blame<CR>", "Blame" },
     },
     -- l = { "<cmd>Telescope workspaces<cr>", "Telescope workspaces" },
     p = {
@@ -250,7 +325,5 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 require("nvim-tree").setup {}
-
-vim.cmd[[colorscheme tokyonight-night]]
 
 

@@ -72,9 +72,16 @@ in
       plenary-nvim
       telescope-nvim
       telescope-fzf-native-nvim
+      telescope-file-browser-nvim
 
       which-key-nvim
+
       tokyonight-nvim
+      kanagawa-nvim
+      nightfox-nvim
+      onedarkpro-nvim
+      onedark-nvim
+
       (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))
 
       bufdelete-nvim
