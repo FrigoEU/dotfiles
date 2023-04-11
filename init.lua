@@ -31,11 +31,11 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
   callback = function()
     if vim.bo.ft == "fugitive" then
       local bufnr = vim.api.nvim_get_current_buf()
-      vim.keymap.set("n", "<leader>gP", function()
+      vim.keymap.set("n", "P", function()
         vim.cmd.Git('push')
       end, {buffer = bufnr, remap = false, desc= 'Push'})
 
-      vim.keymap.set("n", "<leader>gF", function()
+      vim.keymap.set("n", "F", function()
         vim.cmd.Git('fetch --all')
       end, {buffer = bufnr, remap = false, desc= 'Fetch'})
     end
@@ -47,7 +47,7 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     local bufnr = vim.api.nvim_get_current_buf()
 
-    vim.keymap.set("n", "<leader>gF", function()
+    vim.keymap.set("n", "F", function()
       vim.fn['flog#run_command']('Git fetch --all')
     end, {buffer = bufnr, remap = false, desc = "Fetch"})
   end,
