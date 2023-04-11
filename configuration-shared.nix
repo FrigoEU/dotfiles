@@ -96,7 +96,7 @@ in
   fonts = {
     fontconfig = {
       defaultFonts = {
-        monospace = ["PragmataPro Mono"];
+        monospace = ["PragmataPro"];
       };
     };
     fonts = [
@@ -166,6 +166,8 @@ in
 
     alacritty
 
+    nodejs # to get coc-nvim working
+
     # cockroachdb
 
     # (perl.withPackages(p: with p; [
@@ -188,32 +190,32 @@ in
 
   virtualisation.docker.enable = true;
 
-  services.mysql = {
-          enable = true;
-          package = pkgs.mariadb;
-        };
+  # services.mysql = {
+  #         enable = true;
+  #         package = pkgs.mariadb;
+  #       };
 
-  services.postgresql = {
-    package = pkgs.postgresql_12;
-    enable = true;
-    initialScript = pkgs.writeText "backend-initScript" ''
-      CREATE USER simon;
-      ALTER USER simon WITH superuser;
-    '';
-    authentication = pkgs.lib.mkOverride 10 ''
-      # Generated file via nix; do not edit!
-      local all all              trust
-      host  all all 127.0.0.1/32 trust
-      host  all all ::1/128      trust
-    '';
-    settings = {
-      log_statement = "all";
-      logging_collector = true;
-      log_directory = "pg_log";
-      max_connections = 300;
-      shared_buffers = "80MB";
-    };
-  };
+  # services.postgresql = {
+  #   package = pkgs.postgresql_12;
+  #   enable = true;
+  #   initialScript = pkgs.writeText "backend-initScript" ''
+  #     CREATE USER simon;
+  #     ALTER USER simon WITH superuser;
+  #   '';
+  #   authentication = pkgs.lib.mkOverride 10 ''
+  #     # Generated file via nix; do not edit!
+  #     local all all              trust
+  #     host  all all 127.0.0.1/32 trust
+  #     host  all all ::1/128      trust
+  #   '';
+  #   settings = {
+  #     log_statement = "all";
+  #     logging_collector = true;
+  #     log_directory = "pg_log";
+  #     max_connections = 300;
+  #     shared_buffers = "80MB";
+  #   };
+  # };
   systemd.extraConfig = ''
     DefaultTimeoutStopSec=10s
   '';

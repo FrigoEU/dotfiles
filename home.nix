@@ -4,6 +4,37 @@ let
 #                                          requireFile = pkgs.requireFile;
 #                                          unzip = pkgs.unzip;
 #                                         };
+
+  yanky-nvim = pkgs.vimUtils.buildVimPluginFrom2Nix {
+    name = "yanky-nvim";
+    src = pkgs.fetchFromGitHub {
+      owner = "gbprod";
+      repo = "yanky.nvim";
+      rev = "c4c794afd762a00ca543972e5b9e34ce9aa14a87";
+      sha256 = "EcdC9HTWB/r6W6U6Ad808aaZPwzRnxfGQ/fSrsy11gI=";
+    };
+  };
+
+  # sessions-nvim = pkgs.vimUtils.buildVimPluginFrom2Nix {
+  #   name = "sessions-nvim";
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "natecraddock";
+  #     repo = "sessions.nvim";
+  #     rev = "65a93344a85b226b7e29efc6ae231c4e5614804e";
+  #     sha256 = "K3lbjQ7Ks9zlYMJWB31Gj2uL6st6fYGSx7qtnIGjst8=";
+  #   };
+  # };
+
+  # workspaces-nvim = pkgs.vimUtils.buildVimPluginFrom2Nix {
+  #   name = "workspaces-nvim";
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "natecraddock";
+  #     repo = "workspaces.nvim";
+  #     rev = "dd9574c8a6fbd4910bf298fcd1175a0222e9a09d";
+  #     sha256 = "ZQsIhzeSYCdQCVBn8ACJ3nlS9Ukz4AJLbkn2yOqTllM=";
+  #   };
+  # };
+
 in
 {
   # Home Manager needs a bit of information about you and the
@@ -17,65 +48,35 @@ in
     stateVersion = "22.05";
     packages = with pkgs; [
       xclip # For neovim clipboard integration
+      luajitPackages.lua-lsp
     ];
     shellAliases = {
-      nv = "neovide --frame None";
+      # nv = "neovide --frame None";
     };
+    # file.sumneko-lua-language-server = {
+    #   source = pkgs.sumneko-lua-language-server;
+    #   target = ".local/share/sumneko-lua-language-server";
+    # };
   };
-
-  xresources = {
-    path = ./tokyo-xresources;
-  };
-
-  # This value determines the Home Manager release that your
-  # configuration is compatible with. This helps avoid breakage
-  # when a new Home Manager release introduces backwards
-  # incompatible changes.
-  #
-  # You can update Home Manager without changing this value. See
-  # the Home Manager release notes for a list of state version
-  # changes in each release.
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-  # programs.lazygit = {
-  #   enable = true;
-  # };
-
-  # programs.gitui = {
-  #   enable = true;
-  #   keyConfig = ./gituikeyconfig.ron;
-  # };
 
   programs.neovim = {
     enable = true;
     viAlias = true;
     vimAlias = true;
 
-    extraPackages = [];
-    extraConfig = builtins.concatStringsSep "\n" [
-      # (lib.strings.fileContents ./base.vim)
-      # (lib.strings.fileContents ./plugins.vim)
-      # (lib.strings.fileContents ./lsp.vim)
-      #(lib.strings.fileContents ./coc.vim)
-      ''
-        lua << EOF
-        ${lib.strings.fileContents ./init.lua}
-        EOF
-      ''
-    ];
-
+    # https://github.com/notusknot/dotfiles-nix/tree/main/modules/nvim
     plugins = with pkgs.vimPlugins; [
       plenary-nvim
       telescope-nvim
+      telescope-fzf-native-nvim
 
       which-key-nvim
       tokyonight-nvim
       (nvim-treesitter.withPlugins (plugins: pkgs.tree-sitter.allGrammars))
 
-      project-nvim
-
-      telescope-fzf-native-nvim
       bufdelete-nvim
 
       surround-nvim
@@ -86,16 +87,32 @@ in
       impatient-nvim
       nvim-tree-lua
 
-      toggleterm-nvim
+      # toggleterm-nvim
+      neoterm
 
       vim-nix
-      neogit
 
       # telescope-ui-select-nvim
       # nvim-lspconfig
 
+      coc-nvim
+      coc-tsserver
 
-    ];
+      # hop-nvim -- later
+      project-nvim
+      # workspaces-nvim
+      # sessions-nvim
+
+      nvim-web-devicons
+      lualine-nvim
+
+      yanky-nvim
+
+      vim-fugitive
+      vim-flog # https://github.com/rbong/vim-flog/blob/master/EXAMPLES.md
+
+      coq_nvim
+     ];
 
   };
 }

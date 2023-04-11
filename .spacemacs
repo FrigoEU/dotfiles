@@ -66,7 +66,7 @@ This function should only modify configuration layer settings."
      helm
      ;; compleseus
 
-     auto-completion
+     ;; auto-completion
      ;; better-defaults
      ;; (csharp :variables
              ;; csharp-backend 'lsp
@@ -116,6 +116,7 @@ This function should only modify configuration layer settings."
                                       (direnv)
                                       (reformatter)
                                       (doom-themes)
+                                      (corfu)
                                       (multi-compile)
                                       ;; (gptel)
                                       ;; (dirvish)

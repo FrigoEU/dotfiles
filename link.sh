@@ -3,6 +3,12 @@
 ln -s $PWD/.Xdefaults ~/.Xdefaults
 ln -s $PWD/.bashrc ~/.bashrc
 ln -s $PWD/.spacemacs ~/.spacemacs
+ln -s $PWD/.alacritty.yml ~/.alacritty.yml
+
+mkdir -p ~/.config/nvim
+ln -s $PWD/init.lua ~/.config/nvim/init.lua
+ln -s $PWD/coc-settings.json ~/.config/nvim/coc-settings.json
+ln -s $PWD/lua ~/.config/nvim/lua
 
 # for x1: 
 sudo ln -s $PWD/flake.nix /etc/nixos/flake.nix
