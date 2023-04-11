@@ -38,6 +38,9 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
       vim.keymap.set("n", "F", function()
         vim.cmd.Git('fetch --all')
       end, {buffer = bufnr, remap = false, desc= 'Fetch'})
+
+      vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
+
     end
   end,
 })
@@ -50,6 +53,8 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("n", "F", function()
       vim.fn['flog#run_command']('Git fetch --all')
     end, {buffer = bufnr, remap = false, desc = "Fetch"})
+
+    vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
   end,
 })
 
