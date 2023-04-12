@@ -382,7 +382,7 @@ wk.register({
       s = { "<cmd>vert Git<cr>", "Git status" },
       d = { "<cmd>Telescope git_status<CR>", "Diffs" },
       t = { "<cmd>Telescope git_bcommits<CR>", "Time machine" },
-      l = { "<cmd>vertical Flogsplit-reflog<CR>", "Log" },
+      l = { "<cmd>vertical Flogsplit-all<CR>", "Log" },
       b = { "<cmd>Git blame<CR>", "Blame" },
     },
     l = { findLayouts, "Telescope workspaces" },
