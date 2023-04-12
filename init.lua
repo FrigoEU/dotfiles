@@ -6,6 +6,7 @@ require('onedark').setup { style = 'darker' }
 require('onedark').load()
 
 require('maximize').setup()
+local notify = require("notify")
 
 -- require("notify")("hallo")
 
@@ -102,11 +103,11 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     local bufnr = vim.api.nvim_get_current_buf()
     vim.keymap.set("n", "P", function()
-      vim.cmd('silent Git! push')
+      vim.cmd('Git! push')
     end, {buffer = bufnr, remap = false, desc= 'Push'})
 
     vim.keymap.set("n", "F", function()
-      vim.cmd('Git! fetch --all')
+      vim.cmd('Git! fetch --all -v')
     end, {buffer = bufnr, remap = false, desc= 'Fetch'})
 
     vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
