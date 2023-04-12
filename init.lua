@@ -102,11 +102,13 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     local bufnr = vim.api.nvim_get_current_buf()
     vim.keymap.set("n", "P", function()
-      vim.cmd('silent Git! push')
+      require("notify")("Pushing...")
+      vim.cmd('Git push')
     end, {buffer = bufnr, remap = false, desc= 'Push'})
 
     vim.keymap.set("n", "F", function()
-      vim.cmd('Git! fetch --all')
+      require("notify")("Fetching...")
+      vim.cmd('Git fetch --all')
     end, {buffer = bufnr, remap = false, desc= 'Fetch'})
 
     vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
@@ -124,7 +126,8 @@ vim.api.nvim_create_autocmd("FileType", {
     local bufnr = vim.api.nvim_get_current_buf()
 
     vim.keymap.set("n", "F", function()
-      vim.fn['flog#run_command']('Git! fetch --all')
+      require("notify")("Fetching...")
+      vim.fn['flog#run_command']('Git fetch --all')
     end, {buffer = bufnr, remap = false, desc = "Fetch"})
 
     vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
