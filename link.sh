@@ -8,7 +8,7 @@ ln -s $PWD/.alacritty.yml ~/.alacritty.yml
 mkdir -p ~/.config/nvim
 ln -s $PWD/init.lua ~/.config/nvim/init.lua
 ln -s $PWD/coc-settings.json ~/.config/nvim/coc-settings.json
-ln -s $PWD/lua ~/.config/nvim/lua
+ln -sf $PWD/lua/ ~/.config/nvim/.
 
 # for x1: 
 sudo ln -s $PWD/flake.nix /etc/nixos/flake.nix
