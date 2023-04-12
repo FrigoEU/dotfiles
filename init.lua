@@ -7,6 +7,11 @@ require('onedark').setup { style = 'darker' }
 require('onedark').load()
 
 local actions = require("telescope.actions")
+local config = require('telescope.config').values
+local finders = require('telescope.finders')
+local pickers = require('telescope.pickers')
+local previewers = require('telescope.previewers')
+local action_state = require "telescope.actions.state"
 
 vim.g.mapleader = ' '
 
@@ -20,7 +25,65 @@ vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.guicursor="n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20"
--- vim.opt.guicursor="n-v-c-i:block-Cursor"
+
+-- layouts/sessions/workspaces custom solution
+function findLayouts(opts)
+  local opts = opts or require("telescope.themes").get_dropdown({})
+
+  pickers.new(opts, {
+    prompt_title = 'Workspaces',
+    finder = finders.new_table({
+      results = {
+        {
+          name = "1. aperi_new",
+          cwd = "~/projects/aperi-new",
+          main = "package.json"
+        }, 
+        {
+          name = "2. logs",
+          cwd = "~/projects/aperi-new",
+          main = ""
+        }, 
+        {
+          name = "3. setup",
+          cwd = "~/projects/aperi-setup-simon",
+          main = "Makefile"
+        },
+        {
+          name = "9. alacritty",
+          command = string.format("silent !jumpapp -e alacritty")
+        }, 
+      },
+      entry_maker = function(entry)
+        return {
+          value = entry,
+          display = entry.name,
+          ordinal = entry.name
+        }
+      end
+    }
+    ),
+    -- previewer = previewers.vim_buffer_cat.new(opts),
+    sorter = config.generic_sorter(opts),
+    attach_mappings = function(prompt_bufnr, map)
+      actions.select_default:replace(function()
+        actions.close(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
+        -- print(vim.inspect(selection))
+        local jumpcmd = selection.value.command or string.format(
+          "silent !jumpapp -t '%s' alacritty --title '%s' --working-directory %s -e nvim %s", 
+          selection.value.name, 
+          selection.value.name,
+          selection.value.cwd,
+          selection.value.main
+        )
+        -- print(jumpcmd)
+        vim.cmd(jumpcmd)
+      end)
+      return true
+    end,
+  }):find()
+end
 
 -- coc
 require("simon-coc-config")
@@ -89,8 +152,8 @@ require("yanky").setup({
       mappings = {
         default = mapping.put("p"),
         i = {
-          ["<C-j>"] = actions.move_selection_next,
-          ["<C-k>"] = actions.move_selection_previous,
+          ["<c-j>"] = actions.move_selection_next,
+          ["<c-k>"] = actions.move_selection_previous,
         },
       }
     }
@@ -172,7 +235,6 @@ require("telescope").setup {
         i = {
           ["<cr>"] = function(prompt_bufnr)
             actions.close(prompt_bufnr)
-            local action_state = require("telescope.actions.state")
             local sha = action_state.get_selected_entry().value
             vim.cmd("Git show -w " .. sha )
           end,
@@ -271,7 +333,7 @@ wk.register({
       l = { "<cmd>vertical Flogsplit-reflog<CR>", "Log" },
       b = { "<cmd>Git blame<CR>", "Blame" },
     },
-    -- l = { "<cmd>Telescope workspaces<cr>", "Telescope workspaces" },
+    l = { findLayouts, "Telescope workspaces" },
     p = {
       name = "+project",
       p = { "<cmd>Telescope projects<cr>", "Project list" },

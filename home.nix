@@ -49,6 +49,7 @@ in
     packages = with pkgs; [
       xclip # For neovim clipboard integration
       luajitPackages.lua-lsp
+      jumpapp
     ];
     shellAliases = {
       # nv = "neovide --frame None";
