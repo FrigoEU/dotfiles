@@ -9,6 +9,9 @@ require('maximize').setup()
 local notify = require("notify")
 
 -- require("notify")("hallo")
+--
+--test 
+-- test again
 
 local actions = require("telescope.actions")
 local config = require('telescope.config').values
