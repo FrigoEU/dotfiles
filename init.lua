@@ -5,6 +5,8 @@ require('impatient') -- Needs to run before other plugins
 require('onedark').setup { style = 'darker' }
 require('onedark').load()
 
+require('maximize').setup()
+
 -- require("notify")("hallo")
 
 local actions = require("telescope.actions")
@@ -277,6 +279,10 @@ function find_files_full()
   }) ]]
 end 
 
+local function maximize_status()
+  return vim.t.maximized and ' ' or ''
+end
+
 require("project_nvim").setup({ })
 require("lualine").setup({ 
   sections = {
@@ -284,7 +290,10 @@ require("lualine").setup({
     lualine_b = {'branch', 
       -- 'diff', 
     },
-    lualine_c = {'filename'},
+    lualine_c = {
+      maximize_status,
+      'filename',
+    },
     lualine_x = {
       -- 'encoding', 
       -- 'fileformat', 
@@ -402,7 +411,7 @@ wk.register({
       ["6"] = { "6<c-w>w", "6"},
       ["7"] = { "7<c-w>w", "7"},
       ["8"] = { "8<c-w>w", "8"},
-      ["m"] = { "<cmd>only<cr>", "Maximize"},
+      ["m"] = { require('maximize').toggle, "Maximize"},
     },
     h = {
       name = "+help",

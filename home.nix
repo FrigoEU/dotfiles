@@ -15,6 +15,17 @@ let
     };
   };
 
+  maximize-nvim = pkgs.vimUtils.buildVimPluginFrom2Nix {
+    name = "maximize-nvim";
+    src = pkgs.fetchFromGitHub {
+      owner = "declancm";
+      repo = "maximize.nvim";
+      rev = "97bfc171775c404396f8248776347ebe64474fe7";
+      sha256 = "k8Cqti4nLUvtl0EBaU8ZPYJ6JlfnRlN6nCxE/WHrbnw=";
+    };
+  };
+
+
   # sessions-nvim = pkgs.vimUtils.buildVimPluginFrom2Nix {
   #   name = "sessions-nvim";
   #   src = pkgs.fetchFromGitHub {
@@ -117,6 +128,7 @@ in
       lualine-nvim
 
       yanky-nvim
+      maximize-nvim
 
       # neogit
 
