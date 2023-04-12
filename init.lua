@@ -97,23 +97,24 @@ end
 require("simon-coc-config")
 
 -- git
-vim.api.nvim_create_autocmd("BufWinEnter", {
-  pattern = "*",
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "fugitive",
   callback = function()
-    if vim.bo.ft == "fugitive" then
-      local bufnr = vim.api.nvim_get_current_buf()
-      vim.keymap.set("n", "P", function()
-        vim.cmd('Git! push')
-      end, {buffer = bufnr, remap = false, desc= 'Push'})
+    local bufnr = vim.api.nvim_get_current_buf()
+    vim.keymap.set("n", "P", function()
+      vim.cmd('Git! push')
+    end, {buffer = bufnr, remap = false, desc= 'Push'})
 
-      vim.keymap.set("n", "F", function()
-        vim.cmd('Git! fetch --all')
-      end, {buffer = bufnr, remap = false, desc= 'Fetch'})
+    vim.keymap.set("n", "F", function()
+      vim.cmd('Git! fetch --all')
+    end, {buffer = bufnr, remap = false, desc= 'Fetch'})
 
-      vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
-      vim.keymap.set("n", "<tab>", "=", {buffer = bufnr, remap = true, desc= 'Quit'})
+    vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
+    vim.keymap.set("n", "<tab>", "=", {buffer = bufnr, remap = true, desc= 'Toggle'})
+    vim.keymap.set("n", "cc", function()
+      vim.cmd('Git commit --quiet')
+    end, {buffer = bufnr, remap = false, desc= 'commit'})
 
-    end
   end,
 })
 
