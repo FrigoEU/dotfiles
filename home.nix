@@ -128,7 +128,8 @@ in
       lualine-nvim
 
       yanky-nvim
-      maximize-nvim
+      # maximize-nvim
+      zoomwintab-vim
 
       # neogit
 

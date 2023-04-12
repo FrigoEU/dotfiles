@@ -5,7 +5,6 @@ require('impatient') -- Needs to run before other plugins
 require('onedark').setup { style = 'darker' }
 require('onedark').load()
 
-require('maximize').setup()
 local notify = require("notify")
 
 -- require("notify")("hallo")
@@ -286,8 +285,8 @@ function find_files_full()
   }) ]]
 end 
 
-local function maximize_status()
-  return vim.t.maximized and ' ' or ''
+local function zoomwintab_status()
+  return vim.t.zoomwintab and ' ' or ''
 end
 
 require("project_nvim").setup({ })
@@ -298,7 +297,7 @@ require("lualine").setup({
       -- 'diff', 
     },
     lualine_c = {
-      maximize_status,
+      zoomwintab_status,
       'filename',
     },
     lualine_x = {
@@ -418,7 +417,7 @@ wk.register({
       ["6"] = { "6<c-w>w", "6"},
       ["7"] = { "7<c-w>w", "7"},
       ["8"] = { "8<c-w>w", "8"},
-      ["m"] = { require('maximize').toggle, "Maximize"},
+      ["m"] = { "<cmd>ZoomWinTabToggle<CR>", "Maximize"},
     },
     h = {
       name = "+help",
