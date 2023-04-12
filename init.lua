@@ -2,9 +2,10 @@ require('impatient') -- Needs to run before other plugins
 
 -- vim.cmd("colorscheme onedark_vivid")
 -- vim.cmd[[colorscheme kanagawa]]
---
 require('onedark').setup { style = 'darker' }
 require('onedark').load()
+
+-- require("notify")("hallo")
 
 local actions = require("telescope.actions")
 local config = require('telescope.config').values
@@ -48,6 +49,11 @@ function findLayouts(opts)
           name = "3. setup",
           cwd = "~/projects/aperi-setup-simon",
           main = "Makefile"
+        },
+        {
+          name = "4. dotfiles",
+          cwd = "~/dotfiles",
+          main = "init.lua"
         },
         {
           name = "9. alacritty",
@@ -136,24 +142,6 @@ wilder.set_option('renderer', wilder.renderer_mux({
 }))
 
 --
-require("telescope").setup {
-  extensions = {
-    file_browser = {
-      theme = "ivy",
-      -- disables netrw and use telescope-file-browser in its place
-      hijack_netrw = true,
-      mappings = {
-        ["i"] = {
-          -- ["<esc>"] = function () vim.cmd("stopinsert") end,
-          ["<C-h>"] = actions.which_key, -- help
-        },
-        --[[ ["n"] = {
-          ["<C-h>"] = actions.which_key, -- help
-        }, ]]
-      },
-    },
-  },
-}
 -- To get telescope-file-browser loaded and working with telescope,
 -- you need to call load_extension, somewhere after setup function:
 require("telescope").load_extension "file_browser"
@@ -257,7 +245,21 @@ require("telescope").setup {
     },
   },
   extensions = {
-    fzf = {}
+    fzf = {},
+    file_browser = {
+      theme = "ivy",
+      -- disables netrw and use telescope-file-browser in its place
+      hijack_netrw = true,
+      mappings = {
+        ["i"] = {
+          -- ["<esc>"] = function () vim.cmd("stopinsert") end,
+          ["<C-h>"] = actions.which_key, -- help
+        },
+        --[[ ["n"] = {
+          ["<C-h>"] = actions.which_key, -- help
+        }, ]]
+      },
+    },
   }
 }
 
@@ -275,9 +277,26 @@ function find_files_full()
   }) ]]
 end 
 
-
 require("project_nvim").setup({ })
-require("lualine").setup({ })
+require("lualine").setup({ 
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 
+      -- 'diff', 
+    },
+    lualine_c = {'filename'},
+    lualine_x = {
+      -- 'encoding', 
+      -- 'fileformat', 
+      'filetype'},
+    lualine_y = {
+      -- 'progress'
+      -- 'searchcount',
+      'diagnostics'
+    },
+    lualine_z = {'location'}
+  },
+})
 
 vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 --[[ require("sessions").setup({
@@ -338,6 +357,10 @@ wk.register({
     t = {
       name = "+terminal",
       t = {"<cmd>Tnew<CR>", "New terminal"}
+    },
+    s = {
+      name = "+search",
+      s = {"<cmd>Telescope current_buffer_fuzzy_find<CR>", "Swoop"}
     },
     g = {
       name = "+git",

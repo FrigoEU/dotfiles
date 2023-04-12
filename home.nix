@@ -123,6 +123,7 @@ in
       vim-fugitive
       vim-flog # https://github.com/rbong/vim-flog/blob/master/EXAMPLES.md
 
+      nvim-notify
      ];
 
   };
