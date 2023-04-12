@@ -123,6 +123,15 @@ window:
 
 # Font configuration
 font:
+  # Victor Mono config:
+  #
+  # normal:
+  #   family: Victor Mono
+  #   style: Regular
+  # offset:
+  #  y: -5
+
+
   # Normal (roman) font face
   # normal:
     # Font family
@@ -131,7 +140,7 @@ font:
     #   - (macOS) Menlo
     #   - (Linux/BSD) monospace
     #   - (Windows) Consolas
-    # family: monospace
+    # family: Victor Mono
 
     # The `style` can be specified to pick a specific face.
     # style: Regular
@@ -175,9 +184,9 @@ font:
   # Offset is the extra space around each character. `offset.y` can be thought
   # of as modifying the line spacing, and `offset.x` as modifying the letter
   # spacing.
-  #offset:
+  # offset:
   #  x: 0
-  #  y: 0
+   # y: -5
 
   # Glyph offset determines the locations of the glyphs within their cells with
   # the default being at the bottom. Increasing `x` moves the glyph to the
