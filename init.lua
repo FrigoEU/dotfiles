@@ -175,6 +175,8 @@ vim.api.nvim_set_keymap('n', '<C-l>', '<C-w>l', { noremap = true, silent = true 
 
 function _set_terminal_esc()
   vim.api.nvim_buf_set_keymap(0, 't', '<Esc>', '<C-\\><C-n>', { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(0, 't', '<C-j>', '<C-n>', { noremap = false, silent = true })
+  vim.api.nvim_buf_set_keymap(0, 't', '<C-k>', '<C-p>', { noremap = false, silent = true })
 end
 
 vim.api.nvim_create_autocmd("TermOpen", {
