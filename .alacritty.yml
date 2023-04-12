@@ -769,6 +769,8 @@ cursor:
 # If the same trigger is assigned to multiple actions, all of them are executed
 # in the order they were defined in.
 key_bindings:
+  - { key: K,      mods: Control, chars: "\x1b\x5b\x41" }  # Emulating UP - for history search
+  - { key: J,      mods: Control, chars: "\x1b\x5b\x42" }  # Emulating DOWN - for history search
   #- { key: Paste,                                       action: Paste          }
   #- { key: Copy,                                        action: Copy           }
   #- { key: L,         mods: Control,                    action: ClearLogNotice }
@@ -834,8 +836,8 @@ key_bindings:
   #- { key: C,      mods: Control, mode: Search,     action: SearchCancel          }
   #- { key: U,      mods: Control, mode: Search,     action: SearchClear           }
   #- { key: W,      mods: Control, mode: Search,     action: SearchDeleteWord      }
-  - { key: P,      mods: Control, mode: Search,     action: SearchHistoryPrevious }
-  - { key: N,      mods: Control, mode: Search,     action: SearchHistoryNext     }
+  #- { key: J,      mods: Control, mode: Search,     action: SearchHistoryPrevious }
+  #- { key: K,      mods: Control, mode: Search,     action: SearchHistoryNext     }
   #- { key: Up,                    mode: Search,     action: SearchHistoryPrevious }
   #- { key: Down,                  mode: Search,     action: SearchHistoryNext     }
   #- { key: Return,                mode: Search|~Vi, action: SearchFocusNext       }
