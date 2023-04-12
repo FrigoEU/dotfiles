@@ -262,7 +262,7 @@ require("telescope").setup {
 }
 
 function find_files_in_project()
-  require('telescope.builtin').find_files({hidden = true})
+  require('telescope.builtin').git_files({show_untracked = true})
   -- require('telescope.builtin').find_files(require("telescope.themes").get_ivy())
 end 
 
@@ -352,7 +352,7 @@ wk.register({
       name = "+project",
       p = { "<cmd>Telescope projects<cr>", "Project list" },
       t = { "<cmd>NvimTreeFindFileToggle<cr>", "File tree" },
-      f = { "<cmd>lua find_files_in_project()<cr>", "Files" },
+      f = { find_files_in_project, "Files" },
       -- ["'"] = { "<cmd>ToggleTerm<cr>", "Toggle terminal" },
     },
     f = {
