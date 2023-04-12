@@ -105,6 +105,8 @@ in
 
       coc-nvim
       coc-tsserver
+      coq_nvim
+      wilder-nvim # wildmenu = command line = ":" completion
 
       # hop-nvim -- later
       project-nvim
@@ -121,7 +123,6 @@ in
       vim-fugitive
       vim-flog # https://github.com/rbong/vim-flog/blob/master/EXAMPLES.md
 
-      coq_nvim
      ];
 
   };

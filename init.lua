@@ -103,6 +103,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
       end, {buffer = bufnr, remap = false, desc= 'Fetch'})
 
       vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
+      vim.keymap.set("n", "<tab>", "=", {buffer = bufnr, remap = true, desc= 'Quit'})
 
     end
   end,
@@ -120,6 +121,19 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
   end,
 })
+
+-- Wilder = wildmenu completion. wildmenu = "command line" = ":" = "Ex" (and / and ?)
+local wilder = require("wilder")
+wilder.setup({modes = {':', '/', '?'}})
+wilder.set_option('renderer', wilder.renderer_mux({
+  [':'] = wilder.wildmenu_renderer({
+    -- highlighter applies highlighting to the candidates
+    highlighter = wilder.basic_highlighter(),
+  }),
+  ['/'] = wilder.wildmenu_renderer({
+    highlighter = wilder.basic_highlighter(),
+  }),
+}))
 
 --
 require("telescope").setup {
