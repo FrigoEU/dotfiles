@@ -103,11 +103,11 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     if vim.bo.ft == "fugitive" then
       local bufnr = vim.api.nvim_get_current_buf()
       vim.keymap.set("n", "P", function()
-        vim.cmd.Git('push')
+        vim.cmd('Git! push')
       end, {buffer = bufnr, remap = false, desc= 'Push'})
 
       vim.keymap.set("n", "F", function()
-        vim.cmd.Git('fetch --all')
+        vim.cmd('Git! fetch --all')
       end, {buffer = bufnr, remap = false, desc= 'Fetch'})
 
       vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
@@ -123,7 +123,7 @@ vim.api.nvim_create_autocmd("FileType", {
     local bufnr = vim.api.nvim_get_current_buf()
 
     vim.keymap.set("n", "F", function()
-      vim.fn['flog#run_command']('Git fetch --all')
+      vim.fn['flog#run_command']('Git! fetch --all')
     end, {buffer = bufnr, remap = false, desc = "Fetch"})
 
     vim.keymap.set("n", "q", "gq", {buffer = bufnr, remap = true, desc= 'Quit'})
@@ -373,7 +373,7 @@ wk.register({
     },
     g = {
       name = "+git",
-      s = { "<cmd>Git<cr>", "Git status" },
+      s = { "<cmd>vert Git<cr>", "Git status" },
       d = { "<cmd>Telescope git_status<CR>", "Diffs" },
       t = { "<cmd>Telescope git_bcommits<CR>", "Time machine" },
       l = { "<cmd>vertical Flogsplit-reflog<CR>", "Log" },
