@@ -193,7 +193,7 @@ require("telescope").setup {
     -- Default configuration for telescope goes here:
     -- config_key = value,
     file_ignore_patterns = { 
-      ".git" ,
+      "/.git" ,
       ".vscode"
     },
     mappings = {
@@ -240,9 +240,7 @@ require("telescope").setup {
 }
 
 function find_files_in_project()
-  require('telescope.builtin').git_files(
-    {command = {"git", "ls-files", "--others", "--cached"} }
-  )
+  require('telescope.builtin').git_files( {show_untracked = true})
   -- require('telescope.builtin').find_files(require("telescope.themes").get_ivy())
 end 
 
