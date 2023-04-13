@@ -207,19 +207,19 @@ require("telescope").setup {
       }
     }
   },
-  --[[ pickers = {
+  pickers = {
     git_bcommits = {
       mappings = {
         i = {
           ["<cr>"] = function(prompt_bufnr)
             actions.close(prompt_bufnr)
             local sha = action_state.get_selected_entry().value
-            vim.cmd("Git show -w " .. sha )
+            vim.cmd("DiffviewOpen " .. sha )
           end,
         }
       }
     },
-  }, ]]
+  },
   extensions = {
     fzf = {},
     file_browser = {
@@ -349,7 +349,8 @@ wk.register({
       name = "+git",
       s = { "<cmd>Neogit kind=vsplit<cr>", "Git status" },
       d = { "<cmd>Telescope git_status<CR>", "Diffs" },
-      t = { "<cmd>Telescope git_bcommits<CR>", "Time machine" },
+      t = { "<cmd>DiffviewFileHistory %<CR>", "Time machine" },
+      T = { "<cmd>Telescope git_bcommits<CR>", "Time machine" },
       -- l = { "<cmd>vertical Flogsplit-all<CR>", "Log" },
     },
     l = { findLayouts, "Telescope workspaces" },

@@ -5,6 +5,16 @@ let
 #                                          unzip = pkgs.unzip;
 #                                         };
 
+  diffview-nvim = pkgs.vimUtils.buildVimPluginFrom2Nix {
+    name = "diffview-nvim";
+    src = pkgs.fetchFromGitHub {
+      owner = "sindrets";
+      repo = "diffview.nvim";
+      rev = "63720aa5a70ce4aa386be407d0e612cd9e63861a";
+      sha256 = "rtJafQUurQP4sVoKZlC8nrl8OwfY7jKI/RyfNfY8Fik=";
+    };
+  };
+
   neogit = pkgs.vimUtils.buildVimPluginFrom2Nix {
     name = "neogit";
     src = pkgs.fetchFromGitHub {
