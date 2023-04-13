@@ -3,6 +3,7 @@ local neogit = require("neogit")
 neogit.setup {
   disable_signs = false,
   disable_hint = true,
+
   disable_context_highlighting = true,
   disable_commit_confirmation = true,
   -- Neogit refreshes its internal state after specific events, which can be expensive depending on the repository size.
