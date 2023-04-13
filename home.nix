@@ -5,6 +5,17 @@ let
 #                                          unzip = pkgs.unzip;
 #                                         };
 
+  neogit = pkgs.vimUtils.buildVimPluginFrom2Nix {
+    name = "neogit";
+    src = pkgs.fetchFromGitHub {
+      owner = "saep";
+      repo = "neogit";
+      rev = "039ff3212ec43cc4d3332956dfb54e263c8d5033";
+      sha256 = "7wrMpBvqb43wQ5K4mMThFc8LT+J/TTXPS2iltPGlRp0=";
+    };
+  };
+
+
   yanky-nvim = pkgs.vimUtils.buildVimPluginFrom2Nix {
     name = "yanky-nvim";
     src = pkgs.fetchFromGitHub {
@@ -73,6 +84,7 @@ in
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+  programs.lazygit.enable = true;
 
   programs.neovim = {
     enable = true;
@@ -133,8 +145,13 @@ in
 
       # neogit
 
-      vim-fugitive
-      vim-flog # https://github.com/rbong/vim-flog/blob/master/EXAMPLES.md
+      # vim-fugitive
+      # vim-flog # https://github.com/rbong/vim-flog/blob/master/EXAMPLES.md
+
+      neogit
+      diffview-nvim
+
+      lazygit-nvim
 
       nvim-notify
      ];

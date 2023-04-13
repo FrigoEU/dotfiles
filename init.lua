@@ -99,7 +99,8 @@ end
 -- coc
 require("simon-coc-config")
 
-require("simon-fugitive")
+-- requirevert ("simon-fugitive")
+require("simon-neogit")
 
 -- Wilder = wildmenu completion. wildmenu = "command line" = ":" = "Ex" (and / and ?)
 local wilder = require("wilder")
@@ -206,7 +207,7 @@ require("telescope").setup {
       }
     }
   },
-  pickers = {
+  --[[ pickers = {
     git_bcommits = {
       mappings = {
         i = {
@@ -218,7 +219,7 @@ require("telescope").setup {
         }
       }
     },
-  },
+  }, ]]
   extensions = {
     fzf = {},
     file_browser = {
@@ -239,7 +240,9 @@ require("telescope").setup {
 }
 
 function find_files_in_project()
-  require('telescope.builtin').git_files({show_untracked = true})
+  require('telescope.builtin').git_files(
+    {command = {"git", "ls-files", "--others", "--cached"} }
+  )
   -- require('telescope.builtin').find_files(require("telescope.themes").get_ivy())
 end 
 
@@ -346,17 +349,18 @@ wk.register({
     },
     g = {
       name = "+git",
-      s = { "<cmd>vert Git<cr>", "Git status" },
+      s = { "<cmd>Neogit kind=vsplit<cr>", "Git status" },
       d = { "<cmd>Telescope git_status<CR>", "Diffs" },
       t = { "<cmd>Telescope git_bcommits<CR>", "Time machine" },
-      l = { "<cmd>vertical Flogsplit-all<CR>", "Log" },
-      b = { "<cmd>Git blame<CR>", "Blame" },
+      -- l = { "<cmd>vertical Flogsplit-all<CR>", "Log" },
     },
     l = { findLayouts, "Telescope workspaces" },
     p = {
       name = "+project",
       p = { "<cmd>Telescope projects<cr>", "Project list" },
       t = { "<cmd>NvimTreeFindFileToggle<cr>", "File tree" },
+      -- f = { find_files_in_project, "Files" },
+      f = { "<cmd>lua find_files_in_project()<cr>", "Files" },
       f = { find_files_in_project, "Files" },
       -- ["'"] = { "<cmd>ToggleTerm<cr>", "Toggle terminal" },
     },
