@@ -23,7 +23,7 @@ return {
     }
   },
   {
-    "kylechui/nvim-surround",
+    "ur4ltz/surround.nvim",
     opts = {
       mappings_style = "surround"
     }

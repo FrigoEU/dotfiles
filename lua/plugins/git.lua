@@ -1,10 +1,33 @@
 return {
   {
+    "rbong/vim-flog",
+    dependencies = {
+      { 'tpope/vim-fugitive' }
+    },
+    config = function ()
+      vim.api.nvim_create_autocmd(
+        "Filetype",
+        {
+          pattern = "floggraph",
+          callback = function()
+            local bufnr = vim.api.nvim_get_current_buf()
+            vim.keymap.set("n", "q", "<cmd>tabclose<cr>", {buffer = bufnr,desc= 'Close'})
+            vim.keymap.set("n", "d", "<cmd>exec flog#Format('DiffviewOpen %h^!')<CR>", {buffer = bufnr,desc= 'Close'})
+          end,
+      })
+    end
+  },
+  {
     "TimUntersberger/neogit",
+    keys = {
+      { "<leader>gs", "<cmd>Neogit<CR>" , desc = "Git status" },
+    },
     dependencies = {
       {"nvim-lua/plenary.nvim"},
+      {"sindrets/diffview.nvim"}
     },
     config = function(_, opts)
+      -- Doesn't work!
       vim.api.nvim_create_autocmd(
         "FilterWritePre",
         {
@@ -17,6 +40,21 @@ return {
             end
           end,
       })
+
+      -- Show Flog immediately
+      vim.api.nvim_create_autocmd(
+        "Filetype",
+        {
+          pattern = "NeogitStatus",
+          callback = function()
+            local bufnr = vim.api.nvim_get_current_buf()
+            vim.keymap.set("n", "q", "<cmd>tabclose<cr>", {buffer = bufnr,desc= 'Close'})
+
+            vim.cmd("vert Flogsplit")
+            vim.cmd("1wincmd w")
+          end,
+      })
+
       require("neogit").setup(opts)
     end,
     opts = {
@@ -35,7 +73,7 @@ return {
       disable_builtin_notifications = false,
       use_magit_keybindings = false,
       -- Change the default way of opening neogit
-      kind = "split",
+      kind = "tab",
       -- The time after which an output console is shown for slow running commands
       console_timeout = 2000,
       -- Automatically show console if a command takes more than console_timeout milliseconds
@@ -109,14 +147,16 @@ return {
         status = {
           -- Adds a mapping with "B" as key that does the "BranchPopup" command
           -- ["B"] = "BranchPopup",
-          -- Removes the default mapping of "s"
-          -- ["s"] = "",
+           ["q"] = "", -- overwriting in autocmd
         }
       }
     }
   },
   {
     "sindrets/diffview.nvim",
+    keys = {
+      { "<leader>gt", "<cmd>DiffviewFileHistory %<CR>" , desc = "File history" },
+    },
     config = function()
       local actions = require("diffview.actions")
       require("diffview").setup({
@@ -188,6 +228,7 @@ return {
               { "n", "dX",             actions.conflict_choose_all("none"),    { desc = "Delete the conflict region for the whole file" } },
               -- CUSTOM
               { "n", "?",             actions.help("file_panel"),             { desc = "Open the help panel" } },
+              { "n", "q",     "<Cmd>tabclose<CR>",                 { desc = "Close the panel" } },
             },
             file_history_panel = {
               { "n", "g!",            actions.options,                     { desc = "Open the option panel" } },
