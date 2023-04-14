@@ -124,9 +124,7 @@ in
   environment.systemPackages = with pkgs; [
     wget google-chrome firefox git
 
-    ((emacsPackagesFor emacsUnstable).emacsWithPackages (epkgs: [
-      epkgs.vterm
-    ]))
+    emacs
 
     # linphone
 
@@ -156,7 +154,7 @@ in
     jetbrains.idea-community
     maven
 
-    # neovide
+    neovide
 
     pragmatapro
 
@@ -167,6 +165,12 @@ in
     alacritty
 
     nodejs # to get coc-nvim working
+
+    neovim
+    gcc # to compile treesitter layouts
+    xclip # For neovim clipboard integration
+    luajitPackages.lua-lsp
+    jumpapp # custom neovim "workspaces" solution
 
     # cockroachdb
 

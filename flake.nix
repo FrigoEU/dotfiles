@@ -4,23 +4,13 @@
     nixos-hardware = {
       url = "github:nixos/nixos-hardware";
     };
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    emacs-overlay = {
-      url    = "github:nix-community/emacs-overlay";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
   };
-  outputs = { self, nixpkgs, home-manager, nixos-hardware, emacs-overlay }:
+  outputs = { self, nixpkgs, nixos-hardware }:
     let
       overlay = final: prev: (import nixpkgs {
         system = "x86_64-linux";
         config.allowUnfree = true;
-        overlays = [ emacs-overlay.overlay ];
+        overlays = [ ];
       });
     in
       {
@@ -45,15 +35,6 @@
             ./hardware-configuration-x1.nix
             ./configuration-shared.nix
             ./x1.nix
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.users.simon = import ./home.nix;
-
-              # Optionally, use home-manager.extraSpecialArgs to pass
-              # arguments to home.nix
-            }
           ];
         };
       };
