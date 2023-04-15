@@ -20,6 +20,7 @@ in
     package = pkgs.nixFlakes;
     # keep-outputs + keep-derivations: for nix-direnv
     extraOptions = ''
+      experimental-features = nix-command flakes
       keep-outputs = true
       keep-derivations = true
     '';
@@ -89,7 +90,7 @@ in
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-  # Select internationalisation properties.
+  # Select internationalisation properties.plasma
   i18n = {
     defaultLocale = "en_US.UTF-8";
   };
@@ -259,7 +260,7 @@ in
   sound.enable = true;
   nixpkgs.config.pulseaudio = true;
 
-  environment.variables.BROWSER = "firefox";
+  environment.variables.BROWSER = "google-chrome";
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
@@ -271,8 +272,8 @@ in
   # services.xserver.libinput.enable = true;
 
   # Enable the KDE Desktop Environment.
-
   services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.desktopManager.plasma5.useQtScaling = false;
   # environment.variables.PLASMA_USE_QT_SCALING = "1";
   # services.xserver.desktopManager.xfce.enable = true;
   # services.xserver.desktopManager.lumina.enable = true;
