@@ -5,7 +5,7 @@ function findLayouts(opts)
 
   local prompt = {
     prompt_title = 'Workspaces',
-    finder = finders.new_table({
+    finder = require("telescope.finders").new_table({
         results = {
           {
             name = "1. aperi_new",
@@ -29,7 +29,7 @@ function findLayouts(opts)
           },
           {
             name = "9. alacritty",
-            command = string.format("silent !jumpapp -e alacritty")
+            command = string.format("silent !jumpapp -e neovide")
           }, 
         },
         entry_maker = function(entry)
@@ -42,17 +42,17 @@ function findLayouts(opts)
                                }
     ),
     -- previewer = previewers.vim_buffer_cat.new(opts),
-    sorter = config.generic_sorter(opts),
+    sorter = require("telescope.config").values.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
       require("telescope.actions").select_default:replace(function()
           require("telescope.actions").close(prompt_bufnr)
-          local selection = action_state.get_selected_entry()
+          local selection = require("telescope.actions.state").get_selected_entry()
           -- print(vim.inspect(selection))
           local jumpcmd = selection.value.command or string.format(
-            "silent !jumpapp -t '%s' alacritty --title '%s' --working-directory %s -e nvim %s", 
+            "silent !cd %s && NEOVIDE_TITLE='%s' jumpapp -t '%s' neovide %s", 
+            selection.value.cwd,
             selection.value.name, 
             selection.value.name,
-            selection.value.cwd,
             selection.value.main
                                                                   )
           -- print(jumpcmd)
@@ -62,7 +62,7 @@ function findLayouts(opts)
     end,
   }
 
-  pickers.new(opts, prompt):find()
+  require("telescope.pickers").new(opts, prompt):find()
 end
 
 function find_files_in_project()

@@ -1,18 +1,22 @@
 vim.g.mapleader = ' '
 
 vim.api.nvim_set_option("clipboard", "unnamed") -- This + xclip is necessary for flawless copy-paste
-vim.opt.guifont = { "PragmataPro Liga", ":h12" } -- Somehow, PragmataPro Mono didn't work...
+vim.opt.guifont = { "PragmataPro Liga", ":h14" } -- Somehow, PragmataPro Mono didn't work...
 
 -- advised by nvim-tree.lua
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
-vim.g.neovide_fullscreen = true
-vim.g.neovide_cursor_animation_length=0.0
-vim.g.neovide_cursor_trail_length=0.0 
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.termguicolors = true
+
+-- neovide
+vim.opt.title = true
+vim.opt.titlestring = vim.fn.getenv("NEOVIDE_TITLE") == vim.NIL and "Neovide" or vim.fn.getenv("NEOVIDE_TITLE") -- For workspaces solution
+vim.g.neovide_fullscreen = true
+vim.g.neovide_cursor_animation_length=0.0
+vim.g.neovide_cursor_trail_length=0.0 
 
 -- Indentation
 vim.opt.smartindent = true

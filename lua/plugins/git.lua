@@ -28,6 +28,7 @@ return {
     },
     config = function(_, opts)
       -- Doesn't work!
+      -- Also: use different keybinding! tab is actually super useful to go to the next commit
       vim.api.nvim_create_autocmd(
         "FilterWritePre",
         {
@@ -50,7 +51,7 @@ return {
             local bufnr = vim.api.nvim_get_current_buf()
             vim.keymap.set("n", "q", "<cmd>tabclose<cr>", {buffer = bufnr,desc= 'Close'})
 
-            vim.cmd("vert Flogsplit")
+            vim.cmd("vert Flogsplit -all")
             vim.cmd("1wincmd w")
           end,
       })

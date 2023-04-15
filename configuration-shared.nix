@@ -260,10 +260,7 @@ in
   sound.enable = true;
   nixpkgs.config.pulseaudio = true;
 
-  environment.variables.BROWSER = "google-chrome";
-
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
+  environment.variables.BROWSER = "firefox";
 
   # services.compton.enable = true;
   # services.compton.backend = "xrender";
@@ -271,21 +268,25 @@ in
   # Enable touchpad support.
   # services.xserver.libinput.enable = true;
 
+  # Enable the X11 windowing system.
+  services.xserver.enable = true;
+
   # Enable the KDE Desktop Environment.
-  services.xserver.desktopManager.plasma5.enable = true;
-  services.xserver.desktopManager.plasma5.useQtScaling = false;
+   services.xserver.desktopManager.plasma5.enable = true;
+   # services.xserver.desktopManager.plasma5.useQtScaling = false;
+   services.xserver.displayManager.sddm.enable = true;
+   services.xserver.displayManager.autoLogin.user = "simon";
+   services.xserver.displayManager.autoLogin.enable = true;
+   security.pam.services.sddm.enableKwallet = true;
+   services.xserver.libinput.mouse.leftHanded = true;
+
+  # OLD
   # environment.variables.PLASMA_USE_QT_SCALING = "1";
   # services.xserver.desktopManager.xfce.enable = true;
   # services.xserver.desktopManager.lumina.enable = true;
-  services.xserver.displayManager.sddm.enable = true;
   # services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.displayManager.autoLogin.user = "simon";
-  services.xserver.displayManager.autoLogin.enable = true;
-
   # security.pam.services.lightdm.enableKwallet = true;
-  security.pam.services.sddm.enableKwallet = true;
 
-  services.xserver.libinput.mouse.leftHanded = true;
 
   # EXWM: Emacs Window Manager
   # https://www.reddit.com/r/NixOS/comments/8ghg4f/exwm_problem/
