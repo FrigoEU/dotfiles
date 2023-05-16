@@ -3,6 +3,7 @@
     "lua": {
       "command": "lua-lsp",
       "filetypes": ["lua"]
-    }
-  }
+    },
+  },
+  "tsserver.useLocalTsdk": true
 }

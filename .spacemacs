@@ -33,12 +33,14 @@ This function should only modify configuration layer settings."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     dap
      ;; protobuf
      ;; lua
      ;; yaml
      ;; python
      ;; ocaml
-     ;; (rust :variables rust-backend 'lsp)
+     (rust :variables rust-backend 'lsp)
+     (lsp :variables lsp-rust-server 'rust-analyzer)
      ;; (haskell :variables haskell-completion-backend 'lsp)
      ;; csv
      ;; sml
@@ -85,12 +87,12 @@ This function should only modify configuration layer settings."
      ;; haskell
      ;; purescript
      git
-     (lsp :variables lsp-headerline-breadcrumb-segments nil)
+     ;; (lsp :variables lsp-headerline-breadcrumb-segments nil)
      ;; spotify
      ;; clojure
      ;; idris
      ;; markdown
-     ;; org
+     (org :variables org-enable-roam-support t)
      (shell :variables
             shell-default-height 30
             shell-default-shell 'eshell
@@ -116,8 +118,8 @@ This function should only modify configuration layer settings."
                                       (direnv)
                                       (reformatter)
                                       (doom-themes)
-                                      (corfu)
-                                      (multi-compile)
+                                      ;; (corfu)
+                                      ;; (multi-compile)
                                       ;; (gptel)
                                       ;; (dirvish)
                                       ;; (exec-path-from-shell)
@@ -125,6 +127,8 @@ This function should only modify configuration layer settings."
                                       ;; (apheleia) ;; async formatting
                                       ;; (edbi)
                                       ;; (company-edbi :location (recipe :fetcher github :repo "dvzubarev/company-edbi"))
+                                      ;; (emacs-ctable :location (recipe :fetcher github :repo "kiwanami/emacs-ctable")) ;; For leetcode!
+                                      ;; (leetcode :location (recipe :fetcher github :repo "ginqi7/leetcode-emacs"))
                                       ;; (fsharp-mode)
                                       )
    ;; A list of packages that cannot be updated.
@@ -259,8 +263,8 @@ It should only modify the values of Spacemacs settings."
    ;; number is the project limit and the second the limit on the recent files
    ;; within a project.
    dotspacemacs-startup-lists '(
-                                ;; (recents . 5)
-                                ;; (projects . 7)
+                                (recents . 5)
+                                (projects . 7)
                                 )
 
    ;; True if the home buffer should respond to resize events. (default t)
@@ -300,8 +304,8 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-one
-                         spacemacs-dark
+   dotspacemacs-themes '(spacemacs-dark
+                         doom-one
                          doom-gruvbox-light
                          spacemacs-light)
 
@@ -312,7 +316,7 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs)
+   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -320,9 +324,9 @@ It should only modify the values of Spacemacs settings."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '(
-                               ;; "PragmataPro Mono Liga"
+                               ;; "PragmataPro Mono"
                                "Victor Mono"
-                               :size 22
+                               :size 18
                                :weight normal
                                :width normal)
 
@@ -428,8 +432,8 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-maximized-at-startup nil
 
    ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
-   ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
-   ;; borderless fullscreen. (default nil)
+   ;; variable with `dotspacemacs-maximized-at-startup' to obtain fullscreen
+   ;; without external boxes. Also disables the internal border. (default nil)
    dotspacemacs-undecorated-at-startup nil
 
    ;; A value from the range (0..100), in increasing opacity, which describes
@@ -441,6 +445,11 @@ It should only modify the values of Spacemacs settings."
    ;; the transparency level of a frame when it's inactive or deselected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90
+
+   ;; A value from the range (0..100), in increasing opacity, which describes the
+   ;; transparency level of a frame background when it's active or selected. Transparency
+   ;; can be toggled through `toggle-background-transparency'. (default 90)
+   dotspacemacs-background-transparency 100
 
    ;; If non-nil show the titles of transient states. (default t)
    dotspacemacs-show-transient-state-title t
@@ -551,7 +560,9 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil - same as frame-title-format)
    dotspacemacs-icon-title-format nil
 
-   ;; Show trailing whitespace (default t)
+   ;; Color highlight trailing whitespace in all prog-mode and text-mode derived
+   ;; modes such as c++-mode, python-mode, emacs-lisp, html-mode, rst-mode etc.
+   ;; (default t)
    dotspacemacs-show-trailing-whitespace t
 
    ;; Delete whitespace while saving buffer. Possible values are `all'
@@ -677,6 +688,14 @@ you should place your code here."
 
   ;; (require 'company)
   ;; (add-to-list 'company-backends 'company-edbi)
+  (add-hook
+   'sql-interactive-mode-hook
+   (lambda ()
+     (progn
+       (company-mode)
+       (set (make-local-variable 'company-backends)
+            '(company-dabbrev-code)
+            ))))
   (evil-escape-mode -1)
   (direnv-mode)
   ;; (eshell-vterm-mode)
@@ -702,8 +721,6 @@ you should place your code here."
   (spacemacs/set-leader-keys-for-major-mode 'typescript-mode "tt" 'typescript-expect-test-normal)
   (spacemacs/set-leader-keys-for-major-mode 'typescript-tsx-mode "td" 'typescript-expect-test-debug)
   (spacemacs/set-leader-keys-for-major-mode 'typescript-mode "td" 'typescript-expect-test-debug)
-  (spacemacs/set-leader-keys-for-major-mode 'typescript-tsx-mode "rt" 'tide-refactor)
-  (spacemacs/set-leader-keys-for-major-mode 'typescript-mode "rt" 'tide-refactor)
 
   (global-set-key (kbd "C-l") 'evil-window-right)
   (global-set-key (kbd "C-h") 'evil-window-left)
@@ -716,20 +733,19 @@ you should place your code here."
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 
-
   ;; TYPESCRIPT
   (require 'tide)
   (setq tide-completion-enable-autoimport-suggestions t)
   (setq tide-completion-ignore-case t)
   (setq tide-always-show-documentation t)
 
-  (add-hook 'typescript-mode-hook 'tree-sitter-mode)
-  (add-hook 'typescript-tsx-mode-hook 'tree-sitter-mode)
-  (with-eval-after-load "tree-sitter"
-    (diminish 'tree-sitter-mode))
+  ;; (add-hook 'typescript-mode-hook 'tree-sitter-mode)
+  ;; (add-hook 'typescript-tsx-mode-hook 'tree-sitter-mode)
+  ;; (with-eval-after-load "tree-sitter"
+  ;;   (diminish 'tree-sitter-mode))
 
-  (with-eval-after-load "tide"
-    (diminish 'tide-mode))
+  ;; (with-eval-after-load "tide"
+  ;;   (diminish 'tide-mode))
 
   ;; Use rome if available (faster), otherwise use prettier
   ;; This uses executable-find quite a lot so that cause latency
@@ -786,7 +802,9 @@ you should place your code here."
   (add-hook 'urweb-mode-hook 'lsp-mode)
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (add-hook 'urweb-mode-hook 'flycheck-mode)
-  (setq flycheck-check-syntax-automatically '(save))
+
+  ;; You can activate this if flycheck is lagging your buffers too much
+  ;; (setq flycheck-check-syntax-automatically '(save))
 
   (defun eshell-new()
     "Open a new instance of eshell."
@@ -845,8 +863,8 @@ you should place your code here."
   (require 'em-term)
   (add-to-list 'eshell-visual-commands "psql")
 
-  (require 'em-alias)
-  (defalias 'uw (mk-compile-command-with-notifs "make build && restart-urweb"))
+  ;; (require 'em-alias)
+  ;; (defalias 'uw (mk-compile-command-with-notifs "make build && restart-urweb"))
 
 
   ;; use sql-connect to connect to one of these
@@ -897,18 +915,19 @@ you should place your code here."
   ;;   (exec-path-from-shell-initialize))
   ;; (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
 
-  (require 'lsp-mode)
-  (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
+  ;; (require 'lsp-mode)
+  ;; (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
+  ;; (setq lsp-report-if-no-buffer t)
+  ;; (setq lsp-auto-configure t)
+  ;; (customize-set-variable 'lsp-ui-sideline-enable t)
+  ;; (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
+  ;; (customize-set-variable 'lsp-ui-sideline-show-hover nil)
+  ;; (customize-set-variable 'lsp-ui-doc-alignment (quote window))
+  ;; (customize-set-variable 'lsp-ui-doc-include-signature t)
+  ;; (customize-set-variable 'lsp-ui-doc-position (quote at-point))
+
   ;; (setq lsp-print-io t)
   ;; (setq lsp-trace t)
-  (setq lsp-report-if-no-buffer t)
-  (setq lsp-auto-configure t)
-  (customize-set-variable 'lsp-ui-sideline-enable t)
-  (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
-  (customize-set-variable 'lsp-ui-sideline-show-hover nil)
-  (customize-set-variable 'lsp-ui-doc-alignment (quote window))
-  (customize-set-variable 'lsp-ui-doc-include-signature t)
-  (customize-set-variable 'lsp-ui-doc-position (quote at-point))
 
   ;; (setq lsp-disabled-clients '(eslint))
   ;; eslint is annoying, always wants to loads 1000's of files that are irrelevant to me. If you want to use it, get it configured properly first
@@ -926,27 +945,47 @@ you should place your code here."
   ; Otherwise if there is only one match a "preview" is shown and you don't see eg type info
   (setq company-frontends '(company-pseudo-tooltip-frontend
                             company-echo-metadata-frontend))
-                          
+
   ;; (setq lsp-print-performance t)
 
   ; Register urweb language server
   (defcustom lsp-urweb-language-server-urpfile "school" "Urp file to choose if multiple")
-  (lsp-register-custom-settings '(("urweb.project.urpfile" lsp-urweb-language-server-urpfile)))
+  ;; (lsp-register-custom-settings '(("urweb.project.urpfile" lsp-urweb-language-server-urpfile)))
   (defgroup lsp-urweb nil
     "LSP support for Ur/Web."
     :group 'lsp-mode
     :link '(url-link "https://www.impredicative.com/ur"))
 
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/result/bin/urweb" "-startLspServer"))
-                    :major-modes '(urweb-mode)
-                    :server-id 'urweb-lsp
-                    :initialization-options (lsp-configuration-section "urweb")))
+  ;; (lsp-register-client
+  ;;  (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/result/bin/urweb" "-startLspServer"))
+  ;;                   :major-modes '(urweb-mode)
+  ;;                   :server-id 'urweb-lsp
+  ;;                   :initialization-options (lsp-configuration-section "urweb")))
 
   ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
 
   ;; rust
   (setq rust-format-on-save t)
+
+  (with-eval-after-load 'lsp-rust
+    (require 'dap-cpptools))
+
+  (with-eval-after-load 'dap-cpptools
+    ;; Add a template specific for debugging Rust programs.
+    ;; It is used for new projects, where I can M-x dap-edit-debug-template
+    (dap-register-debug-template "Rust::CppTools Run Configuration"
+                                 (list :type "gdb"
+                                       :request "launch"
+                                       :name "Rust::Run"
+                                       :MIMode "gdb"
+                                       :miDebuggerPath "rust-gdb"
+                                       :environment []
+                                       :gdbpath "rust-gdb"
+                                       :program "${workspaceFolder}/target/debug/test_project" ;; This doesn't seem to work - navigate manually!
+                                       :cwd "${workspaceFolder}"
+                                       :console "external"
+                                       :dap-compilation "cargo build"
+                                       :dap-compilation-dir "${workspaceFolder}")))
 
   ;; FSHARP
   ;; (setq doom-modeline-major-mode-icon nil) ;; Issue with icon bomps perf of fsharp
@@ -1169,6 +1208,10 @@ See URL `https://sass-lang.com/libsass'."
 
   (setq flycheck-display-errors-delay 0)
 
+  ;; leetcode-emacs doesn't obey custom storage path (see leetcode.toml)
+  ;; (require 'leetcode)
+  ;; (setq leetcode-language "typescript")
+
   ;; sassc
 ;;   (require 'flycheck)
 
@@ -1351,11 +1394,91 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(connection-local-criteria-alist
+   '(((:application tramp)
+      tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)
+     ((:application eshell)
+      eshell-connection-default-profile)))
+ '(connection-local-profile-alist
+   '((tramp-connection-local-darwin-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (euid . number)
+       (user . string)
+       (egid . number)
+       (comm . 52)
+       (state . 5)
+       (ppid . number)
+       (pgrp . number)
+       (sess . number)
+       (ttname . string)
+       (tpgid . number)
+       (minflt . number)
+       (majflt . number)
+       (time . tramp-ps-time)
+       (pri . number)
+       (nice . number)
+       (vsize . number)
+       (rss . number)
+       (etime . tramp-ps-time)
+       (pcpu . number)
+       (pmem . number)
+       (args)))
+     (tramp-connection-local-busybox-ps-profile
+      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (user . string)
+       (group . string)
+       (comm . 52)
+       (state . 5)
+       (ppid . number)
+       (pgrp . number)
+       (ttname . string)
+       (time . tramp-ps-time)
+       (nice . number)
+       (etime . tramp-ps-time)
+       (args)))
+     (tramp-connection-local-bsd-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (euid . number)
+       (user . string)
+       (egid . number)
+       (group . string)
+       (comm . 52)
+       (state . string)
+       (ppid . number)
+       (pgrp . number)
+       (sess . number)
+       (ttname . string)
+       (tpgid . number)
+       (minflt . number)
+       (majflt . number)
+       (time . tramp-ps-time)
+       (pri . number)
+       (nice . number)
+       (vsize . number)
+       (rss . number)
+       (etime . number)
+       (pcpu . number)
+       (pmem . number)
+       (args)))
+     (tramp-connection-local-default-shell-profile
+      (shell-file-name . "/bin/sh")
+      (shell-command-switch . "-c"))
+     (tramp-connection-local-default-system-profile
+      (path-separator . ":")
+      (null-device . "/dev/null"))
+     (eshell-connection-default-profile
+      (eshell-path-env-list))))
  '(custom-safe-themes
    '("93a0885d5f46d2aeac12bf6be1754faa7d5e28b27926b8aa812840fe7d0b7983" "d0c943c37d6f5450c6823103544e06783204342430a36ac20f6beb5c2a48abe3" "b0fd04a1b4b614840073a82a53e88fe2abc3d731462d6fde4e541807825af342" "4e132458143b6bab453e812f03208075189deca7ad5954a4abb27d5afce10a9a" "cb477d192ee6456dc2eb5ca5a0b7bd16bdb26514be8f8512b937291317c7b166" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
-   '(helm-gtags ggtags flycheck-ocaml dune counsel-gtags counsel swiper ivy direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
+   '(cargo counsel-gtags counsel swiper ivy flycheck-rust ggtags racer ron-mode rust-mode toml-mode undo-tree spinner parent-mode pkg-info epl flx company-edbi s edbi epc ctable concurrent deferred bind-map bind-key popup direnv ghc haskell-mode caml skewer-mode json-snatcher json-reformat gitignore-mode web-completion-data dash-functional auto-complete company-tabnine unicode-escape names powerline multiple-cursors haml-mode tern anzu highlight f goto-chg magit-popup simple-httpd markdown-mode pos-tip anybar doom-themes company-postgresql typescript-mode org-plus-contrib hydra lv projectile avy company iedit smartparens evil flycheck yasnippet request helm helm-core magit transient git-commit with-editor async js2-mode dash xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help csv-mode ob-sml sml-mode graphviz-dot-mode ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide tagedit sql-indent spaceline smeargle slim-mode scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode psci psc-ide popwin persp-mode pcre2el paradox orgit org-bullets open-junk-file ocp-indent nix-mode neotree move-text mmm-mode merlin markdown-toc magit-gitflow lorem-ipsum livid-mode linum-relative link-hint json-mode js2-refactor js-doc intero indent-guide hungry-delete hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu emmet-mode dumb-jump diminish define-word company-web company-tern company-statistics company-ghci company-ghc company-cabal column-enforce-mode coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent add-node-modules-path adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
  '(paradox-github-token t)
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)

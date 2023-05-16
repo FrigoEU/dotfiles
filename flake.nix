@@ -4,13 +4,19 @@
     nixos-hardware = {
       url = "github:nixos/nixos-hardware";
     };
+    emacs-overlay = {
+      url    = "github:nix-community/emacs-overlay";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
   };
-  outputs = { self, nixpkgs, nixos-hardware }:
+  outputs = { self, nixpkgs, nixos-hardware, emacs-overlay }:
     let
       overlay = final: prev: (import nixpkgs {
         system = "x86_64-linux";
         config.allowUnfree = true;
-        overlays = [ ];
+        overlays = [ emacs-overlay.overlay ];
       });
     in
       {

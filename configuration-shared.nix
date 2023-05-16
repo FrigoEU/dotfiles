@@ -45,8 +45,10 @@ in
   networking.extraHosts =
     ''
 192.168.50.30 kl2376.aperigroup.com
+# Jacky Maes
 10.120.0.20 kl9861.aperigroup.com
 192.168.50.17 kl9999.aperigroup.com
+# De Vijvers
 10.107.4.16 kl0044.aperigroup.com
 192.168.50.18 webrtcdemo.aperigroup.com
 172.20.4.20 kl0091.aperigroup.com
@@ -125,7 +127,9 @@ in
   environment.systemPackages = with pkgs; [
     wget google-chrome firefox git
 
-    emacs
+    ((emacsPackagesFor emacsUnstable).emacsWithPackages (epkgs: [
+      epkgs.vterm
+    ]))
 
     # linphone
 
@@ -181,6 +185,7 @@ in
     #   DBDPg
     # ])) # edbi -> dbi:Pg:dbname=urwebschool
   ];
+  services.lorri.enable = true;
   #services.tlp.enable = true;
 
   # nix-direnv
@@ -200,27 +205,28 @@ in
   #         package = pkgs.mariadb;
   #       };
 
-  # services.postgresql = {
-  #   package = pkgs.postgresql_12;
-  #   enable = true;
-  #   initialScript = pkgs.writeText "backend-initScript" ''
-  #     CREATE USER simon;
-  #     ALTER USER simon WITH superuser;
-  #   '';
-  #   authentication = pkgs.lib.mkOverride 10 ''
-  #     # Generated file via nix; do not edit!
-  #     local all all              trust
-  #     host  all all 127.0.0.1/32 trust
-  #     host  all all ::1/128      trust
-  #   '';
-  #   settings = {
-  #     log_statement = "all";
-  #     logging_collector = true;
-  #     log_directory = "pg_log";
-  #     max_connections = 300;
-  #     shared_buffers = "80MB";
-  #   };
-  # };
+  services.postgresql = {
+    package = pkgs.postgresql_12;
+    enable = true;
+    initialScript = pkgs.writeText "backend-initScript" ''
+      CREATE USER simon;
+      ALTER USER simon WITH superuser;
+    '';
+    authentication = pkgs.lib.mkOverride 10 ''
+      # Generated file via nix; do not edit!
+      local all all              trust
+      host  all all 127.0.0.1/32 trust
+      host  all all ::1/128      trust
+    '';
+    settings = {
+      log_statement = "all";
+      logging_collector = true;
+      log_directory = "pg_log";
+      max_connections = 300;
+      shared_buffers = "80MB";
+    };
+  };
+
   systemd.extraConfig = ''
     DefaultTimeoutStopSec=10s
   '';
