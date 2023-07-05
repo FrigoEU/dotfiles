@@ -32,7 +32,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(csv
      dap
      ;; protobuf
      ;; lua
@@ -115,7 +115,7 @@ This function should only modify configuration layer settings."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '((nix-mode)
-                                      (direnv)
+                                      (envrc)
                                       (reformatter)
                                       (doom-themes)
                                       ;; (corfu)
@@ -304,8 +304,8 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
-                         doom-one
+   dotspacemacs-themes '(doom-one
+                         spacemacs-dark
                          doom-gruvbox-light
                          spacemacs-light)
 
@@ -697,7 +697,7 @@ you should place your code here."
             '(company-dabbrev-code)
             ))))
   (evil-escape-mode -1)
-  (direnv-mode)
+  ;; (direnv-mode)
   ;; (eshell-vterm-mode)
 
   ;; magit: escape and q to abort / exit popup
@@ -739,10 +739,9 @@ you should place your code here."
   (setq tide-completion-ignore-case t)
   (setq tide-always-show-documentation t)
 
-  ;; (add-hook 'typescript-mode-hook 'tree-sitter-mode)
+  ;; (require 'tree-sitter)
+  (add-hook 'typescript-mode-hook 'tree-sitter-mode)
   ;; (add-hook 'typescript-tsx-mode-hook 'tree-sitter-mode)
-  ;; (with-eval-after-load "tree-sitter"
-  ;;   (diminish 'tree-sitter-mode))
 
   ;; (with-eval-after-load "tide"
   ;;   (diminish 'tide-mode))
@@ -915,8 +914,8 @@ you should place your code here."
   ;;   (exec-path-from-shell-initialize))
   ;; (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
 
-  ;; (require 'lsp-mode)
-  ;; (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
+  (require 'lsp-mode)
+  (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
   ;; (setq lsp-report-if-no-buffer t)
   ;; (setq lsp-auto-configure t)
   ;; (customize-set-variable 'lsp-ui-sideline-enable t)
@@ -949,43 +948,53 @@ you should place your code here."
   ;; (setq lsp-print-performance t)
 
   ; Register urweb language server
-  (defcustom lsp-urweb-language-server-urpfile "school" "Urp file to choose if multiple")
-  ;; (lsp-register-custom-settings '(("urweb.project.urpfile" lsp-urweb-language-server-urpfile)))
   (defgroup lsp-urweb nil
     "LSP support for Ur/Web."
     :group 'lsp-mode
     :link '(url-link "https://www.impredicative.com/ur"))
 
-  ;; (lsp-register-client
-  ;;  (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/result/bin/urweb" "-startLspServer"))
-  ;;                   :major-modes '(urweb-mode)
-  ;;                   :server-id 'urweb-lsp
-  ;;                   :initialization-options (lsp-configuration-section "urweb")))
+  (with-eval-after-load 'lsp-mode
+    (defcustom lsp-urweb-language-server-urpfile "school" "Urp file to choose if multiple")
+    (lsp-register-custom-settings '(("urweb.project.urpfile" lsp-urweb-language-server-urpfile)))
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection '("/home/simon/urweb/result/bin/urweb" "-startLspServer"))
+                      :major-modes '(urweb-mode)
+                      :server-id 'urweb-lsp
+                      :initialization-options (lsp-configuration-section "urweb")))
+    )
 
   ;; https://stackoverflow.com/questions/6411121/how-to-make-emacs-use-my-bashrc-file
 
   ;; rust
+  ;; inspiration: https://gagbo.net/post/dap-mode-rust/
   (setq rust-format-on-save t)
 
   (with-eval-after-load 'lsp-rust
     (require 'dap-cpptools))
 
-  (with-eval-after-load 'dap-cpptools
-    ;; Add a template specific for debugging Rust programs.
-    ;; It is used for new projects, where I can M-x dap-edit-debug-template
-    (dap-register-debug-template "Rust::CppTools Run Configuration"
-                                 (list :type "gdb"
-                                       :request "launch"
-                                       :name "Rust::Run"
-                                       :MIMode "gdb"
-                                       :miDebuggerPath "rust-gdb"
-                                       :environment []
-                                       :gdbpath "rust-gdb"
-                                       :program "${workspaceFolder}/target/debug/test_project" ;; This doesn't seem to work - navigate manually!
-                                       :cwd "${workspaceFolder}"
-                                       :console "external"
-                                       :dap-compilation "cargo build"
-                                       :dap-compilation-dir "${workspaceFolder}")))
+  (with-eval-after-load 'lsp-mode
+    (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.embuild\\"))
+
+  (add-hook 'dap-stopped-hook
+            (lambda (arg) (call-interactively #'dap-hydra)))
+
+  ;; REPLACED THIS WITH launch.json
+  ;; (with-eval-after-load 'dap-cpptools
+  ;;   ;; Add a template specific for debugging Rust programs.
+  ;;   ;; It is used for new projects, where I can M-x dap-edit-debug-template
+  ;;   (dap-register-debug-template "Rust::CppTools Run Configuration"
+  ;;                                (list :type "gdb"
+  ;;                                      :request "launch"
+  ;;                                      :name "Rust::Run"
+  ;;                                      :MIMode "gdb"
+  ;;                                      :miDebuggerPath "rust-gdb"
+  ;;                                      :environment []
+  ;;                                      :gdbpath "rust-gdb"
+  ;;                                      :program "${workspaceFolder}/target/debug/test_project" ;; This doesn't seem to work - navigate manually!
+  ;;                                      :cwd "${workspaceFolder}"
+  ;;                                      :console "external"
+  ;;                                      :dap-compilation "cargo build"
+  ;;                                      :dap-compilation-dir "${workspaceFolder}")))
 
   ;; FSHARP
   ;; (setq doom-modeline-major-mode-icon nil) ;; Issue with icon bomps perf of fsharp
@@ -1207,6 +1216,9 @@ See URL `https://sass-lang.com/libsass'."
   (add-hook 'scss-mode-hook 'flycheck-sassc-setup)
 
   (setq flycheck-display-errors-delay 0)
+
+  ;; https://github.com/purcell/envrc
+  (envrc-global-mode)
 
   ;; leetcode-emacs doesn't obey custom storage path (see leetcode.toml)
   ;; (require 'leetcode)
@@ -1483,7 +1495,32 @@ This function is called at the very end of Spacemacs initialization."
  '(psc-ide-add-import-on-completion t t)
  '(psc-ide-rebuild-on-save nil t)
  '(safe-local-variable-values
-   '((multi-compile-alist
+   '((eval progn
+           (setq dap-lldb-debug-program
+                 (list
+                  (getenv "LLDB_DAP_DEBUG_BIN_PATH")))
+           (setq dap-cpptools-debug-program
+                 (list
+                  (getenv "CPP_DAP_DEBUG_BIN_PATH"))))
+     (eval progn
+           (setq dap-lldb-debug-program
+                 (list
+                  (getenv "LLDB_DAP_DEBUG_BIN_PATH")))
+           (setq dap-cpptools-debug-path
+                 (getenv "CPP_DAP_DEBUG_BIN_PATH")))
+     (eval progn
+           (setq dap-lldb-debug-path
+                 (getenv "LLDB_DAP_DEBUG_BIN_PATH"))
+           (setq dap-cpptools-debug-path
+                 (getenv "CPP_DAP_DEBUG_BIN_PATH")))
+     (eval setq dap-cpptools-debug-path
+           (getenv "LLDB_DAP_DEBUG_BIN_PATH"))
+     (eval setq dap-cpptools-debug-path
+           (getenv "CPP_DAP_DEBUG_BIN_PATH"))
+     (dap-cpptools-debug-path quote
+                              (getenv "CPP_DAP_DEBUG_BIN_PATH"))
+     (dap-cpptools-debug-path getenv "CPP_DAP_DEBUG_BIN_PATH")
+     (multi-compile-alist
       ("\\.*"
        ("css" . "npm run css")
        ("sqltyper_domain" . "npm run sqltyper_domain")

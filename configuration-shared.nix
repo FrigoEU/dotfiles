@@ -61,6 +61,7 @@ in
 94.107.215.44 translations
 192.168.50.26 labo
 10.131.0.16 flightcase
+172.16.100.253 aperiproxy
   '';
 
  # 10.141.1.127
@@ -134,6 +135,7 @@ in
     # linphone
 
     htop jq
+    du-dust
     # android-studio
 
     gnumake direnv nix-direnv libnotify
@@ -146,6 +148,8 @@ in
     # unityhub
     # omnisharp-roslyn
 
+    gparted
+
     openvpn
 
     # pgformatter
@@ -154,10 +158,10 @@ in
     docker-compose
 
     # obs-studio
-    jdk8
-    gradle
-    jetbrains.idea-community
-    maven
+    # jdk8
+    # gradle
+    # jetbrains.idea-community
+    # maven
 
     neovide
 
@@ -167,15 +171,16 @@ in
 
     # zoom-us
 
-    alacritty
+    # alacritty
 
-    nodejs # to get coc-nvim working
+    # nodejs # to get coc-nvim working
 
     neovim
     gcc # to compile treesitter layouts
     xclip # For neovim clipboard integration
-    luajitPackages.lua-lsp
-    jumpapp # custom neovim "workspaces" solution
+    # luajitPackages.lua-lsp
+    # jumpapp # custom neovim "workspaces" solution
+
 
     # cockroachdb
 
