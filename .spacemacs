@@ -978,6 +978,29 @@ you should place your code here."
   (add-hook 'dap-stopped-hook
             (lambda (arg) (call-interactively #'dap-hydra)))
 
+  ;; https://www.masteringemacs.org/article/pcomplete-context-sensitive-completion-emacs
+  (defun pcomplete/npm ()
+    "Completion for `npm'."
+    ;; Completion for the command argument.
+    (pcomplete-here* '("install" "run" "start" "publish" "update"))
+
+    ;; complete files/dirs forever if the command is `add' or `rm'.
+    (when (pcomplete-match (regexp-opt '("run")) 1)
+      (pcomplete-here
+       (let* ((file (json-read-file "./package.json")))
+         (if file
+             (let* (
+                    (scripts-1 (cdr (assoc 'scripts file)))
+                    (scripts (cl-loop for (key . value) in scripts-1
+                                      collect (cons (symbol-name key) value)))
+                    (sorted-scripts (sort scripts (lambda (a b) (string< (car a) (car b)))))
+                    )
+               sorted-scripts
+               )
+           )
+         )
+       )))
+
   ;; REPLACED THIS WITH launch.json
   ;; (with-eval-after-load 'dap-cpptools
   ;;   ;; Add a template specific for debugging Rust programs.
