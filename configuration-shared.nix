@@ -24,7 +24,7 @@ in
       keep-outputs = true
       keep-derivations = true
     '';
-    autoOptimiseStore = true;
+    settings.auto-optimise-store = true;
   };
   # Use the systemd-boot EFI boot loader.
   # boot.loader.systemd-boot.enable = true;
@@ -211,7 +211,7 @@ in
   #       };
 
   services.postgresql = {
-    package = pkgs.postgresql_12;
+    package = pkgs.postgresql_15;
     enable = true;
     initialScript = pkgs.writeText "backend-initScript" ''
       CREATE USER simon;
@@ -223,13 +223,13 @@ in
       host  all all 127.0.0.1/32 trust
       host  all all ::1/128      trust
     '';
-    settings = {
-      log_statement = "all";
-      logging_collector = true;
-      log_directory = "pg_log";
-      max_connections = 300;
-      shared_buffers = "80MB";
-    };
+    # settings = {
+    #   log_statement = "all";
+    #   logging_collector = true;
+    #   log_directory = "pg_log";
+    #   max_connections = 300;
+    #   shared_buffers = "80MB";
+    # };
   };
 
   systemd.extraConfig = ''

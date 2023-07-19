@@ -77,7 +77,7 @@ This function should only modify configuration layer settings."
      ;; emacs-lisp
      javascript
      (typescript :variables
-                 typescript-backend 'tide
+                 typescript-backend 'lsp
                  ;; typescript-fmt-tool 'prettier
                  ;; typescript-fmt-on-save t
                  )
@@ -118,6 +118,15 @@ This function should only modify configuration layer settings."
                                       (envrc)
                                       (reformatter)
                                       (doom-themes)
+                                      ;; (emacs-eat :location
+                                      ;;            (recipe :fetcher git
+                                      ;;                    :url "https://codeberg.org/akib/emacs-eat"
+                                      ;;                    :files ("*.el" ("term" "term/*.el") "*.texi"
+                                      ;;                            "*.ti" ("terminfo/e" "terminfo/e/*")
+                                      ;;                            ("terminfo/65" "terminfo/65/*")
+                                      ;;                            ("integration" "integration/*")
+                                      ;;                            (:exclude ".dir-locals.el" "*-tests.el"))
+                                      ;;                    ))
                                       ;; (corfu)
                                       ;; (multi-compile)
                                       ;; (gptel)
@@ -125,9 +134,6 @@ This function should only modify configuration layer settings."
                                       ;; (exec-path-from-shell)
                                       ;; (eshell-vterm) ;; Run "visual" commands like htop and psql in vterm instead of term
                                       ;; (apheleia) ;; async formatting
-                                      ;; (edbi)
-                                      ;; (company-edbi :location (recipe :fetcher github :repo "dvzubarev/company-edbi"))
-                                      ;; (emacs-ctable :location (recipe :fetcher github :repo "kiwanami/emacs-ctable")) ;; For leetcode!
                                       ;; (leetcode :location (recipe :fetcher github :repo "ginqi7/leetcode-emacs"))
                                       ;; (fsharp-mode)
                                       )
@@ -326,7 +332,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-default-font '(
                                ;; "PragmataPro Mono"
                                "Victor Mono"
-                               :size 18
+                               :size 24
                                :weight normal
                                :width normal)
 
@@ -733,11 +739,13 @@ you should place your code here."
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
 
+  (add-hook 'eshell-load-hook #'eat-eshell-mode)
+
   ;; TYPESCRIPT
-  (require 'tide)
-  (setq tide-completion-enable-autoimport-suggestions t)
-  (setq tide-completion-ignore-case t)
-  (setq tide-always-show-documentation t)
+  ;; (require 'tide)
+  ;; (setq tide-completion-enable-autoimport-suggestions t)
+  ;; (setq tide-completion-ignore-case t)
+  ;; (setq tide-always-show-documentation t)
 
   ;; (require 'tree-sitter)
   (add-hook 'typescript-mode-hook 'tree-sitter-mode)
@@ -914,13 +922,15 @@ you should place your code here."
   ;;   (exec-path-from-shell-initialize))
   ;; (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
 
-  (require 'lsp-mode)
-  (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
+
   ;; (setq lsp-report-if-no-buffer t)
   ;; (setq lsp-auto-configure t)
-  ;; (customize-set-variable 'lsp-ui-sideline-enable t)
-  ;; (customize-set-variable 'lsp-ui-sideline-show-diagnostics t)
-  ;; (customize-set-variable 'lsp-ui-sideline-show-hover nil)
+  (setq lsp-ui-sideline-enable t)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-ui-sideline-show-code-actions t)
+  (setq lsp-ui-sideline-show-hover nil)
+  (setq lsp-ui-sideline-show-diagnostics t)
+  (setq lsp-ui-doc-show-with-cursor t)
   ;; (customize-set-variable 'lsp-ui-doc-alignment (quote window))
   ;; (customize-set-variable 'lsp-ui-doc-include-signature t)
   ;; (customize-set-variable 'lsp-ui-doc-position (quote at-point))
@@ -948,6 +958,8 @@ you should place your code here."
   ;; (setq lsp-print-performance t)
 
   ; Register urweb language server
+  (require 'lsp-mode)
+  (add-to-list 'lsp-language-id-configuration '(urweb-mode . "urweb"))
   (defgroup lsp-urweb nil
     "LSP support for Ur/Web."
     :group 'lsp-mode
@@ -1241,7 +1253,11 @@ See URL `https://sass-lang.com/libsass'."
   (setq flycheck-display-errors-delay 0)
 
   ;; https://github.com/purcell/envrc
+
+  (require 'envrc)
   (envrc-global-mode)
+  (envrc-reload-all)
+
 
   ;; leetcode-emacs doesn't obey custom storage path (see leetcode.toml)
   ;; (require 'leetcode)
