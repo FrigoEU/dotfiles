@@ -74,6 +74,8 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+(add-hook 'window-setup-hook #'toggle-frame-fullscreen)
+
 (map! :n "<left>" #'evil-window-left)
 (map! :n "<right>" #'evil-window-right)
 (map! :n "<up>" #'evil-window-up)
@@ -83,6 +85,14 @@
 
 (map! :leader :prefix "r" :n "y" #'yank-from-kill-ring)
 (map! :leader :prefix "r" :n "l" #'vertico-repeat-last)
+
+(map! :leader :n "l" #'+workspace/switch-to)
+
+(after! typescript-mode
+  (map! :map typescript-mode-map :prefix "g" :n "d" #'tide-jump-to-definition)
+  (map! :map typescript-mode-map :prefix "g" :n "r" #'tide-references)
+  (map! :map typescript-mode-map :prefix "," :n "a" #'tide-fix)
+  )
 
 (after! eshell
   (after! em-shell
