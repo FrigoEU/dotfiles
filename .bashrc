@@ -25,6 +25,8 @@ fi
 export LOCALE_ARCHIVE_2_27="/nix/store/rdzldh4fiisgjy2hfvs1bf48gprbqlkh-glibc-locales-2.27/lib/locale/locale-archive"
 export LOCALE_ARCHIVE_2_11="/etc/default/locale"
 
+export PATH="/home/simon/.config/emacs/bin:$PATH"
+
 eval "$(direnv hook bash)"
 
 # echo -e -n "\x1b[\x36 q" # cursor as line

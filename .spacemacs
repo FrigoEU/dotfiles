@@ -332,7 +332,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-default-font '(
                                ;; "PragmataPro Mono"
                                "Victor Mono"
-                               :size 24
+                               :size 20
                                :weight normal
                                :width normal)
 
@@ -738,8 +738,6 @@ you should place your code here."
   (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
   (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
-
-  (add-hook 'eshell-load-hook #'eat-eshell-mode)
 
   ;; TYPESCRIPT
   ;; (require 'tide)

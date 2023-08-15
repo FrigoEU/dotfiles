@@ -139,7 +139,7 @@ in
     # android-studio
 
     gnumake direnv nix-direnv libnotify
-    entr silver-searcher ripgrep
+    entr silver-searcher ripgrep fd
     unzip
     autoconf automake libtool
 
