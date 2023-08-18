@@ -35,7 +35,7 @@
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type t)
+(setq display-line-numbers-type nil)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -73,6 +73,8 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+;;
+(setq doom-localleader-key ",")
 
 (add-hook 'window-setup-hook #'toggle-frame-fullscreen)
 
@@ -81,18 +83,45 @@
 (map! :n "<up>" #'evil-window-up)
 (map! :n "<down>" #'evil-window-down)
 
-(map! :leader :prefix "g" :n "s" #'magit-status)
+(map! :leader :prefix "w" :n "S-<left>" #'evil-window-move-far-left)
+(map! :leader :prefix "w" :n "S-<right>" #'evil-window-move-far-right)
+(map! :leader :prefix "w" :n "S-<up>" #'evil-window-move-far-up)
+(map! :leader :prefix "w" :n "S-<down>" #'evil-window-move-far-down)
 
-(map! :leader :prefix "r" :n "y" #'yank-from-kill-ring)
+(map! :v "s" #'evil-surround-region)
+
+(map! :leader :n "l" #'show-workspace-switcher)
+
+(map! :leader :prefix "g" :n "s" #'magit-status)
+(map! :leader :prefix "g" :n "t" #'git-timemachine)
+
+(map! :leader :prefix "r" :n "y" #'consult-yank-from-kill-ring)
 (map! :leader :prefix "r" :n "l" #'vertico-repeat-last)
 
-(map! :leader :n "l" #'+workspace/switch-to)
+(map! :leader :prefix "e" :n "n" #'flycheck-next-error)
+(map! :leader :prefix "e" :n "p" #'flycheck-previous-error)
+(map! :leader :prefix "e" :n "l" #'flycheck-list-errors)
 
-(after! typescript-mode
-  (map! :map typescript-mode-map :prefix "g" :n "d" #'tide-jump-to-definition)
-  (map! :map typescript-mode-map :prefix "g" :n "r" #'tide-references)
-  (map! :map typescript-mode-map :prefix "," :n "a" #'tide-fix)
+(map! :leader :prefix "c" :n "C" #'compile)
+(map! :leader :prefix "c" :n "r" #'recompile)
+
+(map! :n "r" #'evil-enter-replace-state)
+
+(map! :n "C-w" #'workspace-switcher)
+
+(after! tide
+  (map! :map tide-mode-map :prefix "g" :n "d" #'tide-jump-to-definition)
+  (map! :map tide-mode-map :prefix "g" :n "r" #'tide-references)
+
+  (map! :map tide-mode-map :localleader :n "a" #'tide-fix)
+  (map! :map tide-mode-map :localleader :nv "t" #'tide-refactor)
+  (map! :map tide-mode-map :localleader :prefix ["r" "r"] :n "s" nil)
+  (map! :map tide-mode-map :localleader :prefix "r" :n "r" #'tide-rename-symbol)
+  (map! :map tide-mode-map :localleader :prefix "r" :n "f" #'tide-rename-file)
+  (map! :map tide-mode-map :localleader :n "o" #'tide-organize-imports)
+  (map! :map tide-mode-map :localleader :prefix "S" :n "r" #'tide-restart-server)
   )
+
 
 (after! eshell
   (after! em-shell
@@ -101,29 +130,186 @@
     )
   )
 
-  (defun pcomplete/npm ()
-    "Completion for `npm'."
-    ;; Completion for the command argument.
-    (pcomplete-here* '("install" "run" "start" "publish" "update"))
+(defun pcomplete/npm ()
+  "Completion for `npm'."
+  ;; Completion for the command argument.
+  (pcomplete-here* '("install" "run" "start" "publish" "update"))
 
-    ;; complete files/dirs forever if the command is `add' or `rm'.
-    (when (pcomplete-match (regexp-opt '("run")) 1)
-      (pcomplete-here
-       (let* ((file (json-read-file "./package.json")))
-         (if file
-             (let* (
-                    (scripts-1 (cdr (assoc 'scripts file)))
-                    (scripts (cl-loop for (key . value) in scripts-1
-                                      collect (cons (symbol-name key) value)))
-                    (sorted-scripts (sort scripts (lambda (a b) (string< (car a) (car b)))))
-                    )
-               sorted-scripts
-               )
-           )
+  ;; complete files/dirs forever if the command is `add' or `rm'.
+  (when (pcomplete-match (regexp-opt '("run")) 1)
+    (pcomplete-here
+     (let* ((file (json-read-file "./package.json")))
+       (if file
+           (let* (
+                  (scripts-1 (cdr (assoc 'scripts file)))
+                  (scripts (cl-loop for (key . value) in scripts-1
+                                    collect (cons (symbol-name key) value)))
+                  (sorted-scripts (sort scripts (lambda (a b) (string< (car a) (car b)))))
+                  )
+             sorted-scripts
+             )
          )
-       )))
+       )
+     )))
+
+
+(setq sql-postgres-login-params nil)
+(setq sql-connection-alist
+      '((aperi       (sql-product 'postgres) (sql-database "aperi" (sql-user "aperi") (sql-password "aperi") (sql-server "localhost")))
+        (urwebschool (sql-product 'postgres) (sql-database "urwebschool") (sql-user "simon") (sql-server "localhost"))))
+
+(add-hook!
+ sql-interactive-mode
+ (set (make-local-variable 'company-backends)
+      '(company-dabbrev-code)
+      ))
 
 (use-package! urweb-mode
   :load-path "/home/simon/urweb/src/elisp"
   ;; configure your package here
+  )
+
+(use-package! emmet-mode
+  :hook (typescript-mode . emmet-mode)
+  :hook (typescript-tsx-mode . emmet-mode)
+  ;; configure your package here
+  )
+
+(defun workspace-switcher ()
+  (interactive)
+  (progn
+    (+workspace/other)
+    (show-workspace-switcher)
+    )
+
+(defun show-workspace-switcher ()
+  (interactive)
+  (progn
+    ;; Temporary change to how we want transient to show up
+    ;; We always want this to go full length over the bottom
+    ;; This option applies to all transient menus (including eg: magit)
+    ;; So we roll it back after our own
+    (setq transient-display-buffer-action
+          '(display-buffer-in-side-window
+            (side . bottom)
+            (inhibit-same-window . nil)
+            (window-parameters (no-other-window . t)))
+          )
+    (workspace-transient)
+    (setq transient-display-buffer-action
+          '(display-buffer-below-selected)
+          )
+    )
+  )
+
+(transient-define-prefix workspace-transient ()
+  "test"
+  :transient-non-suffix 'transient--do-quit-all ;; close transient state and popup buffer immediately when we use any other keybind
+  ["Existing Workspaces"
+   :class transient-row
+   :setup-children
+   (lambda (_els)
+     (transient-parse-suffixes
+      'workspace-transient
+      (let ((i 0))
+        (mapcar
+         (lambda (name)
+           (progn
+             (cl-incf i)
+             (let ((j i))
+               (list
+                (if (string= name (+workspace-current-name))
+                    (concat "(" (number-to-string j) ")")
+                  (number-to-string j))
+                name
+                (lambda () (interactive)
+                  (progn
+                    (+workspace/switch-to (- j 1))
+                    (show-workspace-switcher)
+                    ))
+                )
+               )
+             ))
+         (+workspace-list-names)
+         )))
+     )
+   ]
+  [
+   ;; :class transient-row
+   ["Modify"
+    ("<f1>" "New" +workspace/new-named ;; :transient transient--do-stay
+     )
+    ("<f5>" "Delete" (lambda ()
+                       (interactive)
+                       (progn
+                         (+workspace/delete (+workspace-current-name))
+                         (+workspace/switch-to-0)
+                         (show-workspace-switcher)
+                         )))
+    ]
+   ["Premade"
+    ("<f6>" "School sql" urwebschool-sql)
+    ("<f7>" "School logs" urwebschool-logs)
+    ("<f8>" "Aperi sql" aperi-sql)
+    ("<f9>" "Aperi logs" aperi-logs)
+    ]
+   ]
+  )
+
+(defun urwebschool-sql ()
+  (interactive)
+  (progn
+    (+workspace/new-named "school-sql")
+    (find-file "/home/simon/ur-proj/school/sqlscratchpad.sql")
+    (sql-connect "urwebschool")
+    )
+  )
+
+
+(defun urwebschool-logs ()
+  (interactive)
+  (let ((default-directory "/home/simon/ur-proj/school"))
+    (+workspace/new-named "school-logs")
+    (+vterm/here t)
+    (vterm-insert "npm run proxy")
+    (vterm-send-return)
+
+    (+evil/window-vsplit-and-follow)
+
+    (+vterm/here t)
+    (vterm-insert "./school.exe")
+    (vterm-send-return)
+
+    (+evil/window-vsplit-and-follow)
+
+    (+vterm/here t)
+    (vterm-insert "npm run classy")
+    (vterm-send-return)
+    )
+  )
+
+(defun aperi-sql ()
+  (interactive)
+  (progn
+    (+workspace/new-named "aperi-sql")
+    (find-file "/home/simon/projects/aperi-new/sqlscratchpad.sql")
+    (sql-connect "aperi")
+    )
+  )
+
+
+(defun aperi-logs ()
+  (interactive)
+  (let ((default-directory "/home/simon/projects/aperi-new"))
+    (+workspace/new-named "aperi-logs")
+    (+vterm/here t)
+    (vterm-insert "npm run engine")
+    (vterm-send-return)
+
+    (+evil/window-vsplit-and-follow)
+
+    (+vterm/here t)
+    (vterm-insert "npm run device")
+    (vterm-send-return)
+    )
   )
