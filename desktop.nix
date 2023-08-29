@@ -13,7 +13,7 @@
   boot.kernel.sysctl."net.ipv4.ip_forward" = true; # https://nixos.wiki/wiki/Gitlab_runner
   services.gitlab-runner = {
     enable = true;
-    concurrent = 16;
+    settings.concurrent = 16;
     services = {
       aperi-ci = {
         # File should contain at least these two variables:

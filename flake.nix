@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-22.11";
+    nixpkgs.url = "nixpkgs/nixos-23.05";
     nixos-hardware = {
       url = "github:nixos/nixos-hardware";
     };
@@ -34,9 +34,7 @@
         nixosConfigurations.nixos-x1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ({ config, pkgs, ... }: { nixpkgs.overlays = [ 
-               overlay 
-          ]; })
+            ({ config, pkgs, ... }: { nixpkgs.overlays = [overlay]; })
             "${nixos-hardware}/lenovo/thinkpad/x1/7th-gen"
             ./hardware-configuration-x1.nix
             ./configuration-shared.nix

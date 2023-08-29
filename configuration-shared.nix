@@ -128,7 +128,7 @@ in
   environment.systemPackages = with pkgs; [
     wget google-chrome firefox git
 
-    ((emacsPackagesFor emacsUnstable).emacsWithPackages (epkgs: [
+    ((emacsPackagesFor emacs-unstable).emacsWithPackages (epkgs: [
       epkgs.vterm
     ]))
 
