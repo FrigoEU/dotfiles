@@ -83,12 +83,12 @@
 (map! :n "<up>" #'evil-window-up)
 (map! :n "<down>" #'evil-window-down)
 
-(map! :leader :prefix "w" :n "S-<left>" #'evil-window-move-far-left)
-(map! :leader :prefix "w" :n "S-<right>" #'evil-window-move-far-right)
-(map! :leader :prefix "w" :n "S-<up>" #'evil-window-move-far-up)
-(map! :leader :prefix "w" :n "S-<down>" #'evil-window-move-far-down)
+(map! :leader :prefix "w" :n "S-<left>" #'+evil/window-move-left)
+(map! :leader :prefix "w" :n "S-<right>" #'+evil/window-move-right)
+(map! :leader :prefix "w" :n "S-<up>" #'+evil/window-move-up)
+(map! :leader :prefix "w" :n "S-<down>" #'+evil/window-move-down)
 
-(map! :v "s" #'evil-surround-region)
+(map! :v "s" #'evil-embrace-evil-surround-region)
 
 (map! :leader :n "l" #'show-workspace-switcher)
 
@@ -97,6 +97,14 @@
 
 (map! :leader :prefix "r" :n "y" #'consult-yank-from-kill-ring)
 (map! :leader :prefix "r" :n "l" #'vertico-repeat-last)
+
+(after! vertico-posframe
+  ;; copied the number from default, but hardcoded it so it doesn't shift
+  (setq vertico-posframe-width (round (* (frame-width) 0.62)))
+  (setq vertico-posframe-border-width 8)
+  (setq vertico-posframe-parameters
+        '((left-fringe . 8)
+          (right-fringe . 8))))
 
 (map! :leader :prefix "e" :n "n" #'flycheck-next-error)
 (map! :leader :prefix "e" :n "p" #'flycheck-previous-error)
@@ -113,6 +121,7 @@
   (map! :map tide-mode-map :prefix "g" :n "d" #'tide-jump-to-definition)
   (map! :map tide-mode-map :prefix "g" :n "r" #'tide-references)
 
+  (map! :map tide-mode-map :localleader :n "h" #'tide-documentation-at-point)
   (map! :map tide-mode-map :localleader :n "a" #'tide-fix)
   (map! :map tide-mode-map :localleader :nv "t" #'tide-refactor)
   (map! :map tide-mode-map :localleader :prefix ["r" "r"] :n "s" nil)
@@ -181,6 +190,7 @@
     (+workspace/other)
     (show-workspace-switcher)
     )
+  )
 
 (defun show-workspace-switcher ()
   (interactive)
@@ -237,9 +247,9 @@
   [
    ;; :class transient-row
    ["Modify"
-    ("<f1>" "New" +workspace/new-named ;; :transient transient--do-stay
+    ("n" "New" +workspace/new-named ;; :transient transient--do-stay
      )
-    ("<f5>" "Delete" (lambda ()
+    ("x" "Delete" (lambda ()
                        (interactive)
                        (progn
                          (+workspace/delete (+workspace-current-name))
