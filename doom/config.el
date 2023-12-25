@@ -98,6 +98,8 @@
 (map! :leader :prefix "r" :n "y" #'consult-yank-from-kill-ring)
 (map! :leader :prefix "r" :n "l" #'vertico-repeat-last)
 
+(setq scroll-margin 12)
+
 (after! vertico-posframe
   ;; copied the number from default, but hardcoded it so it doesn't shift
   (setq vertico-posframe-width (round (* (frame-width) 0.62)))
@@ -119,7 +121,7 @@
 
 (after! tide
   (map! :map tide-mode-map :prefix "g" :n "d" #'tide-jump-to-definition)
-  (map! :map tide-mode-map :prefix "g" :n "r" #'tide-references)
+  (map! :map tide-mode-map :prefix "g" :n "D" #'tide-references)
 
   (map! :map tide-mode-map :localleader :n "h" #'tide-documentation-at-point)
   (map! :map tide-mode-map :localleader :n "a" #'tide-fix)
@@ -165,7 +167,8 @@
 (setq sql-postgres-login-params nil)
 (setq sql-connection-alist
       '((aperi       (sql-product 'postgres) (sql-database "aperi" (sql-user "aperi") (sql-password "aperi") (sql-server "localhost")))
-        (urwebschool (sql-product 'postgres) (sql-database "urwebschool") (sql-user "simon") (sql-server "localhost"))))
+        (urwebschool (sql-product 'postgres) (sql-database "urwebschool") (sql-user "simon") (sql-server "localhost"))
+        ))
 
 (add-hook!
  sql-interactive-mode
@@ -275,6 +278,16 @@
     )
   )
 
+;; (defun urwebschool-sql-hamaril ()
+;;   (interactive)
+;;   (progn
+;;     (+workspace/new-named "school-sql-hamaril")
+;;     (find-file "/home/simon/ur-proj/school/sqlscratchpad.sql")
+;;     (let ((default-directory "/ssh:root@classyprod|sudo:postgres@classyprod:"))
+;;       (sql-connect "hamaril"))
+;;     )
+;;   )
+
 
 (defun urwebschool-logs ()
   (interactive)
@@ -293,7 +306,7 @@
     (+evil/window-vsplit-and-follow)
 
     (+vterm/here t)
-    (vterm-insert "npm run classy")
+    (vterm-insert "nodemon")
     (vterm-send-return)
     )
   )

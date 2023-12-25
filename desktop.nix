@@ -16,10 +16,11 @@
     settings.concurrent = 16;
     services = {
       aperi-ci = {
+        executor = "docker";
         # File should contain at least these two variables:
         # `CI_SERVER_URL=https://gitlab.com`
         # `REGISTRATION_TOKEN=hEtJFpnddxLEzyTdssnJ`
-        executor = "docker";
+        #
         registrationConfigFile = "/run/secrets/gitlab-runner-registration";
         dockerImage = "docker:stable";
         environmentVariables = { DOCKER_TLS_CERTDIR = ""; }; 

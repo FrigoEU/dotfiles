@@ -60,6 +60,7 @@ in
 192.168.202.240 showroom_500
 94.107.215.44 translations
 192.168.50.26 labo
+10.121.0.16 kl0063.aperigroup.com
 10.131.0.16 flightcase
 172.16.100.253 aperiproxy
   '';
@@ -126,7 +127,7 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    wget google-chrome firefox git
+    wget google-chrome firefox git xarchiver
 
     ((emacsPackagesFor emacs-unstable).emacsWithPackages (epkgs: [
       epkgs.vterm
@@ -173,7 +174,7 @@ in
 
     # alacritty
 
-    # nodejs # to get coc-nvim working
+    nodejs # to get coc-nvim working
 
     neovim
     gcc # to compile treesitter layouts
