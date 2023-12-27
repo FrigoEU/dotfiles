@@ -56,6 +56,7 @@ in
 10.141.0.15 kl2050.aperigroup.com
 23.88.107.148 classyprod
 159.69.6.177 classyacc
+159.69.6.177 prodtest3.classy.school
 192.168.202.235 showroom
 192.168.202.240 showroom_500
 94.107.215.44 translations
