@@ -108,9 +108,9 @@
         '((left-fringe . 8)
           (right-fringe . 8))))
 
-(map! :leader :prefix "e" :n "n" #'flycheck-next-error)
-(map! :leader :prefix "e" :n "p" #'flycheck-previous-error)
-(map! :leader :prefix "e" :n "l" #'flycheck-list-errors)
+;; (map! :leader :prefix "e" :n "n" #'flycheck-next-error)
+;; (map! :leader :prefix "e" :n "p" #'flycheck-previous-error)
+;; (map! :leader :prefix "e" :n "l" #'flycheck-list-errors)
 
 (map! :leader :prefix "c" :n "C" #'compile)
 (map! :leader :prefix "c" :n "r" #'recompile)
@@ -229,7 +229,7 @@
          (lambda (name)
            (progn
              (cl-incf i)
-             (let ((j i))
+             (lexical-let ((j i))
                (list
                 (if (string= name (+workspace-current-name))
                     (concat "(" (number-to-string j) ")")
@@ -253,12 +253,12 @@
     ("n" "New" +workspace/new-named ;; :transient transient--do-stay
      )
     ("x" "Delete" (lambda ()
-                       (interactive)
-                       (progn
-                         (+workspace/delete (+workspace-current-name))
-                         (+workspace/switch-to-0)
-                         (show-workspace-switcher)
-                         )))
+                    (interactive)
+                    (progn
+                      (+workspace/delete (+workspace-current-name))
+                      (+workspace/switch-to-0)
+                      (show-workspace-switcher)
+                      )))
     ]
    ["Premade"
     ("<f6>" "School sql" urwebschool-sql)
