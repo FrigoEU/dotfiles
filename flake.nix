@@ -41,5 +41,17 @@
             ./x1.nix
           ];
         };
+
+        # sudo nixos-rebuild switch --flake .#nixos-slim5
+        nixosConfigurations.nixos-slim5 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ({ config, pkgs, ... }: { nixpkgs.overlays = [overlay]; })
+            "${nixos-hardware}/lenovo/ideapad/slim5"
+            ./hardware-configuration-slim5.nix
+            ./configuration-shared.nix
+            ./x1.nix
+          ];
+        };
       };
 }
