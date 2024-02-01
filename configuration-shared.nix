@@ -27,15 +27,7 @@ in
     settings.auto-optimise-store = true;
   };
   # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
-  # boot.loader.grub.enable = true;
-  # boot.loader.grub.version = 2;
-  # boot.loader.grub.device = "/dev/nvme0n1";
-  # boot.loader.grub.devices = [ "nodev" ];
-  # boot.loader.grub.efiSupport = true;
-  # boot.loader.grub.useOSProber = true;
 
   # fill in <ifname> via nmcli device (eg: wlp0s20f3)
   # fill in <pw>
@@ -105,7 +97,7 @@ in
         monospace = ["PragmataPro"];
       };
     };
-    fonts = [
+    packages = [
       pragmatapro
       pkgs.victor-mono
     ];
@@ -130,7 +122,7 @@ in
   environment.systemPackages = with pkgs; [
     wget google-chrome firefox git xarchiver
 
-    ((emacsPackagesFor emacs-unstable).emacsWithPackages (epkgs: [
+    ((emacsPackagesFor emacs29).emacsWithPackages (epkgs: [
       epkgs.vterm
     ]))
 
@@ -200,11 +192,6 @@ in
   environment.pathsToLink = [
     "/share/nix-direnv"
   ];
-  # nix-direnv support for flakes 
-  nixpkgs.overlays = [
-    (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; } )
-  ];
-
   virtualisation.docker.enable = true;
 
   # services.mysql = {
@@ -291,8 +278,8 @@ in
    services.xserver.displayManager.sddm.enable = true;
    services.xserver.displayManager.autoLogin.user = "simon";
    services.xserver.displayManager.autoLogin.enable = true;
-   #security.pam.services.sddm.enableKwallet = true;
-   #services.xserver.libinput.mouse.leftHanded = true;
+   security.pam.services.sddm.enableKwallet = true;
+   services.xserver.libinput.mouse.leftHanded = true;
 
   # OLD
    # environment.variables.PLASMA_USE_QT_SCALING = "1";

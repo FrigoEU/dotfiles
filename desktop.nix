@@ -4,6 +4,13 @@
   services.xserver.layout = "us";
   services.xserver.videoDrivers = [ "amdgpu" ];
 
+  boot.loader.grub.enable = true;
+  boot.loader.grub.version = 2;
+  boot.loader.grub.device = "/dev/nvme0n1";
+  boot.loader.grub.devices = [ "nodev" ];
+  boot.loader.grub.efiSupport = true;
+  boot.loader.grub.useOSProber = true;
+
   services.plex = {
     enable = true;
     openFirewall = true;

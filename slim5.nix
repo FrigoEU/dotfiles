@@ -1,5 +1,6 @@
 { config, lib, pkgs, ... }:
 {
+  boot.loader.systemd-boot.enable = true;
 
   networking.hostName = "nixos-slim5"; # Define your hostname.
   services.xserver.layout = "be";
@@ -10,13 +11,13 @@
 
   # networking.interfaces.enp0s31f6.useDHCP = true;
   # networking.interfaces.wlp0s20f3.useDHCP = true;
-  security.rtkit.enable = true;
-services.pipewire = {
-enable = true;
-alsa.enable= true;
-alsa.support32Bit = true;
-pulse.enable = true;
-};
+  # security.rtkit.enable = true;
+# services.pipewire = {
+# enable = true;
+# alsa.enable= true;
+# alsa.support32Bit = true;
+# pulse.enable = true;
+# };
 
   
 
