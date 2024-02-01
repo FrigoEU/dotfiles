@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-22.11";
+    nixpkgs.url = "nixpkgs/nixos-23.11";
     nixos-hardware = {
       url = "github:nixos/nixos-hardware";
     };
@@ -47,7 +47,7 @@
           system = "x86_64-linux";
           modules = [
             ({ config, pkgs, ... }: { nixpkgs.overlays = [overlay]; })
-            "${nixos-hardware}/lenovo/ideapad/slim5"
+            "${nixos-hardware}/lenovo/ideapad/slim-5"
             ./hardware-configuration-slim5.nix
             ./configuration-shared.nix
             ./x1.nix
