@@ -27,15 +27,15 @@ in
     settings.auto-optimise-store = true;
   };
   # Use the systemd-boot EFI boot loader.
-  # boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
+  # boot.loader.grub.enable = true;
+  # boot.loader.grub.version = 2;
   # boot.loader.grub.device = "/dev/nvme0n1";
-  boot.loader.grub.devices = [ "nodev" ];
-  boot.loader.grub.efiSupport = true;
-  boot.loader.grub.useOSProber = true;
+  # boot.loader.grub.devices = [ "nodev" ];
+  # boot.loader.grub.efiSupport = true;
+  # boot.loader.grub.useOSProber = true;
 
   # fill in <ifname> via nmcli device (eg: wlp0s20f3)
   # fill in <pw>
@@ -262,7 +262,7 @@ in
     443
     80
   ];
-  services.avahi.enable = true; # VLC chromecasting
+  # services.avahi.enable = true; # VLC chromecasting
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
@@ -291,15 +291,15 @@ in
    services.xserver.displayManager.sddm.enable = true;
    services.xserver.displayManager.autoLogin.user = "simon";
    services.xserver.displayManager.autoLogin.enable = true;
-   security.pam.services.sddm.enableKwallet = true;
-   services.xserver.libinput.mouse.leftHanded = true;
+   #security.pam.services.sddm.enableKwallet = true;
+   #services.xserver.libinput.mouse.leftHanded = true;
 
   # OLD
-  # environment.variables.PLASMA_USE_QT_SCALING = "1";
-  # services.xserver.desktopManager.xfce.enable = true;
-  # services.xserver.desktopManager.lumina.enable = true;
-  # services.xserver.displayManager.lightdm.enable = true;
-  # security.pam.services.lightdm.enableKwallet = true;
+   # environment.variables.PLASMA_USE_QT_SCALING = "1";
+   # services.xserver.desktopManager.xfce.enable = true;
+  #  services.xserver.desktopManager.lumina.enable = true;
+   # services.xserver.displayManager.lightdm.enable = true;
+   # security.pam.services.lightdm.enableKwallet = true;
 
 
   # EXWM: Emacs Window Manager
@@ -329,16 +329,6 @@ in
   };
 
 
-  # Gamepad stuff
-  services.udev.extraRules = ''
-
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2300", SYMLINK+="model01", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2301", SYMLINK+="model01", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2302", SYMLINK+="Atreus2", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="2303", SYMLINK+="Atreus2", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="3496", ATTRS{idProduct}=="0005", SYMLINK+="model100", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="3496", ATTRS{idProduct}=="0006", SYMLINK+="model100", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_CANDIDATE}="0", TAG+="uaccess", TAG+="seat"
-'';
   #   # https://steamcommunity.com/app/353370/discussions/0/490123197956024380/
   #   # This rule is necessary for gamepad emulation.
   #   KERNEL=="uinput", MODE="0660", GROUP="users", OPTIONS+="static_node=uinput"

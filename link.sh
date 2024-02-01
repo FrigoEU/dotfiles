@@ -18,6 +18,6 @@ ln -s $PWD/doom/packages.el ~/.config/doom/packages.el
 ln -s $PWD/doom/config.el ~/.config/doom/config.el
 
 # for x1:
-# sudo ln -s $PWD/flake.nix /etc/nixos/flake.nix
+sudo ln -s $PWD/flake.nix /etc/nixos/flake.nix
 
 # ln -s $PWD/spacemacsOS ~/.emacs.d/private/exwm

@@ -1,23 +1,13 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-23.11";
+    nixpkgs.url = "nixpkgs/nixos-22.11";
     nixos-hardware = {
-      url = "github:nixos/nixos-hardware";
-    };
-    emacs-overlay = {
-      url    = "github:nix-community/emacs-overlay";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
-  };
-  outputs = { self, nixpkgs, nixos-hardware, emacs-overlay }:
-    let
-      overlay = final: prev: (import nixpkgs {
-        system = "x86_64-linux";
-        config.allowUnfree = true;
-        overlays = [ emacs-overlay.overlay ];
-      });
+      url = "github:NixOS/nixos-hardware"; 
+    }; 
+    emacs-overlay = { url    = "github:nix-community/emacs-overlay"; inputs = { nixpkgs.follows = "nixpkgs"; }; }; 
+  }; 
+  outputs = { self, nixpkgs, nixos-hardware, emacs-overlay }: 
+  let overlay = final: prev: (import nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; overlays = [ emacs-overlay.overlay ]; });
     in
       {
         nixosConfigurations.nixos-desktop = nixpkgs.lib.nixosSystem {
@@ -47,10 +37,15 @@
           system = "x86_64-linux";
           modules = [
             ({ config, pkgs, ... }: { nixpkgs.overlays = [overlay]; })
-            "${nixos-hardware}/lenovo/ideapad/slim-5"
+       #     "${nixos-hardware}/lenovo/ideapad/z510"
+             # "${nixos-hardware}/common/cpu/intel"
+             # "${nixos-hardware}/common/gpu/intel"
+             # "${nixos-hardware}/common/pc/laptop"
+             # "${nixos-hardware}/common/pc/laptop/acpi_call.nix"
+             # "${nixos-hardware}/common/pc/laptop/ssd"
             ./hardware-configuration-slim5.nix
             ./configuration-shared.nix
-            ./x1.nix
+            ./slim5.nix
           ];
         };
       };
