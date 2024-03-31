@@ -10,6 +10,8 @@
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
 
+  networking.networkmanager.enable = true;
+
   services.plex = {
     enable = true;
     openFirewall = true;

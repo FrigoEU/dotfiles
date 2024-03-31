@@ -100,6 +100,7 @@ in
     packages = [
       pragmatapro
       pkgs.victor-mono
+      pkgs.commit-mono
     ];
   };
 
@@ -124,6 +125,7 @@ in
 
     ((emacsPackagesFor emacs29).emacsWithPackages (epkgs: [
       epkgs.vterm
+      # epkgs.treesit-grammars.with-all-grammars
     ]))
 
     # linphone
@@ -239,7 +241,9 @@ in
 
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [
-    8080
+    8080 # school testing
+    8081 # school testing
+    8082 # school testing
     8010 # VLC chromecast
     8000 # docker testing
     8001 # docker testing
