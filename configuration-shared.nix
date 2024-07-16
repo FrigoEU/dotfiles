@@ -281,11 +281,11 @@ in
   # Enable the KDE Desktop Environment.
    services.xserver.desktopManager.plasma5.enable = true;
    # services.xserver.desktopManager.plasma5.useQtScaling = false;
-   services.xserver.displayManager.sddm.enable = true;
-   services.xserver.displayManager.autoLogin.user = "simon";
-   services.xserver.displayManager.autoLogin.enable = true;
+   services.displayManager.sddm.enable = true;
+   services.displayManager.autoLogin.user = "simon";
+   services.displayManager.autoLogin.enable = true;
    security.pam.services.sddm.enableKwallet = true;
-   services.xserver.libinput.mouse.leftHanded = true;
+   services.libinput.mouse.leftHanded = true;
 
   # OLD
    # environment.variables.PLASMA_USE_QT_SCALING = "1";
