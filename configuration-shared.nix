@@ -134,6 +134,9 @@ in
 
     htop jq
     du-dust
+
+    deluge # torrents
+    mpv # media player
     # android-studio
 
     gnumake direnv nix-direnv libnotify
