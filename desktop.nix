@@ -29,7 +29,7 @@
         executor = "docker";
         # File should contain at least these two variables:
         # CI_SERVER_URL=https://gitlab.com
-        # REGISTRATION_TOKEN=GR1348941RQ673odSZkfXu-y2eRBy
+        # REGISTRATION_TOKEN=<token>
         #
         registrationConfigFile = "/run/secrets/gitlab-runner-registration";
         dockerImage = "alpine";
