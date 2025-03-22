@@ -168,7 +168,7 @@ in
 
     pragmatapro
 
-    chrysalis
+    # chrysalis
 
     # zoom-us
 
