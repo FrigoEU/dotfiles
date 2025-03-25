@@ -17,7 +17,7 @@ let
 in
 {
   nix = {
-    package = pkgs.nixFlakes;
+    package = pkgs.nixVersions.stable;
     # keep-outputs + keep-derivations: for nix-direnv
     extraOptions = ''
       experimental-features = nix-command flakes
@@ -52,12 +52,15 @@ in
 192.168.202.235 showroom
 192.168.202.240 showroom_500
 94.107.215.44 translations
-192.168.50.26 labo
 10.121.0.16 kl0063.aperigroup.com
 10.131.0.16 flightcase
 172.16.100.253 aperiproxy
 # Keiheuvel
 10.21.16.87 keiheuvel
+10.21.16.95 puthof
+10.21.16.27 diepenbroeck
+10.21.16.97 labo
+10.21.16.77 vauban
   '';
 
  # 10.141.1.127
@@ -182,6 +185,7 @@ in
     # luajitPackages.lua-lsp
     # jumpapp # custom neovim "workspaces" solution
 
+    libreoffice
 
     # cockroachdb
 
@@ -267,7 +271,7 @@ in
   # services.printing.enable = true;
 
   # Enable sound.
-  sound.enable = true;
+  # sound.enable = true;
   nixpkgs.config.pulseaudio = true;
 
   environment.variables.BROWSER = "firefox";

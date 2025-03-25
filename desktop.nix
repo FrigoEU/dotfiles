@@ -13,6 +13,8 @@
 
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
   services.xserver.videoDrivers = ["nvidia"];
+  hardware.nvidia.open = false;
+  hardware.bluetooth.enable = true;
 
   # services.plex = {
   #  enable = true;
