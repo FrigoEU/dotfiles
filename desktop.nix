@@ -6,6 +6,7 @@
   boot.loader.grub.enable = true;
   # boot.loader.grub.device = "/dev/nvme0n1";
   boot.loader.grub.devices = [ "nodev" ];
+  boot.loader.grub.configurationLimit = 10;
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
 
