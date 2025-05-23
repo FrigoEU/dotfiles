@@ -40,30 +40,30 @@ in
 159.69.6.177 classyacc
 159.69.6.177 prodtest3.classy.school
   '';
-# 192.168.202.235 showroom
-# 192.168.202.240 showroom_500
-# 94.107.215.44 translations
-# 10.121.0.16 kl0063.aperigroup.com
-# 10.131.0.16 flightcase
-# 172.16.100.253 aperiproxy
-# # Keiheuvel
-# 10.21.16.87 keiheuvel
-# 10.21.16.95 puthof
-# 10.21.16.27 diepenbroeck
-# 10.21.16.97 labo
-# 10.21.16.77 vauban
-# 192.168.50.30 kl2376.aperigroup.com
-# # Jacky Maes
-# 10.120.0.20 kl9861.aperigroup.com
-# 192.168.50.17 kl9999.aperigroup.com
-# # De Vijvers
-# 10.107.4.16 kl0044.aperigroup.com
-# 192.168.50.18 webrtcdemo.aperigroup.com
-# 172.20.4.20 kl0091.aperigroup.com
-# 10.210.0.15 kl0108.aperigroup.com
-# 10.141.0.15 kl2050.aperigroup.com
+  # 192.168.202.235 showroom
+  # 192.168.202.240 showroom_500
+  # 94.107.215.44 translations
+  # 10.121.0.16 kl0063.aperigroup.com
+  # 10.131.0.16 flightcase
+  # 172.16.100.253 aperiproxy
+  # # Keiheuvel
+  # 10.21.16.87 keiheuvel
+  # 10.21.16.95 puthof
+  # 10.21.16.27 diepenbroeck
+  # 10.21.16.97 labo
+  # 10.21.16.77 vauban
+  # 192.168.50.30 kl2376.aperigroup.com
+  # # Jacky Maes
+  # 10.120.0.20 kl9861.aperigroup.com
+  # 192.168.50.17 kl9999.aperigroup.com
+  # # De Vijvers
+  # 10.107.4.16 kl0044.aperigroup.com
+  # 192.168.50.18 webrtcdemo.aperigroup.com
+  # 172.20.4.20 kl0091.aperigroup.com
+  # 10.210.0.15 kl0108.aperigroup.com
+  # 10.141.0.15 kl2050.aperigroup.com
 
- # 10.141.1.127
+  # 10.141.1.127
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -128,7 +128,7 @@ in
   environment.systemPackages = with pkgs; [
     wget google-chrome firefox git xarchiver
 
-    ((emacsPackagesFor emacs29).emacsWithPackages (epkgs: [
+    ((emacsPackagesFor emacs).emacsWithPackages (epkgs: [
       epkgs.vterm
       # epkgs.treesit-grammars.with-all-grammars
     ]))
@@ -251,7 +251,7 @@ in
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+  # services.openssh.enable = true;
   programs.ssh.startAgent = true; # Using keys in ~/.ssh to eg. authenticate with Github / Bitbucket
 
   # Open ports in the firewall.
@@ -292,20 +292,25 @@ in
   services.xserver.enable = true;
 
   # Enable the KDE Desktop Environment.
-   services.xserver.desktopManager.plasma5.enable = true;
-   # services.xserver.desktopManager.plasma5.useQtScaling = false;
-   services.displayManager.sddm.enable = true;
-   services.displayManager.autoLogin.user = "simon";
-   services.displayManager.autoLogin.enable = true;
-   security.pam.services.sddm.enableKwallet = true;
-   services.libinput.mouse.leftHanded = true;
+  # services.xserver.desktopManager.plasma5.enable = true;
+  services.desktopManager.plasma6.enable = true;
+
+  # In case you boot into a black screen, add the following option, and rebuild:
+  # services.xserver.displayManager.sddm.wayland.enable = true;
+
+  # services.xserver.desktopManager.plasma5.useQtScaling = false;
+  services.displayManager.sddm.enable = true;
+  services.displayManager.autoLogin.user = "simon";
+  services.displayManager.autoLogin.enable = true;
+  security.pam.services.sddm.enableKwallet = true;
+  services.libinput.mouse.leftHanded = true;
 
   # OLD
-   # environment.variables.PLASMA_USE_QT_SCALING = "1";
-   # services.xserver.desktopManager.xfce.enable = true;
+  # environment.variables.PLASMA_USE_QT_SCALING = "1";
+  # services.xserver.desktopManager.xfce.enable = true;
   #  services.xserver.desktopManager.lumina.enable = true;
-   # services.xserver.displayManager.lightdm.enable = true;
-   # security.pam.services.lightdm.enableKwallet = true;
+  # services.xserver.displayManager.lightdm.enable = true;
+  # security.pam.services.lightdm.enableKwallet = true;
 
 
   # EXWM: Emacs Window Manager
