@@ -2,8 +2,13 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-# sudo nix-channel --list is different from nix-channel --list !
-# update: sudo nixos-rebuild switch --upgrade
+# !!!
+# Problems rebuilding NixOS (kernel), not enough space in /boot
+# Action I took:
+# > sudo nix-collect-garbage -d       # Didn't actually do anything
+# > dust /boot                        
+# # Deleted linux kernel vs 6.6.66, wasn't used anywhere, was from previous attempt but was not cleaned up
+# # Deleted Windows Asian font files, eg: /boot/EFI/Microsoft/Boot/Fonts/kor_boot.ttf
 
 { config, pkgs, lib, ... }:
 
