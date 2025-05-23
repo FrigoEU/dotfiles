@@ -7,8 +7,10 @@
 # Action I took:
 # > sudo nix-collect-garbage -d       # Didn't actually do anything
 # > dust /boot                        
-# # Deleted linux kernel vs 6.6.66, wasn't used anywhere, was from previous attempt but was not cleaned up
+# # Deleted linux kernel vs 6.6.66, wasn't used anywhere, was from previous attempt but was not cleaned up, use "> uname -r" to get current kernel version
 # # Deleted Windows Asian font files, eg: /boot/EFI/Microsoft/Boot/Fonts/kor_boot.ttf
+#
+# See also: https://discourse.nixos.org/t/no-space-left-on-boot/24019/20
 
 { config, pkgs, lib, ... }:
 
