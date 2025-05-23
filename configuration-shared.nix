@@ -136,7 +136,7 @@ in
     # linphone
 
     htop jq
-    # du-dust
+    du-dust
 
     # deluge # torrents
     # mpv # media player

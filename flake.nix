@@ -1,13 +1,13 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-25.05";
+    nixpkgs.url = "nixpkgs/nixos-24.11";
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware"; 
     }; 
     # emacs-overlay = { url    = "github:nix-community/emacs-overlay"; inputs = { nixpkgs.follows = "nixpkgs"; }; }; 
   }; 
   outputs = {
-    self, nixpkgs, nixos-hardware# , emacs-overlay
+    self, nixpkgs, nixos-hardware # , emacs-overlay
   }: 
     let overlay = final: prev: (
           import nixpkgs { 
