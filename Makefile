@@ -1,5 +1,5 @@
-x1:
-	sudo nixos-rebuild switch --flake .#nixos-x1
+# x1:
+# 	sudo nixos-rebuild switch --flake .#nixos-x1
 
 slim5:
 	sudo nixos-rebuild switch --flake .#nixos-slim5

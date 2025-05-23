@@ -36,32 +36,32 @@ in
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.extraHosts =
     ''
-192.168.50.30 kl2376.aperigroup.com
-# Jacky Maes
-10.120.0.20 kl9861.aperigroup.com
-192.168.50.17 kl9999.aperigroup.com
-# De Vijvers
-10.107.4.16 kl0044.aperigroup.com
-192.168.50.18 webrtcdemo.aperigroup.com
-172.20.4.20 kl0091.aperigroup.com
-10.210.0.15 kl0108.aperigroup.com
-10.141.0.15 kl2050.aperigroup.com
 23.88.107.148 classyprod
 159.69.6.177 classyacc
 159.69.6.177 prodtest3.classy.school
-192.168.202.235 showroom
-192.168.202.240 showroom_500
-94.107.215.44 translations
-10.121.0.16 kl0063.aperigroup.com
-10.131.0.16 flightcase
-172.16.100.253 aperiproxy
-# Keiheuvel
-10.21.16.87 keiheuvel
-10.21.16.95 puthof
-10.21.16.27 diepenbroeck
-10.21.16.97 labo
-10.21.16.77 vauban
   '';
+# 192.168.202.235 showroom
+# 192.168.202.240 showroom_500
+# 94.107.215.44 translations
+# 10.121.0.16 kl0063.aperigroup.com
+# 10.131.0.16 flightcase
+# 172.16.100.253 aperiproxy
+# # Keiheuvel
+# 10.21.16.87 keiheuvel
+# 10.21.16.95 puthof
+# 10.21.16.27 diepenbroeck
+# 10.21.16.97 labo
+# 10.21.16.77 vauban
+# 192.168.50.30 kl2376.aperigroup.com
+# # Jacky Maes
+# 10.120.0.20 kl9861.aperigroup.com
+# 192.168.50.17 kl9999.aperigroup.com
+# # De Vijvers
+# 10.107.4.16 kl0044.aperigroup.com
+# 192.168.50.18 webrtcdemo.aperigroup.com
+# 172.20.4.20 kl0091.aperigroup.com
+# 10.210.0.15 kl0108.aperigroup.com
+# 10.141.0.15 kl2050.aperigroup.com
 
  # 10.141.1.127
 
@@ -136,10 +136,10 @@ in
     # linphone
 
     htop jq
-    du-dust
+    # du-dust
 
-    deluge # torrents
-    mpv # media player
+    # deluge # torrents
+    # mpv # media player
     # android-studio
 
     gnumake direnv nix-direnv libnotify
@@ -147,7 +147,7 @@ in
     unzip
     autoconf automake libtool
 
-    vscode
+    # vscode
     # blender
     # unityhub
     # omnisharp-roslyn
@@ -158,8 +158,8 @@ in
 
     # pgformatter
 
-    docker
-    docker-compose
+    # docker
+    # docker-compose
 
     # obs-studio
     # jdk8
@@ -167,7 +167,6 @@ in
     # jetbrains.idea-community
     # maven
 
-    neovide
 
     pragmatapro
 
@@ -177,9 +176,10 @@ in
 
     # alacritty
 
-    nodejs # to get coc-nvim working
+    # nodejs # to get coc-nvim working
 
     neovim
+    neovide
     gcc # to compile treesitter layouts
     xclip # For neovim clipboard integration
     # luajitPackages.lua-lsp
@@ -194,15 +194,21 @@ in
     #   DBI
     #   DBDPg
     # ])) # edbi -> dbi:Pg:dbname=urwebschool
+
+    # Aider / Aidermacs
+    aider-chat
+    python312Packages.pip
+    python312Packages.google-generativeai
   ];
   services.lorri.enable = true;
   #services.tlp.enable = true;
 
   # nix-direnv
   # https://github.com/nix-community/nix-direnv#via-configurationnix-in-nixos
-  environment.pathsToLink = [
-    "/share/nix-direnv"
-  ];
+  # environment.pathsToLink = [
+  #   "/share/nix-direnv"
+  # ];
+  programs.direnv.enable = true;
   virtualisation.docker.enable = true;
 
   # services.mysql = {
@@ -254,11 +260,11 @@ in
     8081 # school testing
     8082 # school testing
     8010 # VLC chromecast
-    8000 # docker testing
-    8001 # docker testing
-    8002 # docker testing
-    8003 # engine testing
-    7775 # docker testing
+    # 8000 # docker testing
+    # 8001 # docker testing
+    # 8002 # docker testing
+    # 8003 # engine testing
+    # 7775 # docker testing
     443
     80
   ];
