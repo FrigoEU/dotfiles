@@ -7,6 +7,9 @@ ln -s $PWD/.bashrc ~/.bashrc
 ln -s $PWD/.spacemacs ~/.spacemacs
 ln -s $PWD/.alacritty.yml ~/.alacritty.yml
 
+mkdir -p ~/.config/direnv
+ln -s $PWD/.direnv.toml ~/.config/direnv/direnv.toml
+
 mkdir -p ~/.config/nvim
 ln -s $PWD/init.lua ~/.config/nvim/init.lua
 ln -s $PWD/coc-settings.json ~/.config/nvim/coc-settings.json

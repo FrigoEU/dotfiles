@@ -207,6 +207,20 @@ in
     python312Packages.pip
     python312Packages.google-generativeai
   ];
+
+  environment.extraInit = ''
+    if [ -f "$HOME/.secrets" ]; then
+      set -a               # Automatically export all variables
+      . "$HOME/.secrets"   # Source the file (POSIX-compliant)
+      set +a               # Stop automatically exporting
+    fi
+  '';
+
+  # Add an alias for on-demand sourcing in interactive shells
+  environment.interactiveShellInit = ''
+    alias loadsecrets='if [ -f "$HOME/.secrets" ]; then set -a && . "$HOME/.secrets" && set +a; else echo "~/.secrets not found" >&2; fi'
+  '';
+
   services.lorri.enable = true;
   #services.tlp.enable = true;
 
