@@ -48,8 +48,8 @@
             "${nixos-hardware}/common/cpu/intel"
             "${nixos-hardware}/common/gpu/intel"
             "${nixos-hardware}/common/pc/laptop"
-            "${nixos-hardware}/common/pc/laptop/acpi_call.nix"
-            "${nixos-hardware}/common/pc/laptop/ssd"
+            # "${nixos-hardware}/common/pc/laptop/acpi_call.nix"
+            "${nixos-hardware}/common/pc/ssd"
             ./hardware-configuration-slim5.nix
             # ./conf-default.nix
             ./configuration-shared.nix
