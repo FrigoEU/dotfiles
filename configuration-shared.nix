@@ -21,6 +21,19 @@ let
                                          };
   dockerRegistryPort = 5000;
   dockerRegistryConfigPath = "/tmp/daemon.json";
+  # A sound from sound-theme-freedesktop
+  claudeNotifySound =
+    "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/message-new-instant.oga";
+
+  # Script that shows a desktop notification and plays the sound
+  claudeWaitNotify = pkgs.writeShellScriptBin "claude-wait-notify" ''
+    #!${pkgs.runtimeShell}
+    ${pkgs.libnotify}/bin/notify-send \
+      "Claude Code is waiting for input" \
+      "Switch to your editor to continue."
+
+    ${pkgs.pulseaudio}/bin/paplay ${claudeNotifySound}
+  '';
 in
 {
   nix = {
@@ -154,6 +167,8 @@ in
     unzip
     autoconf automake libtool
 
+    claudeWaitNotify
+
     # vscode
     # blender
     # unityhub
@@ -193,6 +208,9 @@ in
     # jumpapp # custom neovim "workspaces" solution
 
     libreoffice
+
+    vlc
+    
 
     # cockroachdb
 

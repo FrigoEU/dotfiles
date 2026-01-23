@@ -15,6 +15,9 @@ ln -s $PWD/init.lua ~/.config/nvim/init.lua
 ln -s $PWD/coc-settings.json ~/.config/nvim/coc-settings.json
 ln -sf $PWD/lua/ ~/.config/nvim/.
 
+mkdir -p ~/.claude/settings
+ln -s $PWD/claude-settings.json ~/.claude/settings.json
+
 mkdir -p ~/.config/doom
 ln -s $PWD/doom/init.el ~/.config/doom/init.el
 ln -s $PWD/doom/packages.el ~/.config/doom/packages.el
