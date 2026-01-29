@@ -1,4 +1,24 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git stash:*)",
+      "Bash(git status:*)",
+      "Bash(make:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": []
+  },
+  "includeCoAuthoredBy": false,
+  "defaultMode": "acceptEdits",
   "hooks": {
     "Notification": [
       {
