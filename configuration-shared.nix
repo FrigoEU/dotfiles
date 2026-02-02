@@ -12,7 +12,7 @@
 #
 # See also: https://discourse.nixos.org/t/no-space-left-on-boot/24019/20
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, llm-agents }:
 
 let
   pragmatapro = import ./pragmatapro.nix {runCommand = pkgs.runCommand;
@@ -158,7 +158,7 @@ in
     htop jq
     du-dust
 
-    # deluge # torrents
+    deluge # torrents
     # mpv # media player
     # android-studio
 
@@ -224,6 +224,11 @@ in
     aider-chat
     python312Packages.pip
     python312Packages.google-generativeai
+
+    llm-agents.claude-code
+    llm-agents.claude-code-acp
+    llm-agents.vibe-kanban
+
   ];
 
   environment.extraInit = ''
@@ -294,20 +299,35 @@ in
   programs.ssh.startAgent = true; # Using keys in ~/.ssh to eg. authenticate with Github / Bitbucket
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [
-    8080 # school testing
-    8081 # school testing
-    8082 # school testing
-    8010 # VLC chromecast
-    # 8000 # docker testing
-    # 8001 # docker testing
-    # 8002 # docker testing
-    # 8003 # engine testing
-    # 7775 # docker testing
-    443
-    80
-  ];
+  networking.firewall = {
+    allowedTCPPorts = [
+      8080 # school testing
+      8081 # school testing
+      8082 # school testing
+      8010 # VLC chromecast
+      # 8000 # docker testing
+      # 8001 # docker testing
+      # 8002 # docker testing
+      # 8003 # engine testing
+      # 7775 # docker testing
+      443
+      80
+
+      # chromecasting
+      # 8008
+      # 8009
+    ];
+
+    # # For chromecast discovery (mDNS and SSDP)
+    # allowedUDPPorts = [ 5353 1900 ];
+
+    # # For chromecast: the actual streaming traffic
+    # allowedUDPPortRanges = [
+    #   { from = 32768; to = 61000; }
+    # ];
+  };
   # services.avahi.enable = true; # VLC chromecasting
+
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;

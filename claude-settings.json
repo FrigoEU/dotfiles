@@ -19,6 +19,7 @@
   },
   "includeCoAuthoredBy": false,
   "defaultMode": "acceptEdits",
+  "enabledPlugins": {"typescript-lsp@claude-plugins-official": true},
   "hooks": {
     "Notification": [
       {
@@ -32,5 +33,6 @@
         ]
       }
     ]
-  }
+  },
+  "includeCoAuthoredBy": false
 }

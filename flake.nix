@@ -4,44 +4,43 @@
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware"; 
     }; 
+    llm-agents.url = "github:numtide/llm-agents.nix";
     # emacs-overlay = { url    = "github:nix-community/emacs-overlay"; inputs = { nixpkgs.follows = "nixpkgs"; }; }; 
   }; 
   outputs = {
-    self, nixpkgs, nixos-hardware # , emacs-overlay
+    self, nixpkgs, nixos-hardware, llm-agents # , emacs-overlay
   }: 
-    let overlay = final: prev: (
-          import nixpkgs { 
-            system = "x86_64-linux"; 
-            config.allowUnfree = true; 
-            overlays = [
-              # emacs-overlay.overlay
-            ]; 
-          });
+    let
+      # overlay = final: prev: (
+      #     import nixpkgs { 
+      #       system = "x86_64-linux"; 
+      #       config.allowUnfree = true; 
+      #       overlays = [
+      #         # llm-agents.overlays.default
+      #         # emacs-overlay.overlay
+      #       ]; 
+      #     });
+      system = "x86_64-linux";
     in
       {
         nixosConfigurations.nixos-desktop = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
+          inherit system;
           modules = [
             ./hardware-configuration-desktop.nix
-            ./configuration-shared.nix
+            ({config, pkgs, lib, ...}: 
+              import ./configuration-shared.nix {
+                inherit config;
+                inherit pkgs;
+                inherit lib;
+                llm-agents = llm-agents.packages.${system};
+              })
             ./desktop.nix
-          ];
-        };
-
-        # sudo nixos-rebuild switch --flake .#nixos-x1
-        nixosConfigurations.nixos-x1 = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            "${nixos-hardware}/lenovo/thinkpad/x1/7th-gen"
-            ./hardware-configuration-x1.nix
-            ./configuration-shared.nix
-            ./x1.nix
           ];
         };
 
         # sudo nixos-rebuild switch --flake .#nixos-slim5
         nixosConfigurations.nixos-slim5 = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
+          inherit system;
           modules = [
             # ({ config, pkgs, ... }: {  nixpkgs.overlays = [overlay]; })
             #     "${nixos-hardware}/lenovo/ideapad/z510"
@@ -52,9 +51,20 @@
             "${nixos-hardware}/common/pc/ssd"
             ./hardware-configuration-slim5.nix
             # ./conf-default.nix
-            ./configuration-shared.nix
+
+            ({config, pkgs, lib, ...}: 
+              import ./configuration-shared.nix {
+                inherit config;
+                inherit pkgs;
+                inherit lib;
+                llm-agents = llm-agents.packages.${system};
+              })
             ./slim5.nix
           ];
         };
       };
+  nixConfig = {
+    extra-substituters = [ "https://cache.numtide.com" ];
+    extra-trusted-public-keys = [ "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=" ];
+  };
 }
