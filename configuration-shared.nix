@@ -113,6 +113,7 @@ in
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Select internationalisation properties.plasma
+
   i18n = {
     defaultLocale = "en_US.UTF-8";
   };
@@ -353,6 +354,20 @@ in
   # Enable the KDE Desktop Environment.
   # services.xserver.desktopManager.plasma5.enable = true;
   services.desktopManager.plasma6.enable = true;
+
+  # Don't restart emacs every time (vterm will not work): start with an empty session
+  environment.etc."xdg/plasma-workspace/env/10-force-empty-session.sh" = {
+    mode = "0755";
+    text = ''
+      #!${pkgs.runtimeShell}
+      # Force KDE to always start with an empty session
+      ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
+        --file ksmserverrc \
+        --group General \
+        --key loginMode \
+        emptySession
+    '';
+  };
 
   # In case you boot into a black screen, add the following option, and rebuild:
   # services.xserver.displayManager.sddm.wayland.enable = true;
