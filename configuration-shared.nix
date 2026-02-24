@@ -143,6 +143,11 @@ in
   time.timeZone = "Europe/Brussels";
   programs.adb.enable = true;
 
+  # need this to install oxfmt, oxlint, etc from npm
+# https://github.com/nix-community/nix-ld?tab=readme-ov-file#where-is-this-useful
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = [ pkgs.gcc ];
+
   nixpkgs.config.allowUnfree = true; # For Chrome ao.
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -157,7 +162,7 @@ in
     # linphone
 
     htop jq
-    du-dust
+    dust
 
     deluge # torrents
     # mpv # media player
@@ -171,13 +176,18 @@ in
     claudeWaitNotify
 
     # vscode
-    # blender
+    blender
     # unityhub
     # omnisharp-roslyn
 
     gparted
 
     openvpn
+
+    # Nobi VPN/AWS
+    awscli2
+    kubectl
+    # Nobi VPN/AWS - END
 
     # pgformatter
 
@@ -211,6 +221,8 @@ in
     libreoffice
 
     vlc
+
+    mermaid-cli
     
 
     # cockroachdb
@@ -283,9 +295,7 @@ in
     # };
   };
 
-  systemd.extraConfig = ''
-    DefaultTimeoutStopSec=10s
-  '';
+  systemd.settings.Manager.DefaultTimeoutStopSec = "10s";
 
 
   # Some programs need SUID wrappers, can be configured further or are

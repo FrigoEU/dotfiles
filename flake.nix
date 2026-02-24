@@ -1,14 +1,18 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-25.05";
+    nixpkgs.url = "nixpkgs/nixos-25.11";
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware"; 
     }; 
     llm-agents.url = "github:numtide/llm-agents.nix";
+    awsvpnclient-nix = {
+      url = "github:AddG0/awsvpnclient-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # emacs-overlay = { url    = "github:nix-community/emacs-overlay"; inputs = { nixpkgs.follows = "nixpkgs"; }; }; 
   }; 
   outputs = {
-    self, nixpkgs, nixos-hardware, llm-agents # , emacs-overlay
+    self, nixpkgs, nixos-hardware, llm-agents, awsvpnclient-nix # , emacs-overlay
   }: 
     let
       # overlay = final: prev: (
@@ -51,7 +55,12 @@
             "${nixos-hardware}/common/pc/ssd"
             ./hardware-configuration-slim5.nix
             # ./conf-default.nix
-
+            # Nobi VPN
+            awsvpnclient-nix.nixosModules.default
+            {
+              programs.awsvpnclient.enable = true;
+            }
+            # Nobi VPN - END
             ({config, pkgs, lib, ...}: 
               import ./configuration-shared.nix {
                 inherit config;
