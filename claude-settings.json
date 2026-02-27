@@ -9,6 +9,7 @@
       "Bash(git commit:*)",
       "Bash(git stash:*)",
       "Bash(git status:*)",
+      "Bash(git show:*)",
       "Bash(make:*)",
       "Bash(mkdir:*)",
       "Bash(npm run:*)",
