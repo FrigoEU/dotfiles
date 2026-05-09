@@ -223,7 +223,10 @@ in
     vlc
 
     mermaid-cli
-    
+
+    # mail
+    isync
+    mu
 
     # cockroachdb
 
