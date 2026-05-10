@@ -7,6 +7,7 @@ ln -s $PWD/.bashrc ~/.bashrc
 ln -s $PWD/.spacemacs ~/.spacemacs
 ln -s $PWD/.alacritty.yml ~/.alacritty.yml
 ln -s $PWD/.mbsyncrc ~/.mbsyncrc
+ln -s $PWD/.msmtprc ~/.msmtprc  # NB: dotfiles/.msmtprc must be chmod 600
 
 mkdir -p ~/.config/direnv
 ln -s $PWD/.direnv.toml ~/.config/direnv/direnv.toml

@@ -233,6 +233,7 @@ in
     # mail
     isync
     mu
+    msmtp
 
     # cockroachdb
 
