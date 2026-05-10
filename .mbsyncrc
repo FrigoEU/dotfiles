@@ -1,0 +1,32 @@
+# Gmail account
+# Auth: app password from .secrets (env var GOOGLE_APP_PASSWORD)
+# Generate at https://myaccount.google.com/apppasswords
+
+IMAPAccount gmail
+Host imap.gmail.com
+Port 993
+User simon.van.casteren@gmail.com
+PassCmd "printf %s \"$GOOGLE_APP_PASSWORD\""
+TLSType IMAPS
+AuthMechs LOGIN
+PipelineDepth 50
+# NixOS: use system CA bundle
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore gmail-remote
+Account gmail
+
+MaildirStore gmail-local
+SubFolders Verbatim
+Path ~/Mail/gmail/
+Inbox ~/Mail/gmail/Inbox
+
+Channel gmail-inbox
+Far :gmail-remote:"INBOX"
+Near :gmail-local:Inbox
+Create Both
+Expunge Both
+SyncState *
+
+Group gmail
+Channel gmail-inbox

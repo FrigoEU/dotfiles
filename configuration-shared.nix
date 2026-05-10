@@ -10,6 +10,11 @@
 # # Deleted linux kernel vs 6.6.66, wasn't used anywhere, was from previous attempt but was not cleaned up, use "> uname -r" to get current kernel version
 # # Deleted Windows Asian font files, eg: /boot/EFI/Microsoft/Boot/Fonts/kor_boot.ttf
 #
+# Also, kernels from old generations are being added again, so remove old generations with:
+# sudo nix-env --delete-generations +3 -p /nix/var/nix/profiles/system
+# sudo nix-collect-garbage
+# sudo nixos-rebuild boot
+#
 # See also: https://discourse.nixos.org/t/no-space-left-on-boot/24019/20
 
 { config, pkgs, lib, llm-agents }:
@@ -156,6 +161,7 @@ in
 
     ((emacsPackagesFor emacs).emacsWithPackages (epkgs: [
       epkgs.vterm
+      epkgs.mu4e
       # epkgs.treesit-grammars.with-all-grammars
     ]))
 
@@ -242,7 +248,7 @@ in
     python312Packages.google-generativeai
 
     llm-agents.claude-code
-    llm-agents.claude-code-acp
+    llm-agents.claude-agent-acp
     llm-agents.vibe-kanban
 
   ];
