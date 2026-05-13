@@ -375,6 +375,21 @@ in
   # services.xserver.desktopManager.plasma5.enable = true;
   services.desktopManager.plasma6.enable = true;
 
+  # Baloo is some stupid file indexing thing that keeps spinning my laptop fan.
+  # excludePackages does not work here: baloorunner ships inside plasma-workspace,
+  # so the binary is always present. Disable it via user config on every session start.
+  environment.etc."xdg/plasma-workspace/env/20-disable-baloo.sh" = {
+    mode = "0755";
+    text = ''
+      #!${pkgs.runtimeShell}
+      ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
+        --file baloofilerc \
+        --group "Basic Settings" \
+        --key "Indexing-Enabled" \
+        false
+    '';
+  };
+
   # Don't restart emacs every time (vterm will not work): start with an empty session
   environment.etc."xdg/plasma-workspace/env/10-force-empty-session.sh" = {
     mode = "0755";
