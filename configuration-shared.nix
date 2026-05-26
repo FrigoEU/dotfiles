@@ -39,6 +39,32 @@ let
 
     ${pkgs.pulseaudio}/bin/paplay ${claudeNotifySound}
   '';
+
+  # To bump pi-acp:
+  #   1. Set `version` to the new tag (without the leading "v").
+  #   2. Refresh `src.hash`:
+  #        nix-prefetch-url --unpack https://github.com/svkozak/pi-acp/archive/refs/tags/v<version>.tar.gz
+  #        nix hash convert --to sri --hash-algo sha256 <hash from previous command>
+  #   3. Refresh `npmDepsHash`:
+  #        curl -fsSL https://raw.githubusercontent.com/svkozak/pi-acp/v<version>/package-lock.json -o /tmp/pl.json
+  #        nix-shell -p prefetch-npm-deps --run 'prefetch-npm-deps /tmp/pl.json'
+  pi-acp = pkgs.buildNpmPackage rec {
+    pname = "pi-acp";
+    version = "0.0.27";
+    src = pkgs.fetchFromGitHub {
+      owner = "svkozak";
+      repo = "pi-acp";
+      rev = "v${version}";
+      hash = "sha256-Bb7qQkELDY175ZNmJD70LzmkcmoQL1LWAnfIxN+ttso=";
+    };
+    npmDepsHash = "sha256-EmzhcvVzrirlKh57Tl4BKVG4XLkAgdaYgdhMfpZVbRI=";
+    meta = {
+      description = "ACP adapter for the Pi coding agent";
+      homepage = "https://github.com/svkozak/pi-acp";
+      license = lib.licenses.mit;
+      mainProgram = "pi-acp";
+    };
+  };
 in
 {
   nix = {
@@ -251,6 +277,8 @@ in
     llm-agents.claude-code
     llm-agents.claude-agent-acp
     llm-agents.vibe-kanban
+    llm-agents.pi
+    pi-acp
 
   ];
 
