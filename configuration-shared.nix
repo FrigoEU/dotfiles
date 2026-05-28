@@ -250,6 +250,8 @@ in
     # luajitPackages.lua-lsp
     # jumpapp # custom neovim "workspaces" solution
 
+    difftastic
+
     libreoffice
 
     vlc
