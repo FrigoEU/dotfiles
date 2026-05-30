@@ -420,6 +420,25 @@ in
     '';
   };
 
+  # Disable KDE's screen locker: auto-login is on, so the lock screen is just
+  # friction. Sets both Autolock (idle) and LockOnResume (suspend/lid) to false.
+  environment.etc."xdg/plasma-workspace/env/30-disable-screenlocker.sh" = {
+    mode = "0755";
+    text = ''
+      #!${pkgs.runtimeShell}
+      ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
+        --file kscreenlockerrc \
+        --group Daemon \
+        --key Autolock \
+        false
+      ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
+        --file kscreenlockerrc \
+        --group Daemon \
+        --key LockOnResume \
+        false
+    '';
+  };
+
   # Don't restart emacs every time (vterm will not work): start with an empty session
   environment.etc."xdg/plasma-workspace/env/10-force-empty-session.sh" = {
     mode = "0755";
