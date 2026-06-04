@@ -31,6 +31,20 @@
           inherit system;
           modules = [
             ./hardware-configuration-desktop.nix
+            # Nobi VPN
+            awsvpnclient-nix.nixosModules.default
+            {
+              programs.awsvpnclient.enable = true;
+              # Order after systemd-resolved: the service's bwrap launcher
+              # only adds --symlink /etc/resolv.conf when the symlink resolves
+              # at start time. Otherwise the sandbox has no DNS for its
+              # whole lifetime and openvpn can't resolve the VPN endpoint.
+              systemd.services.awsvpnclient = {
+                after = [ "systemd-resolved.service" ];
+                wants = [ "systemd-resolved.service" ];
+              };
+            }
+            # Nobi VPN - END
             ({config, pkgs, lib, ...}: 
               import ./configuration-shared.nix {
                 inherit config;
@@ -59,9 +73,13 @@
             awsvpnclient-nix.nixosModules.default
             {
               programs.awsvpnclient.enable = true;
+              systemd.services.awsvpnclient = {
+                after = [ "systemd-resolved.service" ];
+                wants = [ "systemd-resolved.service" ];
+              };
             }
             # Nobi VPN - END
-            ({config, pkgs, lib, ...}: 
+            ({config, pkgs, lib, ...}:
               import ./configuration-shared.nix {
                 inherit config;
                 inherit pkgs;
