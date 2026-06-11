@@ -203,6 +203,7 @@ in
     gnumake direnv nix-direnv libnotify
     entr silver-searcher ripgrep fd
     unzip
+    unrar-free
     autoconf automake libtool
 
     claudeWaitNotify
