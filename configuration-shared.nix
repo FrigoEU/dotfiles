@@ -172,7 +172,6 @@ in
 
   # Set your time zone.
   time.timeZone = "Europe/Brussels";
-  programs.adb.enable = true;
 
   # need this to install oxfmt, oxlint, etc from npm
 # https://github.com/nix-community/nix-ld?tab=readme-ov-file#where-is-this-useful
@@ -250,6 +249,8 @@ in
     xclip # For neovim clipboard integration
     # luajitPackages.lua-lsp
     # jumpapp # custom neovim "workspaces" solution
+
+    android-tools
 
     difftastic
 
