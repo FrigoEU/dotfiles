@@ -20,6 +20,7 @@ ln -sf $PWD/lua/ ~/.config/nvim/.
 mkdir -p ~/.claude/settings
 ln -s $PWD/claude-settings.json ~/.claude/settings.json
 ln -s $PWD/claude-agents ~/.claude/agents
+ln -s $PWD/claude-keybindings.json ~/.claude/keybindings.json 
 
 mkdir -p ~/.config/doom
 ln -s $PWD/doom/init.el ~/.config/doom/init.el

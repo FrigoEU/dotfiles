@@ -1,4 +1,5 @@
 {
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "Bash(rg:*)",
@@ -16,11 +17,9 @@
       "Bash(npx tsc:*)",
       "Bash(python3:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "auto"
   },
-  "includeCoAuthoredBy": false,
-  "defaultMode": "acceptEdits",
-  "enabledPlugins": {"typescript-lsp@claude-plugins-official": true},
   "hooks": {
     "Notification": [
       {
@@ -35,5 +34,9 @@
       }
     ]
   },
-  "includeCoAuthoredBy": false
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "defaultMode": "acceptEdits",
+  "skipAutoPermissionPrompt": true
 }
