@@ -50,14 +50,14 @@ let
   #        nix-shell -p prefetch-npm-deps --run 'prefetch-npm-deps /tmp/pl.json'
   pi-acp = pkgs.buildNpmPackage rec {
     pname = "pi-acp";
-    version = "0.0.27";
+    version = "0.0.28";
     src = pkgs.fetchFromGitHub {
       owner = "svkozak";
       repo = "pi-acp";
       rev = "v${version}";
-      hash = "sha256-Bb7qQkELDY175ZNmJD70LzmkcmoQL1LWAnfIxN+ttso=";
+      hash = "sha256-Hv5AeNJTnfXAowQFSWAWzKk/03G/H2JVTS7KLafpRGg=";
     };
-    npmDepsHash = "sha256-EmzhcvVzrirlKh57Tl4BKVG4XLkAgdaYgdhMfpZVbRI=";
+    npmDepsHash = "sha256-/k//AikjjJNUkA38O/gXh4yEk/E52+ue6BI/SwRCa8k=";
     meta = {
       description = "ACP adapter for the Pi coding agent";
       homepage = "https://github.com/svkozak/pi-acp";
@@ -280,7 +280,8 @@ in
 
     llm-agents.claude-code
     llm-agents.claude-agent-acp
-    llm-agents.vibe-kanban
+    # llm-agents.vibe-kanban
+    llm-agents.omp
     llm-agents.pi
     pi-acp
 

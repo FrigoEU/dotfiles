@@ -22,6 +22,10 @@ ln -s $PWD/claude-settings.json ~/.claude/settings.json
 ln -s $PWD/claude-agents ~/.claude/agents
 ln -s $PWD/claude-keybindings.json ~/.claude/keybindings.json 
 
+mkdir -p ~/.pi/agent/extensions
+ln -s $PWD/pi-settings.json ~/.pi/agent/settings.json
+ln -s $PWD/pi-deny-files.ts ~/.pi/agent/extensions/deny-files.ts
+
 mkdir -p ~/.config/doom
 ln -s $PWD/doom/init.el ~/.config/doom/init.el
 ln -s $PWD/doom/packages.el ~/.config/doom/packages.el
