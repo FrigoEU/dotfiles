@@ -6,7 +6,9 @@
       "context": "Chat",
       "bindings": {
         "enter": "chat:newline",
-        "ctrl+j": "chat:submit"
+        "ctrl+enter": "chat:submit",
+        "alt+enter": "chat:submit",
+        "shift+enter": "chat:submit"
       }
     }
   ]
