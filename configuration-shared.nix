@@ -16,6 +16,18 @@
 # sudo nixos-rebuild boot
 #
 # See also: https://discourse.nixos.org/t/no-space-left-on-boot/24019/20
+#
+# TODO:
+# Longer-term: resize your ESP
+
+# 100MB is really small for a modern NixOS EFI partition. The sweet spot is 512MB–1GB. You can resize it without data loss:
+
+# 1. Boot a GParted live USB (or Ubuntu live ISO)
+# 2. Shrink /dev/nvme0n1p3 (your Windows NTFS partition, 1.8TB) by, say, 400MB from the left side
+# 3. Move /dev/nvme0n1p2 (MSR partition) left
+# 4. Grow /dev/nvme0n1p1 (ESP) into the freed space to ~500MB
+
+# GParted handles this safely — it moves data block-by-block. Just back up anything critical first as always with partition edits.
 
 { config, pkgs, lib, llm-agents }:
 
