@@ -36,6 +36,14 @@
     #jack.enable = true;
   };
 
+  # The Komplete Audio 1's own ALSA hardware "Playback Volume" control is
+  # separate from PipeWire's software volume and defaults to ~-35dB on Linux
+  # (Windows' driver sets it near 0dB), making output very quiet even at
+  # 100% system volume. Force it to max whenever the interface is plugged in.
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", ATTRS{idVendor}=="17cc", ATTRS{idProduct}=="1830", RUN+="${pkgs.bash}/bin/bash -c '${pkgs.alsa-utils}/bin/amixer -c K1 sset \"Komplete Audio 1  Playback Volume\" 127,127'"
+  '';
+
   # hardware.pulseaudio = {
   #   enable = true;
   #   # package = pkgs.pulseaudioFull;
