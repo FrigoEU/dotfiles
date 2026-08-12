@@ -9,6 +9,14 @@
   networking.networkmanager.enable = true;
   # programs.nm-applet.enable = true;
 
+  # Touchpad (SYNA2BA6) hits a known i2c_designware controller timeout bug on
+  # this Alder Lake platform, flooding dmesg and pinning irq/169 at ~18% CPU.
+  # Unbind it at boot until a BIOS/kernel fix lands; re-bind manually with:
+  #   echo "i2c-SYNA2BA6:00" | sudo tee /sys/bus/i2c/drivers/i2c_hid_acpi/bind
+  services.udev.extraRules = ''
+    ACTION=="bind", SUBSYSTEM=="i2c", KERNEL=="i2c-SYNA2BA6:00", RUN+="${pkgs.bash}/bin/bash -c 'echo i2c-SYNA2BA6:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/unbind'"
+  '';
+
   # networking.interfaces.enp0s31f6.useDHCP = true;
   # networking.interfaces.wlp0s20f3.useDHCP = true;
   # security.rtkit.enable = true;

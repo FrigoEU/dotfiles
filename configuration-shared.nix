@@ -214,7 +214,7 @@ in
     gnumake direnv nix-direnv libnotify
     entr silver-searcher ripgrep fd
     unzip
-    unrar-free
+    unar # = unrar
     autoconf automake libtool
 
     claudeWaitNotify
@@ -244,6 +244,7 @@ in
     # jetbrains.idea-community
     # maven
 
+    inkscape
 
     pragmatapro
 
@@ -265,6 +266,7 @@ in
     android-tools
 
     difftastic
+    delta
 
     libreoffice
 
@@ -286,14 +288,14 @@ in
     # ])) # edbi -> dbi:Pg:dbname=urwebschool
 
     # Aider / Aidermacs
-    aider-chat
-    python312Packages.pip
-    python312Packages.google-generativeai
+    # aider-chat
+    # python312Packages.pip
+    # python312Packages.google-generativeai
 
     llm-agents.claude-code
     llm-agents.claude-agent-acp
     # llm-agents.vibe-kanban
-    llm-agents.omp
+    # llm-agents.omp
     llm-agents.pi
     pi-acp
 
@@ -476,7 +478,7 @@ in
   services.displayManager.autoLogin.user = "simon";
   services.displayManager.autoLogin.enable = true;
   security.pam.services.sddm.enableKwallet = true;
-  services.libinput.mouse.leftHanded = true;
+  services.libinput.mouse.leftHanded = false;
 
   # OLD
   # environment.variables.PLASMA_USE_QT_SCALING = "1";
