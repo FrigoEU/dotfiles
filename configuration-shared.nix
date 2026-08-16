@@ -279,6 +279,9 @@ in
     mu
     msmtp
 
+    # Launchers
+    fuzzel
+
     # cockroachdb
 
     # (perl.withPackages(p: with p; [
@@ -381,6 +384,8 @@ in
       443
       80
 
+      1883 # Nobi MQTT testing = Standard No-TLS MQTT port
+
       # chromecasting
       # 8008
       # 8009
@@ -422,53 +427,8 @@ in
   # services.xserver.desktopManager.plasma5.enable = true;
   services.desktopManager.plasma6.enable = true;
 
-  # Baloo is some stupid file indexing thing that keeps spinning my laptop fan.
-  # excludePackages does not work here: baloorunner ships inside plasma-workspace,
-  # so the binary is always present. Disable it via user config on every session start.
-  environment.etc."xdg/plasma-workspace/env/20-disable-baloo.sh" = {
-    mode = "0755";
-    text = ''
-      #!${pkgs.runtimeShell}
-      ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
-        --file baloofilerc \
-        --group "Basic Settings" \
-        --key "Indexing-Enabled" \
-        false
-    '';
-  };
-
-  # Disable KDE's screen locker: auto-login is on, so the lock screen is just
-  # friction. Sets both Autolock (idle) and LockOnResume (suspend/lid) to false.
-  environment.etc."xdg/plasma-workspace/env/30-disable-screenlocker.sh" = {
-    mode = "0755";
-    text = ''
-      #!${pkgs.runtimeShell}
-      ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
-        --file kscreenlockerrc \
-        --group Daemon \
-        --key Autolock \
-        false
-      ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
-        --file kscreenlockerrc \
-        --group Daemon \
-        --key LockOnResume \
-        false
-    '';
-  };
-
-  # Don't restart emacs every time (vterm will not work): start with an empty session
-  environment.etc."xdg/plasma-workspace/env/10-force-empty-session.sh" = {
-    mode = "0755";
-    text = ''
-      #!${pkgs.runtimeShell}
-      # Force KDE to always start with an empty session
-      ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
-        --file ksmserverrc \
-        --group General \
-        --key loginMode \
-        emptySession
-    '';
-  };
+  # Baloo indexing, screen locker, empty-session, and Meta-to-fuzzel are now
+  # managed declaratively via plasma-manager in home.nix.
 
   # In case you boot into a black screen, add the following option, and rebuild:
   # services.xserver.displayManager.sddm.wayland.enable = true;
