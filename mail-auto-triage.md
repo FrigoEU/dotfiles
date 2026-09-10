@@ -10,7 +10,7 @@ I want 3 typescript scripts in a new project folder at ~/projects/email-triage-s
 
 Order from new to old. Chunk per 4 emails, don't start the next chunk until the full agent flow is done for all 4 (so to avoid starting 50 agents and them all immediately stopping because tokens are gone).
 
-First check that this email isn't handled yet: Look at ~/email-triage-school (name = <threadid+lastemailstamp>.json). If the file exists there, skip completely.
+First check that this email isn't handled yet: Look at ~/projects/email-triage-school/emails (name = <threadid+lastemailstamp>.json). If the file exists there, skip completely.
 
 Start a pi agent process with cwd="~/projects/school" with the following prompt (make sure it's easy for me to finetune this later):
 <prompt>

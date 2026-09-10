@@ -49,8 +49,19 @@ Create Both
 Expunge Both
 SyncState *
 
+# Support-triage label (see ~/projects/email-triage-school): synced so mu can
+# see labeled messages that aren't in the Inbox (Gmail labels aren't visible
+# via IMAP folder sync unless each label gets its own channel like this).
+Channel gmail-triage
+Far :gmail-remote:"EmailTriage"
+Near :gmail-local:"EmailTriage"
+Create Both
+Expunge Both
+SyncState *
+
 Group gmail
 Channel gmail-inbox
 Channel gmail-sent
 Channel gmail-drafts
 Channel gmail-trash
+Channel gmail-triage

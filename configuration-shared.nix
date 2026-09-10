@@ -357,6 +357,35 @@ in
 
   systemd.settings.Manager.DefaultTimeoutStopSec = "10s";
 
+  # ~/projects/email-triage-school: download mail, then triage unread
+  # classy.school / EmailTriage-labeled threads with a Claude Code agent per
+  # thread. `nix develop` picks up that project's own flake.nix for
+  # node/tsx; mbsync/mu/msmtp/claude-code are already in systemPackages
+  # above. Test manually with `systemctl start email-triage`, watch with
+  # `journalctl -u email-triage -f`.
+  systemd.services.email-triage = {
+    description = "Download mail, then run classy.school email-triage agents";
+    serviceConfig = {
+      Type = "oneshot";
+      User = "simon";
+      WorkingDirectory = "/home/simon/projects/email-triage-school";
+      ExecStart = pkgs.writeShellScript "email-triage-run" ''
+        set -e
+        cd /home/simon/projects/email-triage-school
+        ${pkgs.nix}/bin/nix develop --command sh -c "npx tsx download.ts && npx tsx triage.ts"
+      '';
+    };
+  };
+
+  systemd.timers.email-triage = {
+    description = "Run email-triage at 2am and 7am";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = [ "02:00" "07:00" ];
+      Persistent = true;
+    };
+  };
+
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
