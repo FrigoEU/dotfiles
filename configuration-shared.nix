@@ -372,7 +372,7 @@ in
       ExecStart = pkgs.writeShellScript "email-triage-run" ''
         set -e
         cd /home/simon/projects/email-triage-school
-        ${pkgs.nix}/bin/nix develop --command sh -c "npx tsx download.ts && npx tsx triage.ts"
+        ${pkgs.nix}/bin/nix develop --command sh -c "npx tsx download.ts; npx tsx triage.ts"
       '';
     };
   };

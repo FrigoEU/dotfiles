@@ -24,6 +24,10 @@ in
     ".claude/agents".source = mkLink ./claude-agents;
     ".claude/keybindings.json".source = mkLink ./claude-keybindings.json;
 
+    ".claude-company/settings.json".source = mkLink ./claude-settings.json;
+    ".claude-company/agents".source = mkLink ./claude-agents;
+    ".claude-company/keybindings.json".source = mkLink ./claude-keybindings.json;
+
     ".pi/agent/settings.json".source = mkLink ./pi-settings.json;
     ".pi/agent/extensions/deny-files.ts".source = mkLink ./pi-deny-files.ts;
   };
