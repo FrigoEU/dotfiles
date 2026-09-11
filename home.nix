@@ -74,4 +74,25 @@ in
       kglobalshortcutsrc."services][fuzzel.desktop"._launch = "Meta";
     };
   };
+
+  # ~/projects/email-triage-school's review dashboard, on
+  # http://localhost:4100. A *user* service, not a system one like
+  # email-triage.service: the row actions shell out to emacsclient, which
+  # needs the running session's XDG_RUNTIME_DIR to find the daemon socket.
+  # `nix develop` picks up that project's own flake.nix for node/tsx; the
+  # appended PATH puts git and emacsclient back, since the dev shell replaces
+  # PATH rather than extending it. Watch with
+  # `journalctl --user -u email-triage-server -f`.
+  systemd.user.services.email-triage-server = {
+    Unit.Description = "classy.school email-triage review dashboard";
+    Install.WantedBy = [ "default.target" ];
+    Service = {
+      ExecStart = pkgs.writeShellScript "email-triage-server-run" ''
+        cd /home/simon/projects/email-triage-school
+        exec ${pkgs.nix}/bin/nix develop --command sh -c 'PATH="$PATH:/run/wrappers/bin:/etc/profiles/per-user/simon/bin:/run/current-system/sw/bin" exec npx tsx server.tsx'
+      '';
+      Restart = "always";
+      RestartSec = 5;
+    };
+  };
 }
