@@ -381,7 +381,7 @@ in
     description = "Run email-triage at 2am and 7am";
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnCalendar = [ "02:00" "07:00" ];
+      OnCalendar = [ "02:00" "07:00" "22:00" ];
       Persistent = true;
     };
   };
