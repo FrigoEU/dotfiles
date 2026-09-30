@@ -248,8 +248,6 @@ in
 
     pragmatapro
 
-    bitwarden-desktop
-
     # chrysalis
 
     # zoom-us
