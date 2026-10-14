@@ -1,5 +1,6 @@
 {
   "includeCoAuthoredBy": false,
+  "outputStyle": "Concise",
   "permissions": {
     "allow": [
       "Bash(rg:*)",

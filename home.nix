@@ -22,10 +22,12 @@ in
 
     ".claude/settings.json".source = mkLink ./claude-settings.json;
     ".claude/agents".source = mkLink ./claude-agents;
+    ".claude/output-styles".source = mkLink ./claude-output-styles;
     ".claude/keybindings.json".source = mkLink ./claude-keybindings.json;
 
     ".claude-company/settings.json".source = mkLink ./claude-settings.json;
     ".claude-company/agents".source = mkLink ./claude-agents;
+    ".claude-company/output-styles".source = mkLink ./claude-output-styles;
     ".claude-company/keybindings.json".source = mkLink ./claude-keybindings.json;
 
     ".pi/agent/settings.json".source = mkLink ./pi-settings.json;

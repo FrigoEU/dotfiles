@@ -290,6 +290,8 @@ in
     #   DBDPg
     # ])) # edbi -> dbi:Pg:dbname=urwebschool
 
+    python3
+
     # Aider / Aidermacs
     # aider-chat
     # python312Packages.pip
