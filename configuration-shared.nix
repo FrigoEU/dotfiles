@@ -228,10 +228,11 @@ in
 
     openvpn
 
-    # Nobi VPN/AWS
+    # Nobi AWS
+    tailscale
     awscli2
     kubectl
-    # Nobi VPN/AWS - END
+    # Nobi AWS - END
 
     # pgformatter
 

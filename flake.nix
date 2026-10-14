@@ -5,10 +5,6 @@
       url = "github:NixOS/nixos-hardware"; 
     }; 
     llm-agents.url = "github:numtide/llm-agents.nix";
-    awsvpnclient-nix = {
-      url = "github:AddG0/awsvpnclient-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,7 +17,7 @@
     # emacs-overlay = { url    = "github:nix-community/emacs-overlay"; inputs = { nixpkgs.follows = "nixpkgs"; }; };
   };
   outputs = {
-    self, nixpkgs, nixos-hardware, llm-agents, awsvpnclient-nix, home-manager, plasma-manager # , emacs-overlay
+    self, nixpkgs, nixos-hardware, llm-agents, home-manager, plasma-manager # , emacs-overlay
   }:
     let
       # overlay = final: prev: (
@@ -40,20 +36,6 @@
           inherit system;
           modules = [
             ./hardware-configuration-desktop.nix
-            # Nobi VPN
-            awsvpnclient-nix.nixosModules.default
-            {
-              programs.awsvpnclient.enable = true;
-              # Order after systemd-resolved: the service's bwrap launcher
-              # only adds --symlink /etc/resolv.conf when the symlink resolves
-              # at start time. Otherwise the sandbox has no DNS for its
-              # whole lifetime and openvpn can't resolve the VPN endpoint.
-              systemd.services.awsvpnclient = {
-                after = [ "systemd-resolved.service" ];
-                wants = [ "systemd-resolved.service" ];
-              };
-            }
-            # Nobi VPN - END
             ({config, pkgs, lib, ...}: 
               import ./configuration-shared.nix {
                 inherit config;
@@ -85,16 +67,6 @@
             "${nixos-hardware}/common/pc/ssd"
             ./hardware-configuration-slim5.nix
             # ./conf-default.nix
-            # Nobi VPN
-            awsvpnclient-nix.nixosModules.default
-            {
-              programs.awsvpnclient.enable = true;
-              systemd.services.awsvpnclient = {
-                after = [ "systemd-resolved.service" ];
-                wants = [ "systemd-resolved.service" ];
-              };
-            }
-            # Nobi VPN - END
             ({config, pkgs, lib, ...}:
               import ./configuration-shared.nix {
                 inherit config;
