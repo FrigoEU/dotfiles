@@ -85,6 +85,8 @@ in
   # appended PATH puts git and emacsclient back, since the dev shell replaces
   # PATH rather than extending it. Watch with
   # `journalctl --user -u email-triage-server -f`.
+  #
+  # > systemctl --user restart email-triage-server
   systemd.user.services.email-triage-server = {
     Unit.Description = "classy.school email-triage review dashboard";
     Install.WantedBy = [ "default.target" ];

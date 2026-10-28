@@ -228,10 +228,11 @@ in
 
     openvpn
 
-    # Nobi AWS
+    # Nobi
     awscli2
     kubectl
-    # Nobi AWS - END
+    github-cli
+    # Nobi - END
 
     # pgformatter
 
@@ -395,6 +396,44 @@ in
     timerConfig = {
       OnCalendar = [ "02:00" "07:00" "18:00" "22:00" ];
       Persistent = true;
+    };
+  };
+
+  # ~/projects/school: re-verify prospects with a headless Claude Code agent
+  # until the usage limit is hit (or 08:00, see STOP_AT_HOUR in
+  # typescript/ai/subprograms/claude-verify-prospects.ts). Needs the prod db
+  # on localhost:4000: reuses an open `make tunnel_pg`, else opens its own
+  # (needs an ssh key usable without the agent). A timer firing while the
+  # previous run is still busy is a no-op. Test manually with
+  # `systemctl start prospect-verify`, watch with `journalctl -u prospect-verify -f`.
+  systemd.services.prospect-verify = {
+    description = "Verify classy.school prospects with Claude Code agents";
+    serviceConfig = {
+      Type = "oneshot";
+      User = "simon";
+      WorkingDirectory = "/home/simon/projects/school";
+      TimeoutStartSec = "10h";
+      ExecStart = pkgs.writeShellScript "prospect-verify-run" ''
+        set -eu
+        export PATH="$PATH:/run/wrappers/bin:/etc/profiles/per-user/simon/bin:/run/current-system/sw/bin"
+        cd /home/simon/projects/school
+        if ! ${pkgs.netcat}/bin/nc -z localhost 4000; then
+          ${pkgs.openssh}/bin/ssh -N -o BatchMode=yes -o ExitOnForwardFailure=yes \
+            -L 4000:localhost:5432 root@classyprod &
+          tunnel=$!
+          trap 'kill $tunnel' EXIT
+          for _ in $(seq 20); do ${pkgs.netcat}/bin/nc -z localhost 4000 && break; sleep 1; done
+        fi
+        ${pkgs.nix}/bin/nix develop --command npm run ai -- --verify-prospects-claude
+      '';
+    };
+  };
+
+  systemd.timers.prospect-verify = {
+    description = "Run prospect-verify at 23:00";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = [ "23:00" ];
     };
   };
 
