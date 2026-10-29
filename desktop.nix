@@ -17,6 +17,13 @@
   hardware.nvidia.open = false;
   hardware.bluetooth.enable = true;
 
+  # Suspend (deep/S3) after 30 min idle. Background jobs block this with a
+  # sleep inhibitor, see classy.nix.
+  home-manager.users.simon.programs.plasma.powerdevil.AC.autoSuspend = {
+    action = "sleep";
+    idleTimeout = 1800;
+  };
+
   # services.plex = {
   #  enable = true;
   #  openFirewall = true;

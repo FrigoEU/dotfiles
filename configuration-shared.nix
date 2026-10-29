@@ -77,8 +77,11 @@ let
       mainProgram = "pi-acp";
     };
   };
+
 in
 {
+  imports = [ ./classy.nix ];
+
   nix = {
     package = pkgs.nixVersions.stable;
     # keep-outputs + keep-derivations: for nix-direnv
@@ -103,59 +106,6 @@ in
 159.69.6.177 classyacc
 159.69.6.177 prodtest3.classy.school
   '';
-  # 192.168.202.235 showroom
-  # 192.168.202.240 showroom_500
-  # 94.107.215.44 translations
-  # 10.121.0.16 kl0063.aperigroup.com
-  # 10.131.0.16 flightcase
-  # 172.16.100.253 aperiproxy
-  # # Keiheuvel
-  # 10.21.16.87 keiheuvel
-  # 10.21.16.95 puthof
-  # 10.21.16.27 diepenbroeck
-  # 10.21.16.97 labo
-  # 10.21.16.77 vauban
-  # 192.168.50.30 kl2376.aperigroup.com
-  # # Jacky Maes
-  # 10.120.0.20 kl9861.aperigroup.com
-  # 192.168.50.17 kl9999.aperigroup.com
-  # # De Vijvers
-  # 10.107.4.16 kl0044.aperigroup.com
-  # 192.168.50.18 webrtcdemo.aperigroup.com
-  # 172.20.4.20 kl0091.aperigroup.com
-  # 10.210.0.15 kl0108.aperigroup.com
-  # 10.141.0.15 kl2050.aperigroup.com
-
-  # 10.141.1.127
-
-  # The global useDHCP flag is deprecated, therefore explicitly set to false here.
-  # Per-interface useDHCP will be mandatory in the future, so this generated config
-  # replicates the default behaviour.
-  # networking.useDHCP = false;
-  # networking.interfaces.br-5f63e8c54cf3.useDHCP = true;
-  # networking.interfaces.br-641ea6177424.useDHCP = true;
-  # networking.interfaces.br-6a08ed9bc73d.useDHCP = true;
-  # networking.interfaces.br-89dd2147bcac.useDHCP = true;
-  # networking.interfaces.br-c11bc3afca50.useDHCP = true;
-  # networking.interfaces.br-d3743917c436.useDHCP = true;
-  # networking.interfaces.br-e30495c9b7e6.useDHCP = true;
-  # networking.interfaces.br-f49da29c9eb0.useDHCP = true;
-  # networking.interfaces.docker0.useDHCP = true;
-  # networking.interfaces.enp0s31f6.useDHCP = true;
-
-  # networking.defaultGateway = "192.168.1.1";
-  # networking.nameservers = [ "8.8.8.8" ];
-  # networking.interfaces.enp0s31f6.ipv4.addresses = [ {
-  #   address = "192.168.1.2";
-  #   prefixLength = 24;
-  # } ];
-
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Select internationalisation properties.plasma
 
   i18n = {
     defaultLocale = "en_US.UTF-8";
@@ -369,74 +319,6 @@ in
   };
 
   systemd.settings.Manager.DefaultTimeoutStopSec = "10s";
-
-  # ~/projects/email-triage-school: download mail, then triage unread
-  # classy.school / EmailTriage-labeled threads with a Claude Code agent per
-  # thread. `nix develop` picks up that project's own flake.nix for
-  # node/tsx; mbsync/mu/msmtp/claude-code are already in systemPackages
-  # above. Test manually with `systemctl start email-triage`, watch with
-  # `journalctl -u email-triage -f`.
-  systemd.services.email-triage = {
-    description = "Download mail, then run classy.school email-triage agents";
-    serviceConfig = {
-      Type = "oneshot";
-      User = "simon";
-      WorkingDirectory = "/home/simon/projects/email-triage-school";
-      ExecStart = pkgs.writeShellScript "email-triage-run" ''
-        set -e
-        cd /home/simon/projects/email-triage-school
-        ${pkgs.nix}/bin/nix develop --command sh -c "npx tsx download.ts; npx tsx triage.ts"
-      '';
-    };
-  };
-
-  systemd.timers.email-triage = {
-    description = "Run email-triage at 2am and 7am";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = [ "02:00" "07:00" "18:00" "22:00" ];
-      Persistent = true;
-    };
-  };
-
-  # ~/projects/school: re-verify prospects with a headless Claude Code agent
-  # until the usage limit is hit (or 08:00, see STOP_AT_HOUR in
-  # typescript/ai/subprograms/claude-verify-prospects.ts). Needs the prod db
-  # on localhost:4000: reuses an open `make tunnel_pg`, else opens its own
-  # (needs an ssh key usable without the agent). A timer firing while the
-  # previous run is still busy is a no-op. Test manually with
-  # `systemctl start prospect-verify`, watch with `journalctl -u prospect-verify -f`.
-  systemd.services.prospect-verify = {
-    description = "Verify classy.school prospects with Claude Code agents";
-    serviceConfig = {
-      Type = "oneshot";
-      User = "simon";
-      WorkingDirectory = "/home/simon/projects/school";
-      TimeoutStartSec = "10h";
-      ExecStart = pkgs.writeShellScript "prospect-verify-run" ''
-        set -eu
-        export PATH="$PATH:/run/wrappers/bin:/etc/profiles/per-user/simon/bin:/run/current-system/sw/bin"
-        cd /home/simon/projects/school
-        if ! ${pkgs.netcat}/bin/nc -z localhost 4000; then
-          ${pkgs.openssh}/bin/ssh -N -o BatchMode=yes -o ExitOnForwardFailure=yes \
-            -L 4000:localhost:5432 root@classyprod &
-          tunnel=$!
-          trap 'kill $tunnel' EXIT
-          for _ in $(seq 20); do ${pkgs.netcat}/bin/nc -z localhost 4000 && break; sleep 1; done
-        fi
-        ${pkgs.nix}/bin/nix develop --command npm run ai -- --verify-prospects-claude
-      '';
-    };
-  };
-
-  systemd.timers.prospect-verify = {
-    description = "Run prospect-verify at 23:00";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = [ "23:00" ];
-    };
-  };
-
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
