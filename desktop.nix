@@ -1,5 +1,7 @@
 { config, pkgs, lib, ... }:
 {
+  imports = [ ./classy.nix ];
+
   networking.hostName = "nixos-desktop"; # Define your hostname.
   services.xserver.xkb.layout = "us";
 

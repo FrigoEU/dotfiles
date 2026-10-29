@@ -80,8 +80,6 @@ let
 
 in
 {
-  imports = [ ./classy.nix ];
-
   nix = {
     package = pkgs.nixVersions.stable;
     # keep-outputs + keep-derivations: for nix-direnv
