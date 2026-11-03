@@ -34,6 +34,33 @@ let
       '';
     };
   };
+
+  # Shell snippets for jobs whose timer wakes the PC: remember whether this
+  # run woke it (resume in the last 10 minutes), and afterwards suspend again
+  # only then, and only if nobody is using it.
+  setWokeFlag = ''
+    woke=0
+    if ${pkgs.systemd}/bin/journalctl -q -b -u systemd-suspend.service --since "-10min" \
+         | ${pkgs.gnugrep}/bin/grep -qEi "returned from sleep|resumed"; then
+      woke=1
+    fi
+  '';
+  suspendIfWokeAndIdle = ''
+    if [ "$woke" != 1 ]; then
+      echo "PC was already awake, not suspending"
+      exit 0
+    fi
+    # someone came back to the PC in the meantime?
+    for s in $(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}'); do
+      if [ "$(${pkgs.systemd}/bin/loginctl show-session "$s" -p IdleHint --value)" = "no" ] \
+         && [ "$(${pkgs.systemd}/bin/loginctl show-session "$s" -p Active --value)" = "yes" ]; then
+        echo "session $s is in use, not suspending"
+        exit 0
+      fi
+    done
+    # inhibitors (video playing, ...) still block this
+    ${pkgs.systemd}/bin/systemctl suspend || echo "suspend refused (inhibitor?)"
+  '';
 in
 {
   # Let simon's background jobs (no login session) hold a sleep inhibitor,
@@ -69,11 +96,37 @@ in
   };
 
   systemd.timers.email-triage = {
-    description = "Run email-triage at 2am and 7am";
+    description = "Run email-triage at 6pm and 10pm";
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnCalendar = [ "02:00" "07:00" "18:00" "22:00" ];
+      OnCalendar = [ "18:00" "22:00" ];
       Persistent = true;
+    };
+  };
+
+  # Night runs wake the PC (like sales-nightly) and put it back to sleep.
+  # 
+  # Not sure if it's smart to break it into two runs: one before midnight and one after...
+  # Just think it adds complexity... The only difference is the wake mechanism and persistent yes/no
+  systemd.services.email-triage-night = {
+    description = "Wake for email-triage, then suspend again";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "email-triage-night-run" ''
+        set -u
+        ${setWokeFlag}
+        ${pkgs.systemd}/bin/systemctl start email-triage.service || echo "email-triage failed"
+        ${suspendIfWokeAndIdle}
+      '';
+    };
+  };
+
+  systemd.timers.email-triage-night = {
+    description = "Wake the PC at 2am and 7am for email-triage";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = [ "02:00" "07:00" ];
+      WakeSystem = true;
     };
   };
 
@@ -81,6 +134,7 @@ in
   # ~/projects/school/docs/SALES.md ("Schedule").
   #
   #   00:00  sales-nightly (wakes the PC from suspend)
+#   02:00, 07:00  email-triage-night (wakes the PC, suspends again the same way)
   #            email-triage → outreach-prepare → prospect-verify
   #            → suspend again, only if this timer woke the PC and nobody uses it
   #   09:00  outreach-send (Persistent: runs as soon as the PC is on)
@@ -141,32 +195,13 @@ in
       TimeoutStartSec = "12h";
       ExecStart = pkgs.writeShellScript "sales-nightly-run" ''
         set -u
-        # did this timer wake the PC? (resume in the last 10 minutes)
-        woke=0
-        if ${pkgs.systemd}/bin/journalctl -q -b -u systemd-suspend.service --since "-10min" \
-             | ${pkgs.gnugrep}/bin/grep -qEi "returned from sleep|resumed"; then
-          woke=1
-        fi
-
+        ${setWokeFlag}
         # each job failing on its own is fine, the others still run
         ${pkgs.systemd}/bin/systemctl start email-triage.service || echo "email-triage failed"
         ${pkgs.systemd}/bin/systemctl start outreach-prepare.service || echo "outreach-prepare failed"
         ${pkgs.systemd}/bin/systemctl start prospect-verify.service || echo "prospect-verify failed"
 
-        if [ "$woke" != 1 ]; then
-          echo "PC was already awake at midnight, not suspending"
-          exit 0
-        fi
-        # someone came back to the PC in the meantime?
-        for s in $(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}'); do
-          if [ "$(${pkgs.systemd}/bin/loginctl show-session "$s" -p IdleHint --value)" = "no" ] \
-             && [ "$(${pkgs.systemd}/bin/loginctl show-session "$s" -p Active --value)" = "yes" ]; then
-            echo "session $s is in use, not suspending"
-            exit 0
-          fi
-        done
-        # inhibitors (video playing, ...) still block this
-        ${pkgs.systemd}/bin/systemctl suspend || echo "suspend refused (inhibitor?)"
+        ${suspendIfWokeAndIdle}
       '';
     };
   };
