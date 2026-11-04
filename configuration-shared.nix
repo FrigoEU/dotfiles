@@ -118,6 +118,7 @@ in
       pragmatapro
       pkgs.victor-mono
       pkgs.commit-mono
+      pkgs.inter
     ];
   };
 
@@ -147,6 +148,7 @@ in
     ((emacsPackagesFor emacs).emacsWithPackages (epkgs: [
       epkgs.vterm
       epkgs.mu4e
+      epkgs.mixed-pitch
       # epkgs.treesit-grammars.with-all-grammars
     ]))
 

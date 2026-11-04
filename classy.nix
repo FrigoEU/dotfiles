@@ -12,6 +12,9 @@ let
     "OUTREACH_DEMOS=0" # 1 = /demo-setup demo per new first contact (prod tenants!)
   ];
 
+  # Claude Code account for the agents in these jobs.
+  claudeEnv = [ "CLAUDE_CONFIG_DIR=/home/simon/.claude" ];
+
   # A oneshot job in ~/projects/school, as simon, with the prod db tunnel.
   classyJob = { description, command, timeout }: {
     inherit description;
@@ -22,7 +25,7 @@ let
       User = "simon";
       WorkingDirectory = "/home/simon/projects/school";
       TimeoutStartSec = timeout;
-      Environment = outreachEnv;
+      Environment = outreachEnv ++ claudeEnv;
       ExecStart = pkgs.writeShellScript "classy-job" ''
         set -eu
         export PATH="$PATH:/run/wrappers/bin:/etc/profiles/per-user/simon/bin:/run/current-system/sw/bin"
@@ -86,6 +89,7 @@ in
       Type = "oneshot";
       User = "simon";
       WorkingDirectory = "/home/simon/projects/email-triage-school";
+      Environment = claudeEnv;
       ExecStart = pkgs.writeShellScript "email-triage-run" ''
         set -e
         cd /home/simon/projects/email-triage-school
@@ -159,7 +163,7 @@ in
   };
 
   systemd.services.outreach-prepare = classyJob {
-    description = "Outreach: stage bookkeeping + queue due mails (+ demos on Wednesday)";
+    description = "Outreach: stage bookkeeping + queue due mails (+ 5 first contacts + demos)";
     command = "npm run sales -- --prepare";
     timeout = "6h";
   };
@@ -212,6 +216,29 @@ in
     timerConfig = {
       OnCalendar = [ "00:00" ];
       WakeSystem = true;
+    };
+  };
+
+  # ~/projects/email-triage-school's review dashboard, on
+  # http://localhost:4100. A *user* service, not a system one like
+  # email-triage.service: the row actions shell out to emacsclient, which
+  # needs the running session's XDG_RUNTIME_DIR to find the daemon socket.
+  # `nix develop` picks up that project's own flake.nix for node/tsx; the
+  # appended PATH puts git and emacsclient back, since the dev shell replaces
+  # PATH rather than extending it. Watch with
+  # `journalctl --user -u email-triage-server -f`.
+  #
+  # > systemctl --user restart email-triage-server
+  home-manager.users.simon.systemd.user.services.email-triage-server = {
+    Unit.Description = "classy.school email-triage review dashboard";
+    Install.WantedBy = [ "default.target" ];
+    Service = {
+      ExecStart = pkgs.writeShellScript "email-triage-server-run" ''
+        cd /home/simon/projects/email-triage-school
+        exec ${pkgs.nix}/bin/nix develop --command sh -c 'PATH="$PATH:/run/wrappers/bin:/etc/profiles/per-user/simon/bin:/run/current-system/sw/bin" exec npx tsx server.tsx'
+      '';
+      Restart = "always";
+      RestartSec = 5;
     };
   };
 }

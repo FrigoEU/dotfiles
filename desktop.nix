@@ -17,6 +17,9 @@
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
   services.xserver.videoDrivers = ["nvidia"];
   hardware.nvidia.open = false;
+  # Save VRAM across suspend (nvidia-suspend/resume services). Without this,
+  # KWin crashes on resume from deep sleep and takes every app down with it.
+  hardware.nvidia.powerManagement.enable = true;
   hardware.bluetooth.enable = true;
 
   # Suspend (deep/S3) after 30 min idle. Background jobs block this with a
