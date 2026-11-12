@@ -151,7 +151,6 @@ in
     ((emacsPackagesFor emacs).emacsWithPackages (epkgs: [
       epkgs.vterm
       epkgs.mu4e
-      epkgs.mixed-pitch
       # epkgs.treesit-grammars.with-all-grammars
     ]))
 
@@ -167,6 +166,7 @@ in
     gnumake direnv nix-direnv libnotify
     entr silver-searcher ripgrep fd
     go-grip # local markdown preview for grip-mode (no GitHub API)
+    kdotool # lets Emacs raise the browser window on KDE Wayland
     unzip
     unar # = unrar
     autoconf automake libtool
@@ -378,7 +378,7 @@ in
   # sound.enable = true;
   nixpkgs.config.pulseaudio = true;
 
-  environment.variables.BROWSER = "firefox";
+  environment.variables.BROWSER = "google-chrome-stable";
 
   # services.compton.enable = true;
   # services.compton.backend = "xrender";
