@@ -48,6 +48,22 @@ in
     "doom/config.el".source = mkLink ./doom/config.el;
   };
 
+  # One launcher entry per Chrome profile (dirs from ~/.config/google-chrome).
+  xdg.desktopEntries = {
+    chrome-personal = {
+      name = "Chrome (Personal)";
+      exec = "google-chrome-stable --profile-directory=Default %U";
+      icon = "google-chrome";
+      categories = [ "Network" "WebBrowser" ];
+    };
+    chrome-nobi = {
+      name = "Chrome (Nobi)";
+      exec = ''google-chrome-stable "--profile-directory=Profile 3" %U'';
+      icon = "google-chrome";
+      categories = [ "Network" "WebBrowser" ];
+    };
+  };
+
   # KDE Plasma config, migrated from configuration-shared.nix's
   # environment.etc plasma-workspace login scripts (kwriteconfig6 calls).
   programs.plasma = {
