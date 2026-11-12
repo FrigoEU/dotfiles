@@ -107,6 +107,9 @@ in
 
   i18n = {
     defaultLocale = "en_US.UTF-8";
+    extraLocaleSettings = {
+      LC_TIME = "nl_BE.UTF-8";
+    };
   };
   fonts = {
     fontconfig = {
@@ -163,6 +166,7 @@ in
 
     gnumake direnv nix-direnv libnotify
     entr silver-searcher ripgrep fd
+    go-grip # local markdown preview for grip-mode (no GitHub API)
     unzip
     unar # = unrar
     autoconf automake libtool
