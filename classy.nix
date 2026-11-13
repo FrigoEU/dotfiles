@@ -98,7 +98,7 @@ in
         set -e
         cd /home/simon/projects/email-triage-school
         ${pkgs.systemd}/bin/systemd-inhibit --what=sleep --who=email-triage --why="triaging mail" \
-          ${pkgs.nix}/bin/nix develop --command sh -c "npx tsx download.ts; npx tsx triage.ts"
+          ${pkgs.nix}/bin/nix develop --command sh -c "npx tsx download.ts && npx tsx triage.ts"
       '';
     };
   };
@@ -123,6 +123,11 @@ in
       ExecStart = pkgs.writeShellScript "email-triage-night-run" ''
         set -u
         ${setWokeFlag}
+        # After resume, Wi-Fi takes a few seconds to reconnect; wait for DNS.
+        for _ in $(seq 60); do
+          ${pkgs.getent}/bin/getent hosts imap.gmail.com >/dev/null && break
+          sleep 1
+        done
         ${pkgs.systemd}/bin/systemctl start email-triage.service || echo "email-triage failed"
         ${suspendIfWokeAndIdle}
       '';
