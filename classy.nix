@@ -12,6 +12,8 @@ let
     "OUTREACH_DEMOS=1" # 1 = /demo-setup demo per new first contact (prod tenants!)
     "OUTREACH_BATCH_SIZE=5" # new first contacts per night
     "OUTREACH_MAX_DEMOS=200" # cap on Demo_Manual tenants
+    "OUTREACH_RECONNECT=1" # 1 = reconnect mails to due nurture prospects
+    "OUTREACH_RECONNECT_BATCH=3" # reconnect mails per night
   ];
 
   # Claude Code account for the agents in these jobs.
