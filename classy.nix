@@ -9,7 +9,7 @@ let
   # Start with both "0" (dry run: report mails only), flip after checking.
   outreachEnv = [
     "OUTREACH_LIVE=0" # 1 = really send mails
-    "OUTREACH_DEMOS=0" # 1 = /demo-setup demo per new first contact (prod tenants!)
+    "OUTREACH_DEMOS=1" # 1 = /demo-setup demo per new first contact (prod tenants!)
     "OUTREACH_BATCH_SIZE=5" # new first contacts per night
     "OUTREACH_MAX_DEMOS=200" # cap on Demo_Manual tenants
   ];

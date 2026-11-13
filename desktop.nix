@@ -56,6 +56,36 @@
     ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", ATTRS{idVendor}=="17cc", ATTRS{idProduct}=="1830", RUN+="${pkgs.bash}/bin/bash -c '${pkgs.alsa-utils}/bin/amixer -c K1 sset \"Komplete Audio 1 \" 127,127'"
   '';
 
+  # The Komplete Audio 1 (bus-powered, on the xHCI controller 0000:10:00.4,
+  # which has nothing else on it) sometimes doesn't come back after a cold
+  # boot or a resume from deep suspend: the port never even sees a connect.
+  # If it's missing, power-cycle its port, then fall back to rebinding the
+  # whole controller, which is what re-plugging does by hand.
+  systemd.services.komplete-audio-revive = {
+    description = "Re-enumerate Komplete Audio 1 if it went missing";
+    wantedBy = [ "multi-user.target" "suspend.target" ];
+    after = [ "multi-user.target" "suspend.target" ];
+    serviceConfig.Type = "oneshot";
+    path = [ pkgs.coreutils pkgs.gnugrep ];
+    script = ''
+      present() { grep -qx 17cc /sys/bus/usb/devices/*/idVendor 2>/dev/null; }
+      sleep 5
+      present && exit 0
+      echo "Komplete Audio 1 missing, power-cycling usb5-port2"
+      port=/sys/bus/usb/devices/5-0:1.0/usb5-port2/disable
+      if [ -e $port ]; then
+        echo 1 > $port; sleep 2; echo 0 > $port; sleep 5
+        present && { echo "back after port power-cycle"; exit 0; }
+      fi
+      echo "still missing, rebinding xHCI controller 0000:10:00.4"
+      echo 0000:10:00.4 > /sys/bus/pci/drivers/xhci_hcd/unbind
+      sleep 2
+      echo 0000:10:00.4 > /sys/bus/pci/drivers/xhci_hcd/bind
+      sleep 5
+      present && echo "back after controller rebind" || echo "still missing, re-plug by hand"
+    '';
+  };
+
   # hardware.pulseaudio = {
   #   enable = true;
   #   # package = pkgs.pulseaudioFull;
