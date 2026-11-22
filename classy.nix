@@ -29,7 +29,8 @@ let
       User = "simon";
       WorkingDirectory = "/home/simon/projects/school";
       TimeoutStartSec = timeout;
-      Environment = outreachEnv ++ claudeEnv;
+      # emacsclient (mu4e index fallback in syncMail) needs this to find the daemon
+      Environment = outreachEnv ++ claudeEnv ++ [ "XDG_RUNTIME_DIR=/run/user/1000" ];
       ExecStart = pkgs.writeShellScript "classy-job" ''
         set -eu
         export PATH="$PATH:/run/wrappers/bin:/etc/profiles/per-user/simon/bin:/run/current-system/sw/bin"
